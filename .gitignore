@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local database
+prisma/*.db
+prisma/*.db-journal
+
+# Logs
+*.log

@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  id             String      @id @default(cuid())
+  tmdbId         Int?        @unique
+  title          String
+  year           Int?
+  letterboxdUri  String?     @unique
+  posterPath     String?
+  backdropPath   String?
+  overview       String?
+  tagline        String?
+  runtime        Int?
+  genres         String?
+  watchlist      Boolean     @default(false)
+  watchlistAddedAt DateTime?
+  // A non-null rank means this movie appears in the personal Top 10.
+  // The API enforces the 1–10 range and swaps ranks atomically.
+  favoriteRank   Int?        @unique
+  imdbId         String?     @unique
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  logs           LogEntry[]
+
+  @@index([title])
+  @@index([year])
+}
+
+model LogEntry {
+  id           String   @id @default(cuid())
+  movieId      String
+  movie        Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  sourceKey    String   @unique
+  // v1 semantic identity: movie + effective watch day + rating + normalized review hash.
+  // Nullable only for entries without a trustworthy date, which are never auto-merged.
+  dedupeKey    String?  @unique
+  sourceType   String
+  sourceUri    String?
+  loggedAt     DateTime?
+  watchedAt    DateTime?
+  rating       Float?
+  review       String?
+  favorite     Boolean  @default(false)
+  rewatch      Boolean  @default(false)
+  tags         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([watchedAt])
+  @@index([movieId])
+}
