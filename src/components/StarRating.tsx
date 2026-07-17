@@ -14,7 +14,7 @@ function Star({ fill }: { fill: "empty" | "half" | "full" }) {
   return (
     <span className="relative inline-block h-[1em] w-[.95em] leading-none" aria-hidden="true">
       <span className="absolute inset-0 text-white/15">★</span>
-      {fill !== "empty" && <span className="absolute inset-0 text-emerald-300" style={fill === "half" ? { clipPath: "inset(0 50% 0 0)" } : undefined}>★</span>}
+      {fill !== "empty" && <span className="absolute inset-0 text-amber-300" style={fill === "half" ? { clipPath: "inset(0 50% 0 0)" } : undefined}>★</span>}
     </span>
   );
 }
@@ -23,7 +23,7 @@ export default function StarRating({ value = 0, onChange, readOnly = false, size
   const rating = value ?? 0;
 
   return (
-    <div className={`flex items-center gap-1 ${sizes[size]}`} aria-label={`Rating: ${rating.toFixed(1)} out of 5`}>
+    <div className={`flex items-center gap-1 ${sizes[size]}`} aria-label={`Nota: ${rating.toFixed(1)} de 5`}>
       {Array.from({ length: 5 }, (_, index) => {
         const fullValue = index + 1;
         const fill = rating >= fullValue ? "full" : rating >= fullValue - 0.5 ? "half" : "empty";
@@ -34,7 +34,7 @@ export default function StarRating({ value = 0, onChange, readOnly = false, size
             key={fullValue}
             type="button"
             className="relative rounded-sm transition hover:scale-110"
-            aria-label={`Set rating to ${fullValue - 0.5} or ${fullValue} stars`}
+            aria-label={`Definir nota como ${fullValue - 0.5} ou ${fullValue} estrelas`}
             onClick={(event) => {
               if (!onChange) return;
               const bounds = event.currentTarget.getBoundingClientRect();
@@ -45,7 +45,7 @@ export default function StarRating({ value = 0, onChange, readOnly = false, size
           </button>
         );
       })}
-      {showValue && <span className="ml-1 text-xs font-bold tabular-nums text-emerald-200">{rating.toFixed(1)}</span>}
+      {showValue && <span className="ml-1 text-xs font-bold tabular-nums text-amber-200">{rating.toFixed(1)}</span>}
     </div>
   );
 }

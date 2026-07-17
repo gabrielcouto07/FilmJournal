@@ -2,335 +2,261 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
+import type { LogEntry, Movie } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { createDiaryDedupeKey } from "@/lib/diary-dedupe";
+import { createDiaryDedupeKey, normalizeTitle } from "@/lib/diary-dedupe";
+import {
+  buildCanonicalLetterboxdImport,
+  type LetterboxdFiles,
+  type LetterboxdFilm,
+} from "@/lib/letterboxd-import";
 import { getTmdbMovie, searchTmdbMovie } from "@/lib/tmdb";
-
-type CsvRow = Record<string, string>;
-
-type ImportRecord = {
-  name: string;
-  year: number | null;
-  uri: string | null;
-  loggedAt: Date | null;
-  watchedAt: Date | null;
-  rating: number | null;
-  review: string | null;
-  rewatch: boolean;
-  tags: string | null;
-  sourceTypes: Set<string>;
-  favorite: boolean;
-};
+import { getOwnerUser } from "../src/lib/auth";
 
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 config({ path: path.join(rootDirectory, ".env.local") });
 config({ path: path.join(rootDirectory, ".env") });
 
-function parseCsv(text: string): CsvRow[] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let quoted = false;
+const exportFileNames = [
+  "diary.csv",
+  "reviews.csv",
+  "ratings.csv",
+  "watched.csv",
+  "watchlist.csv",
+  "profile.csv",
+  "likes/films.csv",
+] as const;
 
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    const nextCharacter = text[index + 1];
-
-    if (character === '"' && quoted && nextCharacter === '"') {
-      field += '"';
-      index += 1;
-    } else if (character === '"') {
-      quoted = !quoted;
-    } else if (character === "," && !quoted) {
-      row.push(field);
-      field = "";
-    } else if ((character === "\n" || character === "\r") && !quoted) {
-      if (character === "\r" && nextCharacter === "\n") {
-        index += 1;
-      }
-      row.push(field);
-      if (row.some((value) => value.length > 0)) {
-        rows.push(row);
-      }
-      row = [];
-      field = "";
-    } else {
-      field += character;
-    }
-  }
-
-  if (field.length > 0 || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-  }
-
-  const headers = (rows.shift() ?? []).map((header) => header.replace(/^\uFEFF/, "").trim());
-  return rows.map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])));
+function unionValues(...values: Array<string | null | undefined>): string {
+  return [...new Set(values.flatMap((value) => (value ?? "").split(",").map((item) => item.trim()).filter(Boolean)))].join(", ");
 }
 
-async function readCsv(relativePath: string): Promise<CsvRow[]> {
-  try {
-    return parseCsv(await readFile(path.join(rootDirectory, relativePath), "utf8"));
-  } catch {
-    return [];
-  }
-}
-
-function parseDate(value: string | undefined): Date | null {
-  if (!value) return null;
-  const date = new Date(`${value.trim()}T12:00:00.000Z`);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function parseYear(value: string | undefined): number | null {
-  const year = Number(value);
-  return Number.isInteger(year) && year > 1800 ? year : null;
-}
-
-function parseRating(value: string | undefined): number | null {
-  if (!value) return null;
-  const rating = Number(value);
-  return rating >= 0.5 && rating <= 5 ? rating : null;
-}
-
-function parseBoolean(value: string | undefined): boolean {
-  return value?.trim().toLowerCase() === "yes" || value?.trim().toLowerCase() === "true";
-}
-
-function rowToRecord(row: CsvRow, sourceType: string): ImportRecord {
-  return {
-    name: row.Name?.trim() ?? "Unknown title",
-    year: parseYear(row.Year),
-    uri: row["Letterboxd URI"]?.trim() || null,
-    loggedAt: parseDate(row.Date),
-    watchedAt: parseDate(row["Watched Date"]),
-    rating: parseRating(row.Rating),
-    review: row.Review?.trim() || null,
-    rewatch: parseBoolean(row.Rewatch),
-    tags: row.Tags?.trim() || null,
-    sourceTypes: new Set([sourceType]),
-    favorite: false,
-  };
-}
-
-function mergeRecords(records: ImportRecord[], incoming: ImportRecord): void {
-  const matchingUriRecords = records.filter((record) => incoming.uri && record.uri === incoming.uri);
-  const incomingWatchDate = incoming.watchedAt ?? incoming.loggedAt;
-  const match = matchingUriRecords.find((record) => {
-    const recordWatchDate = record.watchedAt ?? record.loggedAt;
-    return incomingWatchDate && recordWatchDate && incomingWatchDate.getTime() === recordWatchDate.getTime();
-  })
-    // A rating-only export has no watch date. Only merge it when the URI has one
-    // unambiguous existing watch; otherwise preserve potential rewatches.
-    ?? (!incoming.watchedAt && matchingUriRecords.length === 1 ? matchingUriRecords[0] : undefined);
-
-  if (!match) {
-    records.push(incoming);
-    return;
-  }
-
-  match.loggedAt ??= incoming.loggedAt;
-  match.watchedAt ??= incoming.watchedAt;
-  match.rating ??= incoming.rating;
-  match.review ??= incoming.review;
-  match.tags ??= incoming.tags;
-  match.rewatch ||= incoming.rewatch;
-  incoming.sourceTypes.forEach((sourceType) => match.sourceTypes.add(sourceType));
-}
-
-function mergeCommaValues(...values: Array<string | null | undefined>): string | null {
-  const merged = [...new Set(values.flatMap((value) => (value ?? "").split(",").map((item) => item.trim()).filter(Boolean)))];
-  return merged.length ? merged.join(", ") : null;
-}
-
-async function findOrCreateMovie(record: ImportRecord, watchlist: boolean): Promise<{ id: string }> {
-  const existing = record.uri
-    ? await prisma.movie.findUnique({ where: { letterboxdUri: record.uri } })
-    : await prisma.movie.findFirst({ where: { title: record.name, year: record.year } });
-
-  let tmdbId = existing?.tmdbId ?? null;
-  let posterPath = existing?.posterPath ?? null;
-  let backdropPath = existing?.backdropPath ?? null;
-  let overview = existing?.overview ?? null;
-  let tagline = existing?.tagline ?? null;
-  let runtime = existing?.runtime ?? null;
-  let genres = existing?.genres ?? null;
-  let imdbId = existing?.imdbId ?? null;
-
-  if (process.env.TMDB_API_KEY && (!existing || !existing.imdbId)) {
+export async function readLetterboxdExport(): Promise<LetterboxdFiles> {
+  const files: LetterboxdFiles = {};
+  await Promise.all(exportFileNames.map(async (fileName) => {
     try {
-      const match = existing?.tmdbId ? null : await searchTmdbMovie(record.name, record.year);
-      const tmdbMovieId = existing?.tmdbId ?? match?.id;
-      if (tmdbMovieId) {
-        const details = await getTmdbMovie(tmdbMovieId);
-        tmdbId = details.id;
-        posterPath = details.poster_path ?? null;
-        backdropPath = details.backdrop_path ?? null;
-        overview = details.overview ?? null;
-        tagline = details.tagline ?? null;
-        runtime = details.runtime ?? null;
-        genres = details.genres?.map((genre) => genre.name).join(", ") ?? null;
-        imdbId = details.external_ids?.imdb_id ?? null;
+      files[fileName] = await readFile(path.join(rootDirectory, fileName), "utf8");
+    } catch {
+      files[fileName] = "";
+    }
+  }));
+  return files;
+}
+
+async function findMovie(film: LetterboxdFilm): Promise<Movie | null> {
+  if (film.letterboxdUri) {
+    const byUri = await prisma.movie.findUnique({ where: { letterboxdUri: film.letterboxdUri } });
+    if (byUri) return byUri;
+  }
+  return prisma.movie.findFirst({ where: { title: film.name, year: film.year } });
+}
+
+async function saveMovie(film: LetterboxdFilm, skipMetadata: boolean): Promise<Movie> {
+  const existing = await findMovie(film);
+  let metadata = {
+    tmdbId: existing?.tmdbId ?? null,
+    posterPath: existing?.posterPath ?? null,
+    backdropPath: existing?.backdropPath ?? null,
+    overview: existing?.overview ?? null,
+    tagline: existing?.tagline ?? null,
+    runtime: existing?.runtime ?? null,
+    genres: existing?.genres ?? null,
+    imdbId: existing?.imdbId ?? null,
+    releaseDate: existing?.releaseDate ?? null,
+    tmdbRating: existing?.tmdbRating ?? null,
+    tmdbVoteCount: existing?.tmdbVoteCount ?? null,
+    directors: existing?.directors ?? null,
+    cast: existing?.cast ?? null,
+  };
+
+  if (!skipMetadata && process.env.TMDB_API_KEY && (!existing?.tmdbId || !existing.imdbId || !existing.releaseDate || !existing.directors)) {
+    try {
+      let details = existing?.tmdbId ? await getTmdbMovie(existing.tmdbId) : null;
+      const detailsYear = details?.release_date ? Number(details.release_date.slice(0, 4)) : null;
+      const identityMismatch = Boolean(details && film.year && detailsYear && detailsYear !== film.year);
+      if (!details || identityMismatch) {
+        const searchMatch = await searchTmdbMovie(film.name, film.year);
+        details = searchMatch ? await getTmdbMovie(searchMatch.id) : null;
+      }
+      const tmdbId = details?.id;
+      if (details && tmdbId) {
+        metadata = {
+          tmdbId: details.id,
+          posterPath: existing?.posterPath ?? details.poster_path ?? null,
+          backdropPath: existing?.backdropPath ?? details.backdrop_path ?? null,
+          overview: details.overview ?? existing?.overview ?? null,
+          tagline: details.tagline ?? existing?.tagline ?? null,
+          runtime: details.runtime ?? existing?.runtime ?? null,
+          genres: details.genres?.map((genre) => genre.name).join(", ") ?? existing?.genres ?? null,
+          imdbId: details.external_ids?.imdb_id ?? existing?.imdbId ?? null,
+          releaseDate: details.release_date ? new Date(`${details.release_date}T12:00:00.000Z`) : existing?.releaseDate ?? null,
+          tmdbRating: details.vote_average ?? existing?.tmdbRating ?? null,
+          tmdbVoteCount: details.vote_count ?? existing?.tmdbVoteCount ?? null,
+          directors: details.credits?.crew.filter((person) => person.job === "Director").map((person) => person.name).join(", ") || existing?.directors || null,
+          cast: details.credits?.cast.slice().sort((left, right) => left.order - right.order).slice(0, 8).map((person) => person.name).join(", ") || existing?.cast || null,
+        };
       }
     } catch (error) {
-      console.warn(`TMDb enrichment skipped for ${record.name}: ${(error as Error).message}`);
+      console.warn(`TMDb enrichment skipped for ${film.name}: ${error instanceof Error ? error.message : "unknown error"}`);
     }
   }
 
   const data = {
-    title: record.name,
-    year: record.year,
-    letterboxdUri: record.uri,
-    tmdbId,
-    posterPath,
-    backdropPath,
-    overview,
-    tagline,
-    runtime,
-    genres,
-    imdbId,
-    watchlist,
-    watchlistAddedAt: watchlist ? existing?.watchlistAddedAt ?? new Date() : existing?.watchlistAddedAt ?? null,
+    title: film.name,
+    year: film.year,
+    letterboxdUri: film.letterboxdUri,
+    ...metadata,
+    watched: film.watched || existing?.watched || false,
+    rating: film.rating ?? existing?.rating ?? null,
+    favorite: film.favorite || existing?.favorite || false,
+    watchlist: film.watchlist || existing?.watchlist || false,
+    watchlistAddedAt: film.watchlist
+      ? existing?.watchlistAddedAt ?? film.watchlistAddedAt ?? new Date()
+      : existing?.watchlistAddedAt ?? null,
   };
 
+  // Older imports could attach the first fuzzy TMDb result to the wrong film.
+  // When an exact title/year search now resolves to an identifier occupied by a
+  // different entity, release only that entity's derived metadata; its journal
+  // and collection state stay intact and it is enriched correctly later.
+  const conflicting = metadata.tmdbId
+    ? await prisma.movie.findUnique({ where: { tmdbId: metadata.tmdbId } })
+    : metadata.imdbId ? await prisma.movie.findUnique({ where: { imdbId: metadata.imdbId } }) : null;
+  if (conflicting && conflicting.id !== existing?.id) {
+    const sameIdentity = normalizeTitle(conflicting.title) === normalizeTitle(film.name) && (!conflicting.year || !film.year || Math.abs(conflicting.year - film.year) <= 1);
+    if (!sameIdentity) {
+      await prisma.movie.update({
+        where: { id: conflicting.id },
+        data: { tmdbId: null, imdbId: null, releaseDate: null, posterPath: null, backdropPath: null, overview: null, tagline: null, runtime: null, genres: null, directors: null, cast: null, tmdbRating: null, tmdbVoteCount: null },
+      });
+    }
+  }
+
+  let movie: Movie;
   if (existing) {
-    return prisma.movie.update({ where: { id: existing.id }, data });
+    movie = await prisma.movie.update({ where: { id: existing.id }, data });
+  } else if (metadata.tmdbId) {
+    const byTmdb = await prisma.movie.findUnique({ where: { tmdbId: metadata.tmdbId } });
+    movie = byTmdb
+      ? await prisma.movie.update({ where: { id: byTmdb.id }, data })
+      : await prisma.movie.create({ data });
+  } else {
+    movie = await prisma.movie.create({ data });
   }
 
-  if (tmdbId) {
-    const tmdbMovie = await prisma.movie.findUnique({ where: { tmdbId } });
-    if (tmdbMovie) {
-      return prisma.movie.update({ where: { id: tmdbMovie.id }, data });
-    }
-  }
-
-  return prisma.movie.create({ data });
-}
-
-async function importFile(records: ImportRecord[], fileName: string, sourceType: string): Promise<void> {
-  const rows = await readCsv(fileName);
-  rows.forEach((row) => mergeRecords(records, rowToRecord(row, sourceType)));
-}
-
-async function importWatchlist(): Promise<ImportRecord[]> {
-  const records: ImportRecord[] = [];
-  const rows = await readCsv("watchlist.csv");
-  rows.forEach((row) => mergeRecords(records, rowToRecord(row, "watchlist")));
-  return records;
-}
-
-async function getFavoriteUris(): Promise<Set<string>> {
-  const profileRows = await readCsv("profile.csv");
-  const favoriteFilms = profileRows[0]?.["Favorite Films"] ?? "";
-  return new Set(favoriteFilms.split(",").map((uri) => uri.trim()).filter(Boolean));
-}
-
-export async function runImport(): Promise<void> {
-  const records: ImportRecord[] = [];
-  await importFile(records, "diary.csv", "diary");
-  await importFile(records, "reviews.csv", "review");
-  await importFile(records, "ratings.csv", "rating");
-  await importFile(records, "watched.csv", "watched");
-
-  const favoriteUris = await getFavoriteUris();
-  records.forEach((record) => {
-    record.favorite = Boolean(record.uri && favoriteUris.has(record.uri));
-  });
-
-  const watchlistRecords = await importWatchlist();
-  const movieCache = new Map<string, { id: string }>();
-  const getMovie = async (record: ImportRecord, watchlist: boolean) => {
-    const key = record.uri ?? `${record.name}:${record.year ?? ""}`;
-    const cached = movieCache.get(key);
-    if (cached) {
-      if (watchlist) {
-        await prisma.movie.update({ where: { id: cached.id }, data: { watchlist: true } });
-        await prisma.movie.updateMany({ where: { id: cached.id, watchlistAddedAt: null }, data: { watchlistAddedAt: new Date() } });
+  const owner = await getOwnerUser();
+  const ownerId = owner?.id || "";
+  if (ownerId) {
+    await prisma.userMovie.upsert({
+      where: { userId_movieId: { userId: ownerId, movieId: movie.id } },
+      create: {
+        userId: ownerId,
+        movieId: movie.id,
+        watched: film.watched || false,
+        favorite: film.favorite || false,
+        watchlist: film.watchlist || false,
+        watchlistAddedAt: film.watchlist ? (film.watchlistAddedAt ?? new Date()) : null,
+        rating: film.rating ?? null,
+      },
+      update: {
+        watched: film.watched || false,
+        favorite: film.favorite || false,
+        watchlist: film.watchlist || false,
+        watchlistAddedAt: film.watchlist ? (film.watchlistAddedAt ?? new Date()) : null,
+        rating: film.rating ?? null,
       }
-      return cached;
-    }
-    const movie = await findOrCreateMovie(record, watchlist);
-    movieCache.set(key, movie);
-    return movie;
-  };
-
-  const importInBatches = async (items: ImportRecord[], watchlist: boolean) => {
-    const movies = new Map<string, { id: string }>();
-    for (let index = 0; index < items.length; index += 8) {
-      const batch = items.slice(index, index + 8);
-      const results = await Promise.all(batch.map(async (record) => [
-        record.uri ?? `${record.name}:${record.year ?? ""}`,
-        await getMovie(record, watchlist),
-      ] as const));
-      results.forEach(([key, movie]) => movies.set(key, movie));
-    }
-    return movies;
-  };
-
-  const importedMovies = await importInBatches(records, false);
-
-  for (const record of records) {
-    const movie = importedMovies.get(record.uri ?? `${record.name}:${record.year ?? ""}`)!;
-    const watchedAt = record.watchedAt ?? record.loggedAt;
-    const sourceKey = `${record.uri ?? record.name}|${watchedAt?.toISOString() ?? "undated"}`;
-    const dedupeKey = createDiaryDedupeKey({
-      movieId: movie.id,
-      watchedAt,
-      loggedAt: record.loggedAt,
-      rating: record.rating,
-      review: record.review,
     });
-    const existing = (dedupeKey ? await prisma.logEntry.findUnique({ where: { dedupeKey } }) : null)
-      ?? await prisma.logEntry.findUnique({ where: { sourceKey } });
-    const sourceType = mergeCommaValues(existing?.sourceType, [...record.sourceTypes].join(",")) ?? "import";
+  }
+
+  if (film.profileRank && movie.favoriteRank == null) {
+    const occupant = await prisma.movie.findUnique({ where: { favoriteRank: film.profileRank } });
+    if (!occupant) movie = await prisma.movie.update({ where: { id: movie.id }, data: { favoriteRank: film.profileRank } });
+  }
+  return movie;
+}
+
+function sameDay(entry: LogEntry, watchedAt: Date | null, loggedAt: Date | null): boolean {
+  const left = entry.watchedAt ?? entry.loggedAt;
+  const right = watchedAt ?? loggedAt;
+  return Boolean(left && right && left.toISOString().slice(0, 10) === right.toISOString().slice(0, 10));
+}
+
+async function saveEvents(movie: Movie, film: LetterboxdFilm): Promise<number> {
+  const existingLogs = await prisma.logEntry.findMany({ where: { movieId: movie.id }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] });
+  // Reassign event ordinals from a clean slate. This prevents a unique-key
+  // collision when two legitimate same-day URI events change sort order.
+  if (existingLogs.length) await prisma.logEntry.updateMany({ where: { movieId: movie.id }, data: { dedupeKey: null } });
+  const claimed = new Set<string>();
+  const dayOccurrences = new Map<string, number>();
+
+  for (const event of film.events) {
+    const eventDate = event.watchedAt ?? event.loggedAt;
+    const eventDay = eventDate?.toISOString().slice(0, 10) ?? "undated";
+    const occurrence = (dayOccurrences.get(eventDay) ?? 0) + 1;
+    dayOccurrences.set(eventDay, occurrence);
+    const dedupeKey = createDiaryDedupeKey({ movieId: movie.id, watchedAt: event.watchedAt, loggedAt: event.loggedAt, occurrence });
+    const sameDayCandidates = existingLogs.filter((entry) => !claimed.has(entry.id) && sameDay(entry, event.watchedAt, event.loggedAt));
+    const uriMatches = event.sourceUri ? await prisma.logEntry.findMany({ where: { sourceUri: event.sourceUri }, orderBy: { createdAt: "asc" } }) : [];
+    let existing = existingLogs.find((entry) => !claimed.has(entry.id) && entry.sourceKey === event.importKey)
+      ?? existingLogs.find((entry) => !claimed.has(entry.id) && event.sourceUri && entry.sourceUri === event.sourceUri)
+      ?? existingLogs.find((entry) => !claimed.has(entry.id) && entry.dedupeKey === dedupeKey)
+      ?? uriMatches[0]
+      ?? (sameDayCandidates.length === 1 && film.events.filter((candidate) => {
+        const date = candidate.watchedAt ?? candidate.loggedAt;
+        return date?.toISOString().slice(0, 10) === eventDay;
+      }).length === 1 ? sameDayCandidates[0] : undefined);
+
+    const owner = await getOwnerUser();
+    const ownerId = owner?.id || "";
+
+    const data = {
+      userId: ownerId,
+      movieId: movie.id,
+      sourceKey: event.importKey,
+      dedupeKey,
+      sourceType: unionValues(existing?.sourceType, event.sourceTypes.join(",")) || "letterboxd",
+      sourceUri: event.sourceUri ?? existing?.sourceUri ?? null,
+      loggedAt: event.loggedAt ?? existing?.loggedAt ?? null,
+      watchedAt: event.watchedAt ?? existing?.watchedAt ?? event.loggedAt ?? null,
+      rating: event.rating ?? existing?.rating ?? uriMatches.find((entry) => entry.rating != null)?.rating ?? null,
+      review: event.review?.trim() ? event.review : existing?.review ?? uriMatches.find((entry) => entry.review?.trim())?.review ?? null,
+      rewatch: event.rewatch || existing?.rewatch || false,
+      tags: unionValues(existing?.tags, ...uriMatches.map((entry) => entry.tags), event.tags) || null,
+      favorite: existing?.favorite || uriMatches.some((entry) => entry.favorite),
+    };
 
     if (existing) {
-      await prisma.logEntry.update({
-        where: { id: existing.id },
-        data: {
-          movieId: movie.id,
-          dedupeKey,
-          sourceType,
-          sourceUri: existing.sourceUri ?? record.uri,
-          loggedAt: existing.loggedAt ?? record.loggedAt,
-          watchedAt: existing.watchedAt ?? watchedAt,
-          rating: existing.rating ?? record.rating,
-          review: existing.review ?? record.review,
-          favorite: existing.favorite || record.favorite,
-          rewatch: existing.rewatch || record.rewatch,
-          tags: mergeCommaValues(existing.tags, record.tags),
-        },
-      });
+      const redundantIds = uriMatches.filter((entry) => entry.id !== existing?.id).map((entry) => entry.id);
+      if (redundantIds.length) await prisma.logEntry.deleteMany({ where: { id: { in: redundantIds } } });
+      existing = await prisma.logEntry.update({ where: { id: existing.id }, data });
+      if (!existingLogs.some((entry) => entry.id === existing?.id)) existingLogs.push(existing);
     } else {
-      await prisma.logEntry.create({
-        data: {
-          movieId: movie.id,
-          sourceKey,
-          dedupeKey,
-          sourceType,
-          sourceUri: record.uri,
-          loggedAt: record.loggedAt,
-          watchedAt,
-          rating: record.rating,
-          review: record.review,
-          favorite: record.favorite,
-          rewatch: record.rewatch,
-          tags: record.tags,
-        },
-      });
+      existing = await prisma.logEntry.create({ data });
+      existingLogs.push(existing);
+    }
+    claimed.add(existing.id);
+  }
+  return film.events.length;
+}
+
+export async function runImport(options: { skipMetadata?: boolean } = {}): Promise<{ films: number; events: number }> {
+  const canonical = buildCanonicalLetterboxdImport(await readLetterboxdExport());
+  let events = 0;
+  for (const film of canonical.values()) {
+    try {
+      const movie = await saveMovie(film, options.skipMetadata === true);
+      events += await saveEvents(movie, film);
+    } catch (error) {
+      console.error(`Import failed while reconciling ${film.name} (${film.year ?? "year unknown"}).`);
+      throw error;
     }
   }
-
-  await importInBatches(watchlistRecords, true);
-
-  console.log(`Imported ${records.length} log entries and ${watchlistRecords.length} watchlist movies.`);
+  console.log(`Imported ${events} canonical watch events across ${canonical.size} films. Catalog rows updated movie state only.`);
+  return { films: canonical.size, events };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  runImport()
-    .catch((error) => {
-      console.error(error);
-      process.exitCode = 1;
-    })
+  runImport({ skipMetadata: process.argv.includes("--skip-metadata") })
+    .catch((error) => { console.error(error); process.exitCode = 1; })
     .finally(() => prisma.$disconnect());
 }

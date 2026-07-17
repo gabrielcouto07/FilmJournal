@@ -1,54 +1,48 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "./ToastProvider";
+import { useAuth } from "./AuthProvider";
 
-type CollectionControlsProps = {
-  movieId: string;
-  initialWatchlist: boolean;
-  initialFavoriteRank: number | null;
-  compact?: boolean;
-};
+type Props = { movieId: string; initialWatchlist: boolean; initialFavorite: boolean; initialFavoriteRank: number | null; compact?: boolean };
+type Action = "watchlist" | "favorite" | "top10";
+type MovieResponse = { movie?: { watchlist: boolean; favorite: boolean; favoriteRank: number | null }; message?: string; error?: string };
 
-type MovieResponse = { movie?: { watchlist: boolean; favoriteRank: number | null }; message?: string; error?: string };
-
-export default function CollectionControls({ movieId, initialWatchlist, initialFavoriteRank, compact = false }: CollectionControlsProps) {
+export default function CollectionControls({ movieId, initialWatchlist, initialFavorite, initialFavoriteRank, compact = false }: Props) {
   const [watchlist, setWatchlist] = useState(initialWatchlist);
+  const [favorite, setFavorite] = useState(initialFavorite);
   const [favoriteRank, setFavoriteRank] = useState(initialFavoriteRank);
-  const [pending, setPending] = useState<"watchlist" | "favorite" | null>(null);
-  const [notice, setNotice] = useState("");
+  const [pending, setPending] = useState<Action | null>(null);
+  const { notify } = useToast();
+  const { user } = useAuth();
 
-  async function updateCollection(action: "watchlist" | "favorite", value: boolean) {
-    setPending(action);
-    setNotice("");
-    try {
-      const response = await fetch("/api/movies", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ movieId, action, value }),
-      });
-      const payload = await response.json() as MovieResponse;
-      if (!response.ok || !payload.movie) throw new Error(payload.error ?? "Could not update this collection.");
-      setWatchlist(payload.movie.watchlist);
-      setFavoriteRank(payload.movie.favoriteRank);
-      setNotice(payload.message ?? "Collection updated.");
-    } catch (error) {
-      setNotice(error instanceof Error ? error.message : "Could not update this collection.");
-    } finally {
-      setPending(null);
-    }
+  if (!user) {
+    return null;
   }
 
-  return (
-    <div className="space-y-2">
-      <div className={`flex flex-wrap gap-2 ${compact ? "" : "sm:gap-3"}`}>
-        <button type="button" onClick={() => updateCollection("watchlist", !watchlist)} disabled={pending !== null} className={watchlist ? "accent-button" : "quiet-button"}>
-          {pending === "watchlist" ? "Saving…" : watchlist ? "✓ On watchlist" : "+ Watchlist"}
-        </button>
-        <button type="button" onClick={() => updateCollection("favorite", favoriteRank == null)} disabled={pending !== null} className={favoriteRank != null ? "quiet-button border-emerald-300/35 text-emerald-100" : "quiet-button"}>
-          {pending === "favorite" ? "Saving…" : favoriteRank != null ? `★ Top 10 · #${favoriteRank}` : "☆ Add to Top 10"}
-        </button>
-      </div>
-      {notice && <p role="status" className="text-xs font-medium text-emerald-200">{notice}</p>}
-    </div>
-  );
+  async function update(action: Action, value: boolean) {
+    const previous = { watchlist, favorite, favoriteRank };
+    if (action === "watchlist") setWatchlist(value);
+    if (action === "favorite") setFavorite(value);
+    if (action === "top10" && !value) setFavoriteRank(null);
+    setPending(action);
+    try {
+      const response = await fetch("/api/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId, action, value }) });
+      const payload = await response.json() as MovieResponse;
+      if (!response.ok || !payload.movie) throw new Error(payload.error ?? "Não foi possível atualizar este filme.");
+      setWatchlist(payload.movie.watchlist);
+      setFavorite(payload.movie.favorite);
+      setFavoriteRank(payload.movie.favoriteRank);
+      notify(payload.message ?? "Filme atualizado.");
+    } catch (error) {
+      setWatchlist(previous.watchlist); setFavorite(previous.favorite); setFavoriteRank(previous.favoriteRank);
+      notify(error instanceof Error ? error.message : "Não foi possível atualizar este filme.", "error");
+    } finally { setPending(null); }
+  }
+
+  return <div className={`flex flex-wrap gap-2 ${compact ? "" : "sm:gap-3"}`}>
+    <button type="button" onClick={() => update("watchlist", !watchlist)} disabled={pending !== null} className={watchlist ? "accent-button" : "quiet-button"}>{pending === "watchlist" ? "Salvando…" : watchlist ? "✓ Na Lista" : "+ Lista"}</button>
+    <button type="button" onClick={() => update("favorite", !favorite)} disabled={pending !== null} className={favorite ? "quiet-button border-amber-300/35 text-amber-100" : "quiet-button"}>{pending === "favorite" ? "Salvando…" : favorite ? "♥ Favorito" : "♡ Favorito"}</button>
+    {!compact && <button type="button" onClick={() => update("top10", favoriteRank == null)} disabled={pending !== null} className={favoriteRank != null ? "quiet-button border-amber-300/30 text-amber-100" : "quiet-button"}>{pending === "top10" ? "Salvando…" : favoriteRank != null ? `Top 10 · #${favoriteRank}` : "+ Top 10"}</button>}
+  </div>;
 }

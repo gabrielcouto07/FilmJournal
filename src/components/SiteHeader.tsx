@@ -2,40 +2,61 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "./AuthProvider";
 
 const navigation = [
-  { href: "/", label: "Overview" },
-  { href: "/diary", label: "Diary" },
-  { href: "/watchlist", label: "Watchlist" },
+  { href: "/", label: "Visão Geral" },
+  { href: "/diary", label: "Diário" },
+  { href: "/search", label: "Descobrir" },
+  { href: "/watchlist", label: "Lista de Espera" },
   { href: "/favorites", label: "Top 10" },
-  { href: "/search", label: "Discover" },
+  { href: "/stats", label: "Estatísticas" },
+  { href: "/roulette", label: "Roleta" },
 ];
 
 export default function SiteHeader() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
-  return (
-    <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[#090b0a]/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
-        <Link href="/" className="group flex items-center gap-2" aria-label="Reel Archive home">
-          <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(119,242,161,.9)]" />
-          <span className="text-sm font-black tracking-[0.18em] text-white">REEL ARCHIVE</span>
-        </Link>
-        <nav className="flex items-center gap-1 rounded-full border border-white/[0.07] bg-white/[0.025] p-1" aria-label="Primary navigation">
-          {navigation.map((item) => {
-            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 ${active ? "bg-emerald-300 text-[#0b120e]" : "text-slate-400 hover:text-white"}`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+  return <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-[#0a0a0a]/82 backdrop-blur-2xl">
+    <div className="mx-auto flex h-16 max-w-[1480px] items-center gap-4 px-4 sm:px-7 lg:px-10">
+      <Link href="/" className="mr-auto flex shrink-0 items-center gap-2.5" aria-label="FilmJournal home">
+        <span className="grid h-7 w-7 place-items-center rounded-full border border-amber-300/30 bg-amber-300/10"><span className="h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_15px_rgba(245,197,24,.95)]" /></span>
+        <span className="hidden text-sm font-black tracking-[0.16em] text-white sm:block">FILMJOURNAL</span>
+      </Link>
+      <nav className="hidden items-center gap-0.5 rounded-full border border-white/[0.07] bg-white/[0.025] p-1 lg:flex" aria-label="Primary navigation">
+        {navigation.map((item) => {
+          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          return <Link key={item.href} href={item.href} className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${active ? "bg-amber-300 text-[#1a1400]" : "text-slate-400 hover:bg-white/[0.05] hover:text-white"}`}>{item.label}</Link>;
+        })}
+      </nav>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={() => window.dispatchEvent(new Event("open-command-palette"))} className="quiet-button gap-2 !px-3 !py-2" aria-label="Abrir busca rápida"><span aria-hidden="true">⌕</span><span className="hidden sm:inline">Busca rápida</span><kbd className="hidden rounded border border-white/10 px-1.5 py-0.5 text-[9px] text-slate-500 md:inline">⌘K</kbd></button>
+        {user ? (
+          <div className="hidden lg:flex items-center gap-3">
+            <span className="text-xs font-bold text-slate-500">{user.displayName || user.username}</span>
+            {user.role === "OWNER" && <Link href="/admin" className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${pathname.startsWith("/admin") ? "bg-amber-300 text-[#1a1400]" : "text-amber-300 hover:bg-amber-300/10"}`}>Admin</Link>}
+            <button onClick={() => logout()} className="rounded-full px-3.5 py-1.5 text-xs font-bold border border-white/[0.07] bg-white/[0.025] text-slate-400 hover:bg-white/[0.05] hover:text-white transition">Sair</button>
+          </div>
+        ) : (
+          <Link href="/login" className="hidden lg:block rounded-full px-3.5 py-1.5 text-xs font-bold bg-amber-300/10 border border-amber-300/30 text-amber-300 hover:bg-amber-300/20 transition">Entrar</Link>
+        )}
       </div>
-    </header>
-  );
+    </div>
+    <nav className="rail flex gap-1 items-center justify-between border-t border-white/[0.05] px-3 py-2 lg:hidden" aria-label="Mobile navigation">
+      <div className="flex gap-1 overflow-x-auto">
+        {navigation.map((item) => {
+          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          return <Link key={item.href} href={item.href} className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${active ? "bg-amber-300 text-black" : "text-slate-400"}`}>{item.label}</Link>;
+        })}
+      </div>
+      <div className="shrink-0 border-l border-white/10 pl-2">
+        {user ? (
+          <button onClick={() => logout()} className="rounded-full px-3 py-1.5 text-xs font-bold text-slate-400">Sair</button>
+        ) : (
+          <Link href="/login" className="rounded-full px-3 py-1.5 text-xs font-bold text-amber-300">Entrar</Link>
+        )}
+      </div>
+    </nav>
+  </header>;
 }

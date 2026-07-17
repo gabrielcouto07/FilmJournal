@@ -8,51 +8,106 @@ datasource db {
 }
 
 model Movie {
-  id             String      @id @default(cuid())
-  tmdbId         Int?        @unique
-  title          String
-  year           Int?
-  letterboxdUri  String?     @unique
-  posterPath     String?
-  backdropPath   String?
-  overview       String?
-  tagline        String?
-  runtime        Int?
-  genres         String?
-  watchlist      Boolean     @default(false)
-  watchlistAddedAt DateTime?
-  // A non-null rank means this movie appears in the personal Top 10.
-  // The API enforces the 1–10 range and swaps ranks atomically.
-  favoriteRank   Int?        @unique
-  imdbId         String?     @unique
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  logs           LogEntry[]
+  id                    String      @id @default(cuid())
+  tmdbId                Int?        @unique
+  title                 String
+  year                  Int?
+  releaseDate           DateTime?
+  letterboxdUri         String?     @unique
+  posterPath            String?
+  backdropPath          String?
+  preferredPosterPath   String?
+  preferredBackdropPath String?
+  overview              String?
+  tagline               String?
+  runtime               Int?
+  genres                String?
+  directors             String?
+  cast                  String?
+  tmdbRating            Float?
+  tmdbVoteCount         Int?
+  rating                Float?
+  watched               Boolean     @default(false)
+  favorite              Boolean     @default(false)
+  watchlist             Boolean     @default(false)
+  watchlistAddedAt      DateTime?
+  favoriteRank          Int?        @unique
+  imdbId                String?     @unique
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  logs                  LogEntry[]
+  userMovies            UserMovie[]
 
   @@index([title])
   @@index([year])
+  @@index([watched])
+  @@index([favorite])
+  @@index([watchlist, watchlistAddedAt])
+}
+
+model User {
+  id           String      @id @default(cuid())
+  username     String      @unique
+  email        String      @unique
+  passwordHash String
+  displayName  String?
+  avatarUrl    String?
+  bio          String?
+  role         String      @default("USER") // e.g. OWNER, USER
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  userMovies   UserMovie[]
+  logs         LogEntry[]
+}
+
+model UserMovie {
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movieId          String
+  movie            Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  watched          Boolean   @default(false)
+  favorite         Boolean   @default(false)
+  favoriteRank     Int?
+  watchlist        Boolean   @default(false)
+  watchlistAddedAt DateTime?
+  rating           Float?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@id([userId, movieId])
+  @@unique([userId, favoriteRank])
+  @@index([userId])
+  @@index([movieId])
+  @@index([watched])
+  @@index([favorite])
+  @@index([watchlist, watchlistAddedAt])
 }
 
 model LogEntry {
-  id           String   @id @default(cuid())
-  movieId      String
-  movie        Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
-  sourceKey    String   @unique
-  // v1 semantic identity: movie + effective watch day + rating + normalized review hash.
-  // Nullable only for entries without a trustworthy date, which are never auto-merged.
-  dedupeKey    String?  @unique
-  sourceType   String
-  sourceUri    String?
-  loggedAt     DateTime?
-  watchedAt    DateTime?
-  rating       Float?
-  review       String?
-  favorite     Boolean  @default(false)
-  rewatch      Boolean  @default(false)
-  tags         String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         String    @id @default(cuid())
+  movieId    String
+  movie      Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceKey  String    @unique
+  // v2 event identity: movie + effective watch day + same-day occurrence.
+  // Content such as a rating or review may change without changing this identity.
+  dedupeKey  String?   @unique
+  sourceType String
+  sourceUri  String?
+  loggedAt   DateTime?
+  watchedAt  DateTime?
+  rating     Float?
+  review     String?
+  favorite   Boolean   @default(false)
+  rewatch    Boolean   @default(false)
+  tags       String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([watchedAt])
   @@index([movieId])
+  @@index([movieId, watchedAt])
+  @@index([sourceUri])
+  @@index([userId])
 }

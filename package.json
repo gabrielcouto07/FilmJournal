@@ -10,12 +10,20 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "import:letterboxd": "tsx scripts/import-letterboxd.ts",
-    "dedupe:diary": "tsx scripts/dedupe-diary.ts",
-    "backfill:collections": "tsx scripts/backfill-collections.ts"
+    "db:dedupe": "tsx scripts/dedupe-letterboxd.ts",
+    "db:dedupe:apply": "tsx scripts/dedupe-letterboxd.ts --apply",
+    "dedupe:diary": "npm run db:dedupe",
+    "dedupe:diary:apply": "npm run db:dedupe:apply",
+    "validate:letterboxd": "tsx scripts/validate-letterboxd.ts",
+    "typecheck": "tsc --noEmit",
+    "backfill:collections": "tsx scripts/backfill-collections.ts",
+    "backfill:metadata": "tsx scripts/backfill-metadata.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
+    "framer-motion": "^12.42.2",
     "next": "^15.0.0",
+    "next-auth": "^5.0.0-beta.31",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
