@@ -1,41 +1,69 @@
+import { createHash } from "node:crypto";
 import { prisma } from "./prisma";
 import { hashPassword } from "./password";
 
 export { hashPassword, verifyPassword } from "./password";
 
+const OWNER_PASSWORD_REQUIRED =
+  "APP_OWNER_PASSWORD environment variable is required to create the owner user.";
+
+function getConfiguredOwnerUsername() {
+  return process.env.APP_OWNER_USERNAME?.trim() || null;
+}
+
+async function findAndPromoteOwner(username: string) {
+  const owner = await prisma.user.findUnique({ where: { username } });
+  if (!owner || owner.role === "OWNER") return owner;
+
+  return prisma.user.update({
+    where: { id: owner.id },
+    data: { role: "OWNER" },
+  });
+}
+
 /**
- * Resolve the single "owner" account used to scope this personal journal's
- * public (read-only) data. Falls back to the configured username and, in a
- * fresh environment, auto-creates the owner from APP_OWNER_* env vars.
+ * Resolve the configured owner for public, read-only pages. Missing bootstrap
+ * configuration is treated as an empty journal instead of a runtime failure.
  */
 export async function getOwnerUser() {
-  const ownerUsername = process.env.APP_OWNER_USERNAME || "admin";
+  const ownerUsername = getConfiguredOwnerUsername();
+  if (!ownerUsername) return null;
 
-  let owner = await prisma.user.findFirst({ where: { role: "OWNER" } });
-  if (!owner) {
-    owner = await prisma.user.findUnique({ where: { username: ownerUsername } });
+  return findAndPromoteOwner(ownerUsername);
+}
+
+/**
+ * Resolve or create the configured owner for explicit bootstrap operations.
+ * The password is only read and required when no matching user exists.
+ */
+export async function ensureOwnerUser() {
+  const ownerUsername = getConfiguredOwnerUsername();
+  if (!ownerUsername) return null;
+
+  const existingOwner = await findAndPromoteOwner(ownerUsername);
+  if (existingOwner) return existingOwner;
+
+  const ownerPassword = process.env.APP_OWNER_PASSWORD;
+  if (!ownerPassword) {
+    throw new Error(OWNER_PASSWORD_REQUIRED);
   }
-  if (!owner) {
-    const ownerPassword = process.env.APP_OWNER_PASSWORD;
-    if (!ownerPassword && process.env.NODE_ENV !== "test") {
-      throw new Error("APP_OWNER_PASSWORD environment variable is required to auto-create the owner user.");
-    }
-    const finalPassword = ownerPassword || "test-env-password-only";
-    try {
-      owner = await prisma.user.create({
-        data: {
-          username: ownerUsername,
-          email: process.env.APP_OWNER_EMAIL || "admin@filmjournal.local",
-          passwordHash: hashPassword(finalPassword),
-          displayName: "Journal Owner",
-          role: "OWNER",
-        },
-      });
-    } catch (e) {
-      console.warn("Auto-creation of owner user failed:", e);
-    }
-  }
-  return owner;
+
+  const emailKey = createHash("sha256").update(ownerUsername).digest("hex").slice(0, 16);
+
+  // Upsert keeps simultaneous cold-start requests deterministic. If another
+  // request creates this username first, that account is promoted without
+  // replacing its password hash.
+  return prisma.user.upsert({
+    where: { username: ownerUsername },
+    update: { role: "OWNER" },
+    create: {
+      username: ownerUsername,
+      email: `owner-${emailKey}@filmjournal.local`,
+      passwordHash: hashPassword(ownerPassword),
+      displayName: "Journal Owner",
+      role: "OWNER",
+    },
+  });
 }
 
 /**

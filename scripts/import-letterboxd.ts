@@ -11,7 +11,7 @@ import {
   type LetterboxdFilm,
 } from "@/lib/letterboxd-import";
 import { getTmdbMovie, searchTmdbMovie } from "@/lib/tmdb";
-import { getOwnerUser } from "../src/lib/auth";
+import { ensureOwnerUser } from "../src/lib/auth";
 
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 config({ path: path.join(rootDirectory, ".env.local") });
@@ -144,7 +144,7 @@ async function saveMovie(film: LetterboxdFilm, skipMetadata: boolean): Promise<M
     movie = await prisma.movie.create({ data });
   }
 
-  const owner = await getOwnerUser();
+  const owner = await ensureOwnerUser();
   const ownerId = owner?.id || "";
   if (ownerId) {
     await prisma.userMovie.upsert({
@@ -206,7 +206,7 @@ async function saveEvents(movie: Movie, film: LetterboxdFilm): Promise<number> {
         return date?.toISOString().slice(0, 10) === eventDay;
       }).length === 1 ? sameDayCandidates[0] : undefined);
 
-    const owner = await getOwnerUser();
+    const owner = await ensureOwnerUser();
     const ownerId = owner?.id || "";
 
     const data = {

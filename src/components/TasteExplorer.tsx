@@ -59,7 +59,7 @@ export default function TasteExplorer({ initialData }: { initialData: TasteData 
       } else if (action === "watchlist" && !existing.watchlist) {
         const response = await fetch("/api/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId: existing.id, action: "watchlist", value: true }) });
         const payload = await response.json() as { movie?: { id: string; watchlist: boolean; favorite: boolean }; message?: string; error?: string };
-        if (!response.ok || !payload.movie) throw new Error(payload.error ?? "Não foi possível atualizar sua lista de espera.");
+        if (!response.ok || !payload.movie) throw new Error(payload.error ?? "Não foi possível atualizar sua Watchlist.");
         existing = { id: payload.movie.id, watchlist: payload.movie.watchlist, favorite: payload.movie.favorite };
         notice = payload.message ?? notice;
         updateExisting(movie.tmdbId, existing);
@@ -76,7 +76,7 @@ export default function TasteExplorer({ initialData }: { initialData: TasteData 
       } else if (action === "open") {
         router.push(`/film/${existing.id}`);
       } else {
-        notify(notice === "Filme atualizado." ? `${movie.title} adicionado à sua lista de espera.` : notice);
+        notify(notice === "Filme atualizado." ? `${movie.title} adicionado à sua Watchlist.` : notice);
       }
     } catch (reason) {
       notify(reason instanceof Error ? reason.message : "Não foi possível atualizar este filme.", "error");
@@ -132,7 +132,7 @@ function TasteRail({ eyebrow, title, description, movies, pending, act }: { eyeb
 
 function TastePosterCard({ movie, pending, act, compact = false }: { movie: TasteRecommendation; pending: string | null; act: (movie: TasteRecommendation, action: RecommendationAction) => void; compact?: boolean }) {
   const busy = pending?.startsWith(`${movie.tmdbId}:`) ?? false;
-  return <article className="poster-card group overflow-hidden rounded-[1.15rem] border border-white/[0.09] bg-[#141414]"><button type="button" disabled={busy} onClick={() => act(movie, "open")} className="block w-full text-left"><div className="relative aspect-[2/3]"><ArtworkImage src={getPosterUrl(movie.preferredPosterPath)} fallbackSrc={getPosterUrl(movie.posterPath)} alt={`Pôster de ${movie.title}`} title={movie.title} className="h-full w-full" sizes={compact ? "192px" : "208px"} /><div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black via-black/50 p-3 pt-16"><p className="line-clamp-2 text-sm font-black text-white">{movie.title}</p><p className="mt-1 text-[10px] font-bold text-slate-400">{movie.year ?? "Ano desconhecido"}{movie.tmdbRating ? ` · TMDb ${movie.tmdbRating.toFixed(1)}` : ""}</p></div></div></button><div className="border-t border-white/[0.06] p-2.5"><p className="line-clamp-2 min-h-8 text-[10px] font-semibold leading-4 text-amber-100/70">{movie.reason}</p><div className="mt-2 grid grid-cols-2 gap-1.5"><button type="button" disabled={busy || Boolean(movie.existing?.watchlist)} onClick={() => act(movie, "watchlist")} className="quiet-button !px-2 !py-2 text-[10px]">{movie.existing?.watchlist ? "✓ Na lista de espera" : "+ Lista de espera"}</button><button type="button" disabled={busy} onClick={() => act(movie, "log")} className="accent-button !px-2 !py-2 text-[10px]">{pending === `${movie.tmdbId}:log` ? "Registrando…" : "Registrar exibição"}</button></div></div></article>;
+  return <article className="poster-card group overflow-hidden rounded-[1.15rem] border border-white/[0.09] bg-[#141414]"><button type="button" disabled={busy} onClick={() => act(movie, "open")} className="block w-full text-left"><div className="relative aspect-[2/3]"><ArtworkImage src={getPosterUrl(movie.preferredPosterPath)} fallbackSrc={getPosterUrl(movie.posterPath)} alt={`Pôster de ${movie.title}`} title={movie.title} className="h-full w-full" sizes={compact ? "192px" : "208px"} /><div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black via-black/50 p-3 pt-16"><p className="line-clamp-2 text-sm font-black text-white">{movie.title}</p><p className="mt-1 text-[10px] font-bold text-slate-400">{movie.year ?? "Ano desconhecido"}{movie.tmdbRating ? ` · TMDb ${movie.tmdbRating.toFixed(1)}` : ""}</p></div></div></button><div className="border-t border-white/[0.06] p-2.5"><p className="line-clamp-2 min-h-8 text-[10px] font-semibold leading-4 text-amber-100/70">{movie.reason}</p><div className="mt-2 grid grid-cols-2 gap-1.5"><button type="button" disabled={busy || Boolean(movie.existing?.watchlist)} onClick={() => act(movie, "watchlist")} className="quiet-button !px-2 !py-2 text-[10px]">{movie.existing?.watchlist ? "✓ Na Watchlist" : "+ Watchlist"}</button><button type="button" disabled={busy} onClick={() => act(movie, "log")} className="accent-button !px-2 !py-2 text-[10px]">{pending === `${movie.tmdbId}:log` ? "Registrando…" : "Registrar exibição"}</button></div></div></article>;
 }
 
 function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description?: string }) { return <div><p className="eyebrow">{eyebrow}</p><h3 className="section-heading mt-2">{title}</h3>{description && <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">{description}</p>}</div>; }

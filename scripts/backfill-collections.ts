@@ -2,14 +2,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import { prisma } from "@/lib/prisma";
-import { getOwnerUser } from "../src/lib/auth";
+import { ensureOwnerUser } from "../src/lib/auth";
 
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 config({ path: path.join(rootDirectory, ".env.local") });
 config({ path: path.join(rootDirectory, ".env") });
 
 export async function backfillCollections() {
-  const owner = await getOwnerUser();
+  const owner = await ensureOwnerUser();
   const ownerId = owner?.id || "";
   if (!ownerId) {
     console.log("No owner user found to backfill collections.");

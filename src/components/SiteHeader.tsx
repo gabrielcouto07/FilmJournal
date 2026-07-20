@@ -8,7 +8,7 @@ const navigation = [
   { href: "/", label: "Visão Geral" },
   { href: "/diary", label: "Diário" },
   { href: "/search", label: "Descobrir" },
-  { href: "/watchlist", label: "Lista de Espera" },
+  { href: "/watchlist", label: "Watchlist" },
   { href: "/favorites", label: "Top 10" },
   { href: "/stats", label: "Estatísticas" },
   { href: "/roulette", label: "Roleta" },

@@ -40,7 +40,7 @@ export function useAuth(): AuthContextType {
   const login = async (username: string, password: string) => {
     const result = await signIn("credentials", { username, password, redirect: false });
     if (!result || result.error) {
-      throw new Error("Invalid credentials.");
+      throw new Error("Credenciais inválidas.");
     }
   };
 

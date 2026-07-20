@@ -73,7 +73,7 @@ const SCHEMA: SchemaModel[] = [
       { field: "id", type: "String (cuid)", required: true, description: "Identificador único do usuário" },
       { field: "username", type: "String", required: true, description: "Nome de usuário (único)" },
       { field: "email", type: "String", required: true, description: "E-mail (único)" },
-      { field: "passwordHash", type: "String", required: true, description: "Hash da senha (PBKDF2 com salt)" },
+      { field: "passwordHash", type: "String", required: true, description: "Hash da senha (scrypt com salt)" },
       { field: "displayName", type: "String?", required: false, description: "Nome de exibição" },
       { field: "role", type: "String", required: true, description: 'Papel do usuário (ex.: "OWNER", "USER")' },
     ],
@@ -162,7 +162,7 @@ export async function getDatabaseReview(): Promise<DatabaseReview> {
   const allLogsLinked = totalLogs === 0 || logsWithUser === totalLogs;
 
   const readiness: ReadinessItem[] = [
-    { label: "Modelo User com senha protegida (PBKDF2)", status: "ok", detail: "Implementado em src/lib/password.ts (PBKDF2 + salt)." },
+    { label: "Modelo User com senha protegida (scrypt)", status: "ok", detail: "Implementado em src/lib/password.ts (scrypt + salt)." },
     { label: "Sessões com NextAuth v5", status: "ok", detail: "Credentials provider + JWT (src/auth.ts, src/auth.config.ts)." },
     { label: "/admin protegido por middleware", status: "ok", detail: "src/middleware.ts redireciona não autenticados para /login." },
     {
@@ -177,7 +177,7 @@ export async function getDatabaseReview(): Promise<DatabaseReview> {
       status: "warn",
       detail: "Pendente: /api/import/letterboxd ainda está com TODO de proteção (scaffold da Fase 2).",
     },
-    { label: "Registro público de usuários", status: "fail", detail: "Não implementado (intencional nesta fase)." },
+    { label: "Registro público de usuários", status: "ok", detail: "Implementado com validação, nomes reservados e limite por IP." },
     {
       label: "Isolamento de biblioteca por usuário",
       status: migrated ? "warn" : "fail",

@@ -1,11 +1,21 @@
 import NextAuth from "next-auth";
+import { NextResponse } from "next/server";
 import { authConfig } from "@/auth.config";
 
-// Edge-runtime middleware built from the DB-free auth config. It only reads the
-// signed JWT, so it never touches Prisma or node:crypto. The `authorized`
-// callback in `auth.config.ts` enforces the /admin gate.
-export const { auth: middleware } = NextAuth(authConfig);
+const PUBLIC_PATHS = ["/login", "/api/auth", "/api/public"];
+const { auth } = NextAuth(authConfig);
+
+export default auth((req) => {
+  const { pathname } = req.nextUrl;
+  const isPublic = pathname === "/" || PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+
+  if (!isPublic && !req.auth) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return NextResponse.next();
+});
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)"],
 };

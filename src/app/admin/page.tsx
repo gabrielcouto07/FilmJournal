@@ -28,7 +28,7 @@ export default async function AdminPage() {
   const stats = [
     { label: "Filmes no catálogo", value: movieCount },
     { label: "Entradas no diário", value: logCount },
-    { label: "Na lista de espera", value: watchlistCount },
+    { label: "Na Watchlist", value: watchlistCount },
     { label: "Favoritos", value: favoriteCount },
   ];
 

@@ -6,9 +6,21 @@ import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
 import Link from "next/link";
 
+type Tab = "login" | "register";
+
 export default function LoginPage() {
+  const [tab, setTab] = useState<Tab>("login");
+
+  // Login state
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  // Register state
+  const [regUsername, setRegUsername] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regName, setRegName] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,93 +28,119 @@ export default function LoginPage() {
   const { notify } = useToast();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-
+    setLoading(true); setError(null);
     try {
       await login(username, password);
-      notify("Bem-vindo de volta!", "success");
-      router.push("/");
-      router.refresh();
+      notify("Bem-vindo de volta! 👋", "success");
+      router.push("/"); router.refresh();
     } catch (err: any) {
-      setError(err.message || "Falha ao entrar. Verifique suas credenciais.");
-      notify("Falha no login.", "error");
-    } finally {
-      setLoading(false);
-    }
+      setError(err.message || "Credenciais inválidas.");
+      notify("Credenciais inválidas.", "error");
+    } finally { setLoading(false); }
   };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true); setError(null);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: regUsername,
+          email: regEmail,
+          password: regPassword,
+          ...(regName.trim() ? { displayName: regName.trim() } : {}),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro ao criar conta.");
+      notify("Conta criada! Entrando...", "success");
+      await login(regUsername, regPassword);
+      router.push("/"); router.refresh();
+    } catch (err: any) {
+      setError(err.message);
+      notify(err.message, "error");
+    } finally { setLoading(false); }
+  };
+
+  const inputClass = "w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-600 transition-all duration-200 focus:border-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-300 focus:scale-[1.01]";
 
   return (
     <main className="flex min-h-[70vh] flex-col items-center justify-center px-4">
-      <div className="surface relative w-full max-w-md overflow-hidden rounded-[2rem] p-8 sm:p-10 border border-white/[0.05]">
+      <div className="surface fade-up relative w-full max-w-md overflow-hidden rounded-[2rem] p-8 sm:p-10 border border-white/[0.05]">
         <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-amber-500/10 blur-[50px]" />
-        
+
         <div className="relative">
+          {/* Logo mark */}
           <div className="flex justify-center mb-6">
             <span className="grid h-12 w-12 place-items-center rounded-full border border-amber-300/30 bg-amber-300/10">
               <span className="h-3.5 w-3.5 rounded-full bg-amber-300 shadow-[0_0_15px_rgba(245,197,24,.95)]" />
             </span>
           </div>
 
-          <h1 className="text-center text-3xl font-black tracking-tight text-white mb-2">
-            Acesso do Proprietário
-          </h1>
-          <p className="text-center text-sm text-slate-500 mb-8">
-            Entre para gerenciar seu Film Journal.
-          </p>
+          {/* Tabs */}
+          <div className="flex rounded-2xl border border-white/[0.07] bg-white/[0.03] p-1 mb-8">
+            {(["login", "register"] as Tab[]).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => { setTab(t); setError(null); }}
+                className={`flex-1 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition duration-200 ${tab === t ? "bg-amber-300 text-[#1a1400] shadow-[0_4px_16px_rgba(245,197,24,.2)]" : "text-slate-500 hover:text-white"}`}
+              >
+                {t === "login" ? "Entrar" : "Criar conta"}
+              </button>
+            ))}
+          </div>
 
           {error && (
-            <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-xs font-bold text-red-300">
+            <div className="mb-6 animate-[fade-up_.25s_ease_both] rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-xs font-bold text-red-300">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="username" className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
-                Usuário
-              </label>
-              <input
-                id="username"
-                type="text"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-600 transition focus:border-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-300"
-                placeholder="Digite o nome de usuário"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
-                Senha
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-600 transition focus:border-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-300"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full accent-button py-4 text-center justify-center font-bold disabled:opacity-50"
-            >
-              {loading ? "Autenticando..." : "Acessar Journal"}
-            </button>
-          </form>
+          {tab === "login" ? (
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Usuário</label>
+                <input type="text" required value={username} onChange={e => setUsername(e.target.value)} className={inputClass} placeholder="seu_usuario" />
+              </div>
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Senha</label>
+                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className={inputClass} placeholder="- - - - - - - - " />
+              </div>
+              <button type="submit" disabled={loading} className={`w-full accent-button py-4 justify-center font-bold disabled:opacity-50 ${!loading ? "glow-pulse" : ""}`}>
+                {loading ? "Entrando..." : "Entrar"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Nome de exibição</label>
+                <input type="text" value={regName} onChange={e => setRegName(e.target.value)} className={inputClass} placeholder="Seu nome" />
+              </div>
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Usuário</label>
+                <input type="text" required value={regUsername} onChange={e => setRegUsername(e.target.value)} className={inputClass} placeholder="letras, números, _" />
+              </div>
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">E-mail</label>
+                <input type="email" required value={regEmail} onChange={e => setRegEmail(e.target.value)} className={inputClass} placeholder="voce@email.com" />
+              </div>
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Senha (mín. 8 caracteres)</label>
+                <input type="password" required minLength={8} value={regPassword} onChange={e => setRegPassword(e.target.value)} className={inputClass} placeholder="- - - - - - - - " />
+              </div>
+              <button type="submit" disabled={loading} className={`w-full accent-button py-4 justify-center font-bold disabled:opacity-50 ${!loading ? "glow-pulse" : ""}`}>
+                {loading ? "Criando conta..." : "Criar conta"}
+              </button>
+            </form>
+          )}
 
           <div className="mt-8 text-center">
-            <Link href="/" className="text-xs font-bold text-slate-600 hover:text-amber-300 transition">
-              ← Voltar à galeria pública
-            </Link>
+            <Link href="/" className="text-xs font-bold text-slate-600 hover:text-amber-300 transition">← Voltar</Link>
           </div>
         </div>
       </div>

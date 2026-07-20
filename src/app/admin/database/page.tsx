@@ -29,7 +29,7 @@ export default async function DatabaseReviewPage() {
     { label: "Entradas no diário", value: review.summary.totalLogs },
     { label: "Filmes com nota", value: review.summary.ratedLogs },
     { label: "Filmes sem TMDB ID", value: review.summary.moviesWithoutTmdb },
-    { label: "Filmes na lista de espera", value: review.summary.watchlistMovies },
+    { label: "Filmes na Watchlist", value: review.summary.watchlistMovies },
     { label: "Filmes favoritos", value: review.summary.favoriteMovies },
     { label: "Usuários cadastrados", value: review.summary.users },
     { label: "Diário vinculado a usuário", value: review.summary.logsWithUser },

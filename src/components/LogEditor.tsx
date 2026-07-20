@@ -37,17 +37,17 @@ export default function LogEditor({ movieId, title, logId, initialDate, initialR
   const router = useRouter();
   const { user } = useAuth();
 
-  if (!user) {
-    return null;
-  }
-
   useEffect(() => {
-    if (!open) return;
+    if (!user || !open) return;
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
-  }, [open]);
+  }, [open, user]);
+
+  if (!user) {
+    return null;
+  }
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();

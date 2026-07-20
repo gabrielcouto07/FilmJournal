@@ -72,7 +72,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .surface-raised { @apply border border-white/[0.12] bg-[#1a1a1a]/90 shadow-[0_26px_90px_rgba(0,0,0,.38)] backdrop-blur-xl; }
   .surface-subtle { @apply border border-white/[0.07] bg-white/[0.028]; }
   .icon-button { @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-slate-300 transition duration-200 hover:border-amber-300/40 hover:bg-amber-300/10 hover:text-amber-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50; }
-  .accent-button { @apply inline-flex items-center justify-center rounded-full bg-amber-300 px-4 py-2.5 text-sm font-extrabold text-[#1a1400] shadow-[0_8px_28px_rgba(245,197,24,.15)] transition duration-200 hover:-translate-y-0.5 hover:bg-amber-200 active:translate-y-0 active:scale-[.97] disabled:cursor-not-allowed disabled:opacity-60; }
+  .accent-button { @apply inline-flex items-center justify-center rounded-full bg-amber-300 px-4 py-2.5 text-sm font-extrabold text-[#1a1400] shadow-[0_8px_28px_rgba(245,197,24,.15)] transition duration-200 hover:-translate-y-0.5 hover:bg-amber-200 hover:shadow-[0_12px_40px_rgba(245,197,24,.28)] active:translate-y-0 active:scale-[.97] disabled:cursor-not-allowed disabled:opacity-60; will-change: transform; }
   .quiet-button { @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-slate-200 transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.09] active:translate-y-0 active:scale-[.97] disabled:cursor-not-allowed disabled:opacity-60; }
   .field { @apply w-full rounded-xl border border-white/10 bg-black/25 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-amber-300/45 focus:ring-4 focus:ring-amber-300/[0.07]; }
   .chip { @apply inline-flex items-center rounded-full border border-white/[0.09] bg-white/[0.035] px-3 py-1.5 text-xs font-bold text-slate-400 transition hover:border-white/20 hover:text-white; }
@@ -108,6 +108,33 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @keyframes shimmer { to { transform: translateX(100%); } }
 @keyframes toast-in { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes modal-in { from { opacity: 0; transform: translateY(20px) scale(.985); } to { opacity: 1; transform: none; } }
+
+/* Stagger fade-up for list/grid items */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Pulse glow for accent elements */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,197,24,0); }
+  50%       { box-shadow: 0 0 22px 6px rgba(245,197,24,.18); }
+}
+/* Skeleton loading shimmer (faster, more visible) */
+@keyframes skeleton { to { background-position: -200% center; } }
+
+.fade-up   { animation: fade-up var(--duration-slow) var(--ease-out) both; }
+.fade-up-1 { animation-delay: 60ms; }
+.fade-up-2 { animation-delay: 120ms; }
+.fade-up-3 { animation-delay: 180ms; }
+.fade-up-4 { animation-delay: 240ms; }
+.fade-up-5 { animation-delay: 300ms; }
+.glow-pulse { animation: pulse-glow 2.8s ease-in-out infinite; }
+.skeleton-bg {
+  background: linear-gradient(90deg, rgba(255,255,255,.04) 25%, rgba(255,255,255,.09) 50%, rgba(255,255,255,.04) 75%);
+  background-size: 200% auto;
+  animation: skeleton 1.6s linear infinite;
+}
+
 .toast-enter { animation: toast-in .3s var(--ease-spring) both; }
 .modal-enter { animation: modal-in .32s var(--ease-out) both; }
 
