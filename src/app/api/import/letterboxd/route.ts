@@ -3,6 +3,7 @@ import { revalidateTag } from "next/cache";
 import { unzipSync } from "fflate";
 import { getCurrentUser } from "@/lib/auth";
 import { CATALOG_TAG, userTag } from "@/lib/data";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 import { importLetterboxdForUser } from "@/lib/letterboxd-persist";
 import {
   LetterboxdImportValidationError,
@@ -81,6 +82,7 @@ function filesFromZip(bytes: Uint8Array): LetterboxdFiles {
  * CSV files (field named after the file, e.g. `diary.csv` or bare `diary`).
  */
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   const user = await getCurrentUser();
   if (!user) {
     return json({ error: "Faça login para importar seus dados do Letterboxd." }, 401);

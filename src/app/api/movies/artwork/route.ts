@@ -5,12 +5,14 @@ import { enrichMovieMetadata } from "@/lib/movie-metadata";
 import { prisma } from "@/lib/prisma";
 import { getPosterUrl } from "@/lib/tmdb";
 import { CATALOG_TAG } from "@/lib/data";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Faça login para carregar esta imagem." }, { status: 401 });
 

@@ -94,6 +94,16 @@ model UserMovie {
   @@index([userId, rating])
 }
 
+// Shared-store rate limiting (survives serverless cold starts). Keys are
+// namespaced, e.g. "register:{ip}" or "pwd:{userId}".
+model RateLimit {
+  key     String   @id
+  count   Int      @default(1)
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
 model LogEntry {
   id         String    @id @default(cuid())
   movieId    String

@@ -112,6 +112,43 @@ Keep `APP_OWNER_USERNAME` configured so public journal pages can resolve the own
 | `npm run db:push` | Sync schema to DB (dev) |
 | `npm run db:studio` | Open Prisma Studio |
 | `npm run db:migrate` | Run migrations (prod) |
+| `npm test` | Run the unit test suite (node:test) |
+
+***
+
+## Applying database migrations
+
+The schema now has a real migration history under `prisma/migrations/`. For a
+database that was previously created with `db push` (existing Neon databases),
+baseline once and then deploy:
+
+```bash
+# Recommended: point DATABASE_URL/DIRECT_URL at a Neon BRANCH first, verify,
+# then repeat against production.
+npx prisma migrate resolve --applied 20260721000000_init   # mark the baseline
+npx prisma migrate deploy                                   # apply the rest
+```
+
+A brand-new database needs only `npx prisma migrate deploy`. The app is
+resilient pre-migration (settings fall back to defaults; saving preferences
+returns a clear error until `UserSettings` exists), but the migrations should be
+applied before real multi-user use.
+
+***
+
+## Profile, settings & public profiles
+
+- `/profile` — avatar (client-resized data URL or external https URL), display
+  name, bio, preferences (theme, accent color, language, rating scale,
+  half-stars, date format, region, default landing page, adult content), privacy
+  (public/private profile), account (change password/email, delete account) and
+  the Letterboxd importer.
+- `/u/[username]` — read-only public profile (favorites, recent activity,
+  stats), visible only when the user sets **Perfil público** in
+  `/profile → Privacidade`.
+
+Avatars are stored as small data URLs or external URLs today; to move uploads to
+Vercel Blob later, provision `BLOB_READ_WRITE_TOKEN` (see `.env.example`).
 
 ***
 
@@ -164,5 +201,9 @@ database, a live import writes straight to production.** Follow this flow:
 - Passwords hashed with `scrypt` (Node built-in, no external deps)
 - `NEXTAUTH_SECRET` required in all environments
 - `.env` files are gitignored — never commit secrets
-- Registration rate-limited (5/IP per 10 min)
-- Reserved usernames blocked
+- Registration rate-limited (5/IP per 10 min) via a shared `RateLimit` table
+  (survives serverless cold starts; in-memory fallback pre-migration)
+- Password change/email change/account deletion require the current password and
+  are rate-limited against brute force
+- State-changing API routes reject cross-origin requests (CSRF hardening)
+- Reserved usernames blocked; private journals are never exposed via `/u/…`

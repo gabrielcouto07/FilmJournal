@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { enrichMovieMetadata } from "@/lib/movie-metadata";
 import { CATALOG_TAG } from "@/lib/data";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -16,6 +17,7 @@ export const maxDuration = 60;
  * filled so the client can refresh only when something actually changed.
  */
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
 

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getCurrentUser, hashPassword, verifyPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isRateLimited } from "@/lib/rate-limit";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +13,13 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Faça login para alterar a senha." }, { status: 401 });
+  // Slow down brute-force attempts against the current password.
+  if (await isRateLimited(`pwd:${user.id}`, { max: 5, windowMs: 10 * 60 * 1000 })) {
+    return NextResponse.json({ error: "Muitas tentativas. Aguarde alguns minutos." }, { status: 429 });
+  }
 
   let body: unknown;
   try { body = await request.json(); } catch { return NextResponse.json({ error: "O corpo deve ser um JSON válido." }, { status: 400 }); }

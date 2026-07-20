@@ -5,6 +5,7 @@ import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { userTag } from "@/lib/data";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +67,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Faça login para registrar sessões." }, { status: 401 });
@@ -150,6 +152,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Faça login para editar entradas do diário." }, { status: 401 });
@@ -210,6 +213,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Faça login para excluir entradas do diário." }, { status: 401 });

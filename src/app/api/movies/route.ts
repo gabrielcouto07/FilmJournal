@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getTmdbMovie, getTmdbMovieWithImages, TmdbError, toMovieMetadata } from "@/lib/tmdb";
 import { getCurrentUser } from "@/lib/auth";
 import { CATALOG_TAG, userTag } from "@/lib/data";
+import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +84,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   // Any signed-in user can add movies to their own collection.
   const user = await getCurrentUser();
   if (!user) {
@@ -214,6 +216,7 @@ type CollectionMutation = {
 };
 
 export async function PATCH(request: Request) {
+  if (!isSameOrigin(request)) return crossOriginResponse();
   // Any signed-in user can modify their own collection state below. Actions that
   // mutate the shared catalog (poster/backdrop art) are gated to the owner.
   const user = await getCurrentUser();
