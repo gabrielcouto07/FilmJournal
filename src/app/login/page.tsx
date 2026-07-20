@@ -40,7 +40,13 @@ export default function LoginPage() {
     try {
       await login(username, password);
       notify("Bem-vindo de volta! 👋", "success");
-      router.push("/"); router.refresh();
+      // Honor the user's configured landing page; fall back to the overview.
+      let landing = "/";
+      try {
+        const res = await fetch("/api/settings");
+        if (res.ok) landing = (await res.json()).settings?.defaultLandingPage || "/";
+      } catch { /* keep default landing */ }
+      router.push(landing); router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Credenciais inválidas.");
       notify("Credenciais inválidas.", "error");

@@ -26,11 +26,20 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Nenhuma alteração enviada." }, { status: 400 });
   }
 
-  await prisma.userSettings.upsert({
-    where: { userId: user.id },
-    create: { userId: user.id, ...parsed.data },
-    update: parsed.data,
-  });
+  try {
+    await prisma.userSettings.upsert({
+      where: { userId: user.id },
+      create: { userId: user.id, ...parsed.data },
+      update: parsed.data,
+    });
+  } catch (error) {
+    // Pre-migration deployment: the UserSettings table doesn't exist yet.
+    console.error("[settings] save failed:", error);
+    return NextResponse.json(
+      { error: "As preferências ainda não podem ser salvas: as migrações do banco de dados estão pendentes (execute `npx prisma migrate deploy`)." },
+      { status: 503 },
+    );
+  }
 
   return NextResponse.json({ settings: await getUserSettings(user.id), message: "Preferências salvas." });
 }

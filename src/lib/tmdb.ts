@@ -106,7 +106,7 @@ async function tmdbFetch<T>(path: string, params: Record<string, string>, refres
   return response.json() as Promise<T>;
 }
 
-export async function searchTmdbMovies(query: string, year?: number, page = 1): Promise<TmdbSearchResponse> {
+export async function searchTmdbMovies(query: string, year?: number, page = 1, includeAdult = false): Promise<TmdbSearchResponse> {
   const normalizedQuery = query.trim();
   if (normalizedQuery.length < 2) {
     throw new TmdbError("Enter at least two characters to search.", 400);
@@ -114,7 +114,7 @@ export async function searchTmdbMovies(query: string, year?: number, page = 1): 
 
   const params: Record<string, string> = {
     query: normalizedQuery,
-    include_adult: "false",
+    include_adult: includeAdult ? "true" : "false",
     page: String(Math.min(Math.max(page, 1), 500)),
   };
   if (year) params.year = String(year);

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getTmdbFeed, getTmdbMovieWithImages, searchTmdbMovies, TmdbError, type TmdbFeed } from "@/lib/tmdb";
 import { getCurrentUser } from "@/lib/auth";
+import { getUserSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -74,10 +75,12 @@ export async function GET(request: Request) {
       return response;
     }
 
+    const settings = await getUserSettings(viewer?.id);
     const results = await searchTmdbMovies(
       query,
       Number.isInteger(yearValue) && yearValue > 1800 ? yearValue : undefined,
       Number.isInteger(pageValue) ? pageValue : 1,
+      settings.showAdultContent,
     );
 
     const existingMovies = await prisma.movie.findMany({

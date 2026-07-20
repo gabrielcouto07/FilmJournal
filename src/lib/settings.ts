@@ -51,11 +51,20 @@ function coerce(row: UserSettings): AppSettings {
   };
 }
 
-/** Read a user's settings, returning defaults when no row exists. Read-only (no write-on-read). */
+/**
+ * Read a user's settings, returning defaults when no row exists. Read-only (no
+ * write-on-read). Also degrades to defaults when the UserSettings table has not
+ * been migrated yet (P2021/P2022), so the app keeps rendering pre-migration.
+ */
 export async function getUserSettings(userId: string | null | undefined): Promise<AppSettings> {
   if (!userId) return DEFAULT_SETTINGS;
-  const row = await prisma.userSettings.findUnique({ where: { userId } });
-  return row ? coerce(row) : DEFAULT_SETTINGS;
+  try {
+    const row = await prisma.userSettings.findUnique({ where: { userId } });
+    return row ? coerce(row) : DEFAULT_SETTINGS;
+  } catch (error) {
+    console.warn("[settings] falling back to defaults:", error instanceof Error ? error.message : error);
+    return DEFAULT_SETTINGS;
+  }
 }
 
 const LANDING_PAGES = ["/", "/diary", "/watchlist", "/favorites", "/stats", "/roulette"] as const;

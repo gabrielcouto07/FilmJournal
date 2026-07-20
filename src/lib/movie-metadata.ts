@@ -49,37 +49,5 @@ export async function enrichMovieMetadata(movieId: string): Promise<Movie | null
   }
 }
 
-export async function enrichStatsMoviesForUser(userId: string, limit = 10) {
-  const candidates = await prisma.userMovie.findMany({
-    where: {
-      userId,
-      watched: true,
-      movie: {
-        OR: [
-          { tmdbId: null },
-          { posterPath: null },
-          { genres: null },
-          { directors: null },
-        ],
-      },
-    },
-    select: { movieId: true },
-    orderBy: [{ favorite: "desc" }, { rating: "desc" }, { updatedAt: "desc" }],
-    take: Math.min(Math.max(limit, 1), 20),
-  });
-
-  let cursor = 0;
-  const workers = Array.from({ length: Math.min(4, candidates.length) }, async () => {
-    while (cursor < candidates.length) {
-      const candidate = candidates[cursor];
-      cursor += 1;
-      try {
-        await enrichMovieMetadata(candidate.movieId);
-      } catch (error) {
-        console.error(`[stats/enrichment] ${candidate.movieId}`, error);
-      }
-    }
-  });
-  await Promise.all(workers);
-  return candidates.length;
-}
+// (The old enrichStatsMoviesForUser render-path helper was removed: metadata is
+// now filled after paint via POST /api/movies/enrich + <BackgroundEnrich/>.)
