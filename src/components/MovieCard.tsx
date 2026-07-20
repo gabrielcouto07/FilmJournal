@@ -1,10 +1,11 @@
 import Link from "next/link";
-import type { LogEntry, Movie } from "@prisma/client";
+import type { LogEntry } from "@prisma/client";
 import { getPosterUrl } from "@/lib/tmdb";
+import type { EnrichedMovie } from "@/lib/types";
 import ArtworkImage from "./ArtworkImage";
 import StarRating from "./StarRating";
 
-type Props = { movie: Movie; log?: LogEntry | null; priority?: boolean; rank?: number };
+type Props = { movie: EnrichedMovie; log?: LogEntry | null; priority?: boolean; rank?: number };
 
 export default function MovieCard({ movie, log, priority = false, rank }: Props) {
   const preferredPosterUrl = getPosterUrl(movie.preferredPosterPath);

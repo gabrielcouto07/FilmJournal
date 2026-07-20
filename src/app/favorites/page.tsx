@@ -19,7 +19,7 @@ export default async function FavoritesPage() {
     ]
   });
 
-  // Sort by title inside map or prisma if needed, but since SQLite relation sort is complex, we can sort manually or map
+  // Sort manually: ranked favorites first (ascending), then unranked favorites by title.
   const movies = userMovies.map((um) => ({
     ...um.movie,
     rating: um.rating,

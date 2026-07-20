@@ -53,7 +53,7 @@ async function main(): Promise<void> {
     const uriCounts = new Map<string, number>();
     letterboxdEvents.forEach((entry) => { if (entry.sourceUri) uriCounts.set(entry.sourceUri, (uriCounts.get(entry.sourceUri) ?? 0) + 1); });
     assert.equal([...uriCounts.values()].filter((count) => count > 1).length, 0, "stable Letterboxd event URIs must be unique in the diary");
-    console.log(`Letterboxd validation passed: fixture rules verified; export and SQLite both contain ${actualEvents.length} canonical events across ${actual.size} films.`);
+    console.log(`Letterboxd validation passed: fixture rules verified; export and PostgreSQL both contain ${actualEvents.length} canonical events across ${actual.size} films.`);
   } finally { await prisma.$disconnect(); }
 }
 

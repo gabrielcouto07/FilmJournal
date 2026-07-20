@@ -27,12 +27,6 @@ model Movie {
   cast                  String?
   tmdbRating            Float?
   tmdbVoteCount         Int?
-  rating                Float?
-  watched               Boolean     @default(false)
-  favorite              Boolean     @default(false)
-  watchlist             Boolean     @default(false)
-  watchlistAddedAt      DateTime?
-  favoriteRank          Int?        @unique
   imdbId                String?     @unique
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
@@ -41,9 +35,6 @@ model Movie {
 
   @@index([title])
   @@index([year])
-  @@index([watched])
-  @@index([favorite])
-  @@index([watchlist, watchlistAddedAt])
 }
 
 model User {

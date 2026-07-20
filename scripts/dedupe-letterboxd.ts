@@ -9,7 +9,7 @@ const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
 config({ path: path.join(rootDirectory, ".env.local") });
 config({ path: path.join(rootDirectory, ".env") });
 
-type Entry = LogEntry & { movie: Pick<Movie, "id" | "title" | "year" | "favorite" | "rating" | "watched"> };
+type Entry = LogEntry & { movie: Pick<Movie, "id" | "title" | "year"> };
 type MergeGroup = { survivor: Entry; redundant: Entry[]; values: Entry[] };
 type MoviePlan = {
   movie: Entry["movie"];
@@ -49,7 +49,7 @@ function groupAuthoritative(entries: Entry[]): MergeGroup[] {
 
 async function createPlan(): Promise<MoviePlan[]> {
   const entries = await prisma.logEntry.findMany({
-    include: { movie: { select: { id: true, title: true, year: true, favorite: true, rating: true, watched: true } } },
+    include: { movie: { select: { id: true, title: true, year: true } } },
     orderBy: [{ movieId: "asc" }, { createdAt: "asc" }, { id: "asc" }],
   });
   const byMovie = new Map<string, Entry[]>();
@@ -93,17 +93,8 @@ export async function dedupeLetterboxd(apply = false): Promise<{ before: number;
 
   await prisma.$transaction(async (transaction) => {
     for (const plan of plans) {
-      const newestRating = [...plan.entries].sort((left, right) => eventTime(right) - eventTime(left)).find((entry) => entry.rating != null)?.rating ?? null;
-      const inheritedFavorite = plan.entries.some((entry) => entry.favorite);
-      await transaction.movie.update({
-        where: { id: plan.movie.id },
-        data: {
-          watched: plan.movie.watched || plan.entries.length > 0,
-          rating: plan.movie.rating ?? newestRating,
-          favorite: plan.movie.favorite || inheritedFavorite,
-        },
-      });
-
+      // Per-user watched/rating/favorite state lives on UserMovie now; this
+      // maintenance tool only reconciles the shared LogEntry rows.
       const deleteIds = [
         ...plan.catalogArtifacts.map((entry) => entry.id),
         ...plan.mergeGroups.flatMap((group) => group.redundant.map((entry) => entry.id)),

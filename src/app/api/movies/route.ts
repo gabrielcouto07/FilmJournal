@@ -186,7 +186,7 @@ async function setFavoriteRank(userId: string, movieId: string, rank: number | n
 
     if (userMovie.favoriteRank === rank) return userMovie;
 
-    // Clear the moving movie first to SQLite's unique rank constraint is never violated.
+    // Clear the moving movie's rank first so the (userId, favoriteRank) unique constraint is never violated.
     await transaction.userMovie.update({
       where: { userId_movieId: { userId, movieId } },
       data: { favoriteRank: null }

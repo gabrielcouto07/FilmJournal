@@ -102,18 +102,12 @@ async function saveMovie(film: LetterboxdFilm, skipMetadata: boolean): Promise<M
     }
   }
 
+  // Movie is now the shared catalog only; per-user state lives on UserMovie below.
   const data = {
     title: film.name,
     year: film.year,
     letterboxdUri: film.letterboxdUri,
     ...metadata,
-    watched: film.watched || existing?.watched || false,
-    rating: film.rating ?? existing?.rating ?? null,
-    favorite: film.favorite || existing?.favorite || false,
-    watchlist: film.watchlist || existing?.watchlist || false,
-    watchlistAddedAt: film.watchlist
-      ? existing?.watchlistAddedAt ?? film.watchlistAddedAt ?? new Date()
-      : existing?.watchlistAddedAt ?? null,
   };
 
   // Older imports could attach the first fuzzy TMDb result to the wrong film.
@@ -169,9 +163,13 @@ async function saveMovie(film: LetterboxdFilm, skipMetadata: boolean): Promise<M
     });
   }
 
-  if (film.profileRank && movie.favoriteRank == null) {
-    const occupant = await prisma.movie.findUnique({ where: { favoriteRank: film.profileRank } });
-    if (!occupant) movie = await prisma.movie.update({ where: { id: movie.id }, data: { favoriteRank: film.profileRank } });
+  // Ranked profile favorites map to the owner's per-user favoriteRank slot.
+  if (ownerId && film.profileRank) {
+    const current = await prisma.userMovie.findUnique({ where: { userId_movieId: { userId: ownerId, movieId: movie.id } } });
+    if (current && current.favoriteRank == null) {
+      const occupant = await prisma.userMovie.findFirst({ where: { userId: ownerId, favoriteRank: film.profileRank } });
+      if (!occupant) await prisma.userMovie.update({ where: { userId_movieId: { userId: ownerId, movieId: movie.id } }, data: { favoriteRank: film.profileRank } });
+    }
   }
   return movie;
 }
