@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { cache } from "react";
 import { prisma } from "./prisma";
 import { hashPassword } from "./password";
 
@@ -70,12 +71,14 @@ export async function ensureOwnerUser() {
  * The currently authenticated user (via the NextAuth session), or null.
  * API route handlers use this to gate owner-only writes.
  */
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   // Imported lazily so CLI scripts that only need `getOwnerUser` don't pull
   // the NextAuth runtime (and the `@/auth` alias) into a bare tsx process.
+  // `cache()` dedupes the auth() + DB lookup across a single request/render,
+  // even though it's called from many pages and route handlers.
   const { auth } = await import("@/auth");
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return null;
   return prisma.user.findUnique({ where: { id: userId } });
-}
+});

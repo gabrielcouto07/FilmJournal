@@ -3,18 +3,15 @@ import MovieCard from "@/components/MovieCard";
 import TasteExplorer from "@/components/TasteExplorer";
 import { prisma } from "@/lib/prisma";
 import { getTasteData } from "@/lib/recommendations";
-import { enrichStatsMoviesForUser } from "@/lib/movie-metadata";
+import BackgroundEnrich from "@/components/BackgroundEnrich";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
 
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function StatsPage() {
   const viewer = await getCurrentUser();
   const ownerId = viewer?.id || "";
-
-  await enrichStatsMoviesForUser(ownerId);
 
   const [logs, userMoviesWatched, userMoviesHighest, tasteData] = await Promise.all([
     prisma.logEntry.findMany({ where: { userId: ownerId }, include:{movie:true}, orderBy:{watchedAt:"asc"} }),
@@ -46,7 +43,7 @@ export default async function StatsPage() {
   const genres=countValues(watchedMovies.map((movie)=>movie.genres)).slice(0,8);
   const directors=countValues(watchedMovies.map((movie)=>movie.directors)).slice(0,6);
   const maxGenre=Math.max(1,...genres.map(([,count])=>count));
-  return <main className="page-shell space-y-12"><header className="grid gap-6 lg:grid-cols-[1fr_auto]"><div><p className="eyebrow">Inteligência de visualização pessoal</p><h1 className="display-title mt-3 text-5xl sm:text-7xl">Estatísticas e insights.</h1><p className="mt-4 max-w-2xl leading-7 text-slate-400">Uma visão real do arquivo: o que você assiste, como você avalia e para onde sua atenção sempre retorna.</p><Link href="#taste" className="accent-button mt-6">Explore seu DNA cinematográfico ↓</Link></div><p className="self-end text-xs font-bold text-slate-600">Gerado diretamente do PostgreSQL · {logs.length} eventos</p></header>
+  return <main className="page-shell space-y-12"><BackgroundEnrich /><header className="grid gap-6 lg:grid-cols-[1fr_auto]"><div><p className="eyebrow">Inteligência de visualização pessoal</p><h1 className="display-title mt-3 text-5xl sm:text-7xl">Estatísticas e insights.</h1><p className="mt-4 max-w-2xl leading-7 text-slate-400">Uma visão real do arquivo: o que você assiste, como você avalia e para onde sua atenção sempre retorna.</p><Link href="#taste" className="accent-button mt-6">Explore seu DNA cinematográfico ↓</Link></div><p className="self-end text-xs font-bold text-slate-600">Gerado diretamente do PostgreSQL · {logs.length} eventos</p></header>
     <section className="grid grid-cols-2 gap-3 lg:grid-cols-6"><Stat label="Total de sessões" value={logs.length}/><Stat label="Filmes assistidos" value={watchedMovies.length}/><Stat label="Nota média" value={rated.length?average.toFixed(2):"—"} accent/><Stat label="Resenhas" value={logs.filter((log)=>log.review?.trim()).length}/><Stat label="Reexibições" value={logs.filter((log)=>log.rewatch).length}/><Stat label="Entradas avaliadas" value={rated.length}/></section>
     <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]"><div className="surface rounded-[1.75rem] p-5 sm:p-7"><div><p className="eyebrow">Ao longo do tempo</p><h2 className="section-heading mt-2">Ritmo de visualização.</h2></div>{monthSeries.length?<div className="mt-8 flex h-64 items-end gap-2 border-b border-white/[0.08] pb-1">{monthSeries.map(([key,count])=><div key={key} className="group flex h-full flex-1 flex-col items-center justify-end gap-2"><span className="text-[9px] font-black text-slate-500 opacity-0 transition group-hover:opacity-100">{count}</span><div className="w-full rounded-t-md bg-gradient-to-t from-amber-400/35 to-amber-300 transition group-hover:brightness-125" style={{height:`${Math.max(3,(count/maxMonth)*190)}px`}}/><span className="-rotate-45 whitespace-nowrap text-[8px] font-bold text-slate-600 sm:rotate-0">{new Intl.DateTimeFormat("pt-BR",{month:"short",year:"2-digit",timeZone:"UTC"}).format(new Date(`${key}-01T12:00:00Z`))}</span></div>)}</div>:<Empty/>}</div>
       <div className="surface rounded-[1.75rem] p-5 sm:p-7"><p className="eyebrow">Sua escala</p><h2 className="section-heading mt-2">Distribuição de notas.</h2><div className="mt-7 space-y-3">{distribution.map((item)=><div key={item.rating} className="grid grid-cols-[2.4rem_1fr_2rem] items-center gap-3"><span className="text-xs font-black text-amber-200">{item.rating.toFixed(1)}</span><div className="h-2.5 overflow-hidden rounded-full bg-white/[0.05]"><div className="h-full rounded-full bg-amber-300/70" style={{width:`${(item.count/maxRating)*100}%`}}/></div><span className="text-right text-xs font-bold tabular-nums text-slate-600">{item.count}</span></div>)}</div></div></section>

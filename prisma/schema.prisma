@@ -89,9 +89,9 @@ model UserMovie {
   @@unique([userId, favoriteRank])
   @@index([userId])
   @@index([movieId])
-  @@index([watched])
-  @@index([favorite])
-  @@index([watchlist, watchlistAddedAt])
+  @@index([userId, watched])
+  @@index([userId, watchlist, watchlistAddedAt])
+  @@index([userId, rating])
 }
 
 model LogEntry {
@@ -121,4 +121,5 @@ model LogEntry {
   @@index([movieId, watchedAt])
   @@index([sourceUri])
   @@index([userId])
+  @@index([userId, watchedAt])
 }

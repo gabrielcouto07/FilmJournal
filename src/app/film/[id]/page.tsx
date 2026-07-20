@@ -6,7 +6,8 @@ import LogEditor from "@/components/LogEditor";
 import MovieRatingControl from "@/components/MovieRatingControl";
 import PosterPicker from "@/components/PosterPicker";
 import StarRating from "@/components/StarRating";
-import { getBackdropUrl, getTmdbMovie, movieBackdropPath, moviePosterPath, searchTmdbMovie, toMovieMetadata } from "@/lib/tmdb";
+import BackgroundEnrich from "@/components/BackgroundEnrich";
+import { getBackdropUrl, movieBackdropPath, moviePosterPath } from "@/lib/tmdb";
 import { prisma } from "@/lib/prisma";
 
 import { getCurrentUser } from "@/lib/auth";
@@ -20,37 +21,14 @@ export default async function FilmPage({params}:Props){
   const viewer = await getCurrentUser();
   const ownerId = viewer?.id || "";
 
-  const logsInclude = { logs: { where: { userId: ownerId }, orderBy: [{ watchedAt: "desc" as const }, { loggedAt: "desc" as const }] } };
-  let movie = await prisma.movie.findUnique({ where: { id }, include: logsInclude });
-  if(!movie)notFound();
-  // Movies added via the Letterboxd import start with only title/year. Resolve
-  // their TMDB identity on first view so posters and credits fill in over time.
-  if(!movie.tmdbId){
-    try{
-      const found=await searchTmdbMovie(movie.title,movie.year);
-      if(found){
-        const metadata=toMovieMetadata(await getTmdbMovie(found.id));
-        const clash=await prisma.movie.findUnique({where:{tmdbId:metadata.tmdbId},select:{id:true}});
-        const data=clash&&clash.id!==id?{...metadata,tmdbId:null,imdbId:null}:metadata;
-        movie=await prisma.movie.update({where:{id},data:{...data,posterPath:movie.posterPath??data.posterPath},include:logsInclude});
-      }
-    }catch{/* TMDb unavailable — local title/year stays usable. */}
-  }
-  if(movie.tmdbId&&(!movie.directors||!movie.cast||movie.tmdbRating==null)){
-    try{
-      const metadata=toMovieMetadata(await getTmdbMovie(movie.tmdbId));
-      movie=await prisma.movie.update({
-        where:{id},
-        data:{directors:metadata.directors,cast:metadata.cast,tmdbRating:metadata.tmdbRating,tmdbVoteCount:metadata.tmdbVoteCount,releaseDate:metadata.releaseDate,imdbId:metadata.imdbId??movie.imdbId},
-        include: {
-          logs: {
-            where: { userId: ownerId },
-            orderBy: [{ watchedAt: "desc" }, { loggedAt: "desc" }]
-          }
-        }
-      });
-    }catch{/* Existing local metadata remains usable when TMDb is unavailable. */}
-  }
+  const movie = await prisma.movie.findUnique({
+    where: { id },
+    include: { logs: { where: { userId: ownerId }, orderBy: [{ watchedAt: "desc" as const }, { loggedAt: "desc" as const }] } },
+  });
+  if (!movie) notFound();
+  // TMDB metadata (identity, poster, credits, rating) is filled by a background
+  // request after paint — never blocking this render. See <BackgroundEnrich/>.
+  const needsMetadata = !movie.tmdbId || !movie.directors || !movie.cast || movie.tmdbRating == null;
 
   const userMovie = await prisma.userMovie.findUnique({
     where: {
@@ -79,6 +57,7 @@ export default async function FilmPage({params}:Props){
   const imdbUrl=enrichedMovie.imdbId?`https://www.imdb.com/title/${enrichedMovie.imdbId}/`:null;
   const letterboxdUrl=enrichedMovie.letterboxdUri;
   return <main className="page-shell max-w-[1380px]">
+    <BackgroundEnrich movieIds={[movie.id]} when={needsMetadata} />
     <div className="mb-5 flex items-center justify-between"><Link href="/diary" className="text-sm font-bold text-amber-300 hover:text-amber-200">← Voltar ao diário</Link><p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">Ficha do filme · {movie.tmdbId?`TMDb ${movie.tmdbId}`:"Arquivo local"}</p></div>
     <section className="surface relative isolate overflow-hidden rounded-[2rem] p-5 sm:p-8 lg:p-10">{backdrop&&<div className="absolute inset-0 -z-20 scale-105 bg-cover bg-center opacity-60" style={{backgroundImage:`url(${backdrop})`}}/>}<div className="glass-gradient absolute inset-0 -z-10"/><div className="grid gap-9 lg:min-h-[34rem] lg:grid-cols-[minmax(18rem,.72fr)_minmax(0,1.28fr)] lg:items-center lg:gap-12"><div className="relative flex items-center justify-center lg:h-full"><div className="absolute h-3/4 w-3/4 rounded-full bg-amber-300/[0.08] blur-[70px]"/><PosterPicker movieId={enrichedMovie.id} tmdbId={enrichedMovie.tmdbId} initialPosterPath={selectedPoster} defaultPosterPath={enrichedMovie.posterPath} initialBackdropPath={movieBackdropPath(enrichedMovie)} title={enrichedMovie.title}/></div><div className="min-w-0 max-w-3xl pb-2 lg:py-8"><p className="eyebrow">{enrichedMovie.directors?`Um filme de ${enrichedMovie.directors}`:"Arquivo pessoal de filmes"}</p><h1 className="display-title balance mt-3 text-5xl leading-[.95] sm:text-7xl lg:text-8xl">{enrichedMovie.title}</h1><p className="mt-4 text-sm font-bold text-amber-200">{[enrichedMovie.year,enrichedMovie.runtime?`${enrichedMovie.runtime} min`:null,enrichedMovie.genres].filter(Boolean).join(" · ")}</p>{enrichedMovie.tagline&&<p className="mt-5 text-xl italic text-slate-200">“{enrichedMovie.tagline}”</p>}<p className="mt-5 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">{enrichedMovie.overview||"Nenhuma sinopse foi adicionada ainda."}</p><div className="mt-7 flex flex-wrap gap-3"><LogEditor movieId={enrichedMovie.id} title={enrichedMovie.title} initialRating={enrichedMovie.rating} initialRewatch={enrichedMovie.watched} /><CollectionControls movieId={enrichedMovie.id} initialWatchlist={enrichedMovie.watchlist} initialFavorite={enrichedMovie.favorite} initialFavoriteRank={enrichedMovie.favoriteRank}/></div></div></div></section>
     <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Info label="Sua Nota"><MovieRatingControl movieId={enrichedMovie.id} initialRating={enrichedMovie.rating}/></Info><Info label="Histórico de sessões"><p className="text-2xl font-black text-white">{logs.length} <span className="text-xs font-bold text-slate-500">{logs.length===1?"sessão":"sessões"}</span></p></Info><Info label="Nota TMDb"><p className="text-2xl font-black text-blue-200">{enrichedMovie.tmdbRating?enrichedMovie.tmdbRating.toFixed(1):"—"} <span className="text-xs font-bold text-slate-500">/ 10{enrichedMovie.tmdbVoteCount?` · ${enrichedMovie.tmdbVoteCount.toLocaleString()} votos`:""}</span></p></Info><Info label="Fontes externas"><div className="flex gap-3 text-sm font-bold text-amber-200">{imdbUrl&&<a href={imdbUrl} target="_blank" rel="noreferrer">IMDb ↗</a>}{letterboxdUrl&&<a href={letterboxdUrl} target="_blank" rel="noreferrer">Letterboxd ↗</a>}{!imdbUrl&&!letterboxdUrl&&<span className="text-slate-600">Nenhum link disponível</span>}</div></Info></section>
