@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { enrichMovieMetadata } from "@/lib/movie-metadata";
 import { prisma } from "@/lib/prisma";
 import { getPosterUrl } from "@/lib/tmdb";
+import { CATALOG_TAG } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -40,6 +42,7 @@ export async function POST(request: Request) {
     const movie = await enrichMovieMetadata(owned.id);
     const posterUrl = getPosterUrl(movie?.preferredPosterPath ?? movie?.posterPath);
     if (!posterUrl) return NextResponse.json({ error: "O TMDB não encontrou uma capa para este filme." }, { status: 404 });
+    revalidateTag(CATALOG_TAG); // enrichment updates the shared catalog
     return NextResponse.json({ posterUrl });
   } catch (error) {
     console.error("[movies/artwork]", error);

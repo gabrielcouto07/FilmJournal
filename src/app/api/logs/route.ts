@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { userTag } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -35,26 +37,21 @@ export async function GET(request: Request) {
   const viewer = await getCurrentUser();
   const ownerId = viewer?.id || "";
 
+  // Per-user state is folded into the same query — no trailing enrichment pass.
   const logs = await prisma.logEntry.findMany({
     where: { userId: ownerId },
-    include: { movie: true },
+    include: { movie: { include: { userMovies: { where: { userId: ownerId } } } } },
     orderBy: [{ watchedAt: "desc" }, { loggedAt: "desc" }],
     take: limit
   });
 
-  // Enrich movie objects in logs with user movie details
-  const movieIds = logs.map(l => l.movieId);
-  const userMovies = await prisma.userMovie.findMany({
-    where: { userId: ownerId, movieId: { in: movieIds } }
-  });
-  const umMap = new Map(userMovies.map(um => [um.movieId, um]));
-
   const enrichedLogs = logs.map(log => {
-    const um = umMap.get(log.movieId);
+    const um = log.movie.userMovies[0];
     return {
       ...log,
       movie: {
         ...log.movie,
+        userMovies: undefined,
         rating: um?.rating ?? null,
         watched: um?.watched ?? false,
         favorite: um?.favorite ?? false,
@@ -145,6 +142,7 @@ export async function POST(request: Request) {
     });
 
     if (!result) return NextResponse.json({ error: "Filme não encontrado." }, { status: 404 });
+    revalidateTag(userTag(user.id));
     return NextResponse.json({ ...result, message: `${result.movie.title} foi registrado.` }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Não foi possível registrar esta sessão." }, { status: 500 });
@@ -203,6 +201,7 @@ export async function PATCH(request: Request) {
       });
     }
 
+    revalidateTag(userTag(user.id));
     return NextResponse.json({ log, message: "Entrada do diário atualizada." });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") return NextResponse.json({ error: "Entrada do diário não encontrada." }, { status: 404 });
@@ -225,6 +224,7 @@ export async function DELETE(request: Request) {
     if (existing.userId !== user.id) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
     await prisma.logEntry.delete({ where: { id } });
+    revalidateTag(userTag(user.id));
     return NextResponse.json({ message: "Entrada do diário excluída." });
   } catch {
     return NextResponse.json({ error: "Entrada do diário não encontrada." }, { status: 404 });

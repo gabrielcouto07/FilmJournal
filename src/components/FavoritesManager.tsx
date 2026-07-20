@@ -6,7 +6,7 @@ import { getPosterUrl } from "@/lib/tmdb";
 import ArtworkImage from "./ArtworkImage";
 import { useToast } from "./ToastProvider";
 
-type FavoriteMovie = { id: string; title: string; year: number | null; posterPath: string | null; preferredPosterPath: string | null; favoriteRank: number | null; favorite: boolean; genres: string | null };
+export type FavoriteMovie = { id: string; title: string; year: number | null; posterPath: string | null; preferredPosterPath: string | null; favoriteRank: number | null; favorite: boolean; genres: string | null };
 
 export default function FavoritesManager({ initialMovies }: { initialMovies: FavoriteMovie[] }) {
   const [movies, setMovies] = useState(initialMovies);

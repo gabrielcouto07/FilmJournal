@@ -1,11 +1,13 @@
 import Link from "next/link";
-import type { LogEntry } from "@prisma/client";
 import { getPosterUrl } from "@/lib/tmdb";
-import type { EnrichedMovie } from "@/lib/types";
+import type { CardMovie } from "@/lib/types";
 import ArtworkImage from "./ArtworkImage";
 import StarRating from "./StarRating";
 
-type Props = { movie: EnrichedMovie; log?: LogEntry | null; priority?: boolean; rank?: number };
+// Accepts live Prisma objects and cache-serialized view models alike — the card
+// only reads the JSON-safe fields declared on CardMovie.
+type CardLogInfo = { rating: number | null; rewatch: boolean };
+type Props = { movie: CardMovie; log?: CardLogInfo | null; priority?: boolean; rank?: number };
 
 export default function MovieCard({ movie, log, priority = false, rank }: Props) {
   const preferredPosterUrl = getPosterUrl(movie.preferredPosterPath);

@@ -12,7 +12,8 @@ import { prisma } from "@/lib/prisma";
 
 import { getCurrentUser } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
+// No force-dynamic export needed: getCurrentUser() reads the session cookie,
+// which already renders this page per-request.
 type Props={params:Promise<{id:string}>};
 function formatDate(date:Date|null){return date?new Intl.DateTimeFormat("pt-BR",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(date):"Data não registrada";}
 
@@ -21,23 +22,20 @@ export default async function FilmPage({params}:Props){
   const viewer = await getCurrentUser();
   const ownerId = viewer?.id || "";
 
+  // Per-user state (userMovies) is folded into the same query — one round trip.
   const movie = await prisma.movie.findUnique({
     where: { id },
-    include: { logs: { where: { userId: ownerId }, orderBy: [{ watchedAt: "desc" as const }, { loggedAt: "desc" as const }] } },
+    include: {
+      logs: { where: { userId: ownerId }, orderBy: [{ watchedAt: "desc" as const }, { loggedAt: "desc" as const }] },
+      userMovies: { where: { userId: ownerId } },
+    },
   });
   if (!movie) notFound();
   // TMDB metadata (identity, poster, credits, rating) is filled by a background
   // request after paint — never blocking this render. See <BackgroundEnrich/>.
   const needsMetadata = !movie.tmdbId || !movie.directors || !movie.cast || movie.tmdbRating == null;
 
-  const userMovie = await prisma.userMovie.findUnique({
-    where: {
-      userId_movieId: {
-        userId: ownerId,
-        movieId: id
-      }
-    }
-  });
+  const userMovie = movie.userMovies[0] ?? null;
 
   const enrichedMovie = {
     ...movie,

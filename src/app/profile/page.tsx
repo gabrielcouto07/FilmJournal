@@ -4,8 +4,6 @@ import ProfileSettings from "@/components/ProfileSettings";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserSettings } from "@/lib/settings";
 
-export const dynamic = "force-dynamic";
-
 export const metadata = {
   title: "Perfil e configurações — FilmJournal",
 };

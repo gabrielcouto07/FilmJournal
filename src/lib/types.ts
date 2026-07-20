@@ -19,3 +19,20 @@ export type UserMovieState = {
  * The state fields are optional so a bare catalog `Movie` is still assignable.
  */
 export type EnrichedMovie = Movie & Partial<UserMovieState>;
+
+/**
+ * Minimal, JSON-safe movie shape for poster cards. Both live Prisma objects and
+ * cache-serialized view models satisfy it structurally, so cards render either.
+ */
+export type CardMovie = {
+  id: string;
+  title: string;
+  year: number | null;
+  posterPath: string | null;
+  preferredPosterPath?: string | null;
+  rating?: number | null;
+  watched?: boolean;
+  favorite?: boolean;
+  watchlist?: boolean;
+  favoriteRank?: number | null;
+};

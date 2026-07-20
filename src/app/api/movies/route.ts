@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getTmdbMovie, getTmdbMovieWithImages, TmdbError, toMovieMetadata } from "@/lib/tmdb";
 import { getCurrentUser } from "@/lib/auth";
+import { CATALOG_TAG, userTag } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +49,7 @@ export async function GET(request: Request) {
       favoriteRank: um.favoriteRank
     }));
   } else {
+    // Per-user state is folded into the same query — no trailing enrichment pass.
     const rawMovies = await prisma.movie.findMany({
       where: query ? { title: { contains: query } } : {},
       include: {
@@ -54,22 +57,18 @@ export async function GET(request: Request) {
           where: { userId: ownerId },
           orderBy: [{ watchedAt: "desc" }, { loggedAt: "desc" }],
           take: 1
-        }
+        },
+        userMovies: { where: { userId: ownerId } },
       },
       orderBy: [{ updatedAt: "desc" }, { title: "asc" }],
       take: limit,
     });
 
-    const movieIds = rawMovies.map(m => m.id);
-    const userMovies = await prisma.userMovie.findMany({
-      where: { userId: ownerId, movieId: { in: movieIds } }
-    });
-    const umMap = new Map(userMovies.map(um => [um.movieId, um]));
-
     movies = rawMovies.map(m => {
-      const um = umMap.get(m.id);
+      const um = m.userMovies[0];
       return {
         ...m,
+        userMovies: undefined,
         rating: um?.rating ?? null,
         watched: um?.watched ?? false,
         favorite: um?.favorite ?? false,
@@ -149,6 +148,7 @@ export async function POST(request: Request) {
       favoriteRank: userMovie.favoriteRank
     };
 
+    revalidateTag(userTag(user.id));
     return NextResponse.json({
       movie: mergedMovie,
       created: !existing,
@@ -266,6 +266,7 @@ export async function PATCH(request: Request) {
         favoriteRank: userMovie.favoriteRank
       };
 
+      revalidateTag(userTag(user.id));
       return NextResponse.json({ movie: mergedMovie, message: body.value ? "Adicionado à sua watchlist." : "Removido da sua watchlist." });
     }
 
@@ -304,6 +305,7 @@ export async function PATCH(request: Request) {
         favoriteRank: userMovie?.favoriteRank ?? null
       };
 
+      revalidateTag(CATALOG_TAG); // shared catalog artwork affects every user's cached pages
       return NextResponse.json({ movie: mergedMovie, message: `${body.action === "poster" ? "Pôster" : "Fundo"} atualizado em todo o seu arquivo.` });
     }
 
@@ -337,6 +339,7 @@ export async function PATCH(request: Request) {
         favoriteRank: userMovie.favoriteRank
       };
 
+      revalidateTag(userTag(user.id));
       return NextResponse.json({ movie: mergedMovie, message: body.value ? "Adicionado aos filmes favoritos." : "Removido dos filmes favoritos." });
     }
 
@@ -356,6 +359,7 @@ export async function PATCH(request: Request) {
           watchlistAddedAt: userMovie.watchlistAddedAt,
           favoriteRank: userMovie.favoriteRank
         };
+        revalidateTag(userTag(user.id));
         return NextResponse.json({ movie: mergedMovie, message: "Removido do seu Top 10." });
       }
 
@@ -378,6 +382,7 @@ export async function PATCH(request: Request) {
         favoriteRank: userMovie.favoriteRank
       };
 
+      revalidateTag(userTag(user.id));
       return NextResponse.json({ movie: mergedMovie, message: `Adicionado ao seu Top 10 na posição #${nextRank}.` });
     }
 
@@ -402,6 +407,7 @@ export async function PATCH(request: Request) {
         favoriteRank: userMovie.favoriteRank
       };
 
+      revalidateTag(userTag(user.id));
       return NextResponse.json({ movie: mergedMovie, message: rank ? `Movido para #${rank}.` : "Removido do seu Top 10." });
     }
 
@@ -436,6 +442,7 @@ export async function PATCH(request: Request) {
         favoriteRank: userMovie.favoriteRank
       };
 
+      revalidateTag(userTag(user.id));
       return NextResponse.json({ movie: mergedMovie, message: rating ? `Nota ${rating.toFixed(1)} estrelas.` : "Nota removida." });
     }
 

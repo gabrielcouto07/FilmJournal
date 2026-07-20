@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { enrichMovieMetadata } from "@/lib/movie-metadata";
+import { CATALOG_TAG } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -47,5 +49,8 @@ export async function POST(request: Request) {
     }
   }
 
+  // Filled-in metadata lives on the shared catalog; drop every cached page that
+  // shows it so the follow-up router.refresh() sees the new posters/credits.
+  if (enriched > 0) revalidateTag(CATALOG_TAG);
   return NextResponse.json({ enriched, requested: ids.length });
 }

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { unzipSync } from "fflate";
 import { getCurrentUser } from "@/lib/auth";
+import { CATALOG_TAG, userTag } from "@/lib/data";
 import { importLetterboxdForUser } from "@/lib/letterboxd-persist";
 import {
   LetterboxdImportValidationError,
@@ -144,6 +146,10 @@ export async function POST(request: Request) {
 
   try {
     const summary = await importLetterboxdForUser(user.id, files);
+    // The import fills the user's journal and may add catalog movies — drop
+    // every cached page so the freshly imported profile shows up immediately.
+    revalidateTag(userTag(user.id));
+    revalidateTag(CATALOG_TAG);
     return json({ ok: true, summary, errors });
   } catch (error) {
     if (error instanceof LetterboxdImportValidationError) {
