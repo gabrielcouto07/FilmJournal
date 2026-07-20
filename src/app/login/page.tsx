@@ -41,8 +41,8 @@ export default function LoginPage() {
       await login(username, password);
       notify("Bem-vindo de volta! 👋", "success");
       router.push("/"); router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Credenciais inválidas.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Credenciais inválidas.");
       notify("Credenciais inválidas.", "error");
     } finally { setLoading(false); }
   };
@@ -66,9 +66,10 @@ export default function LoginPage() {
       notify("Conta criada! Entrando...", "success");
       await login(regUsername, regPassword);
       router.push("/"); router.refresh();
-    } catch (err: any) {
-      setError(err.message);
-      notify(err.message, "error");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Não foi possível criar a conta.";
+      setError(message);
+      notify(message, "error");
     } finally { setLoading(false); }
   };
 
@@ -102,7 +103,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="mb-6 animate-[fade-up_.25s_ease_both] rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-xs font-bold text-red-300">
+            <div role="alert" className="mb-6 animate-[fade-up_.25s_ease_both] rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-xs font-bold text-red-300">
               {error}
             </div>
           )}
@@ -110,12 +111,12 @@ export default function LoginPage() {
           {tab === "login" ? (
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Usuário</label>
-                <input type="text" required value={username} onChange={e => setUsername(e.target.value)} className={inputClass} placeholder="seu_usuario" />
+                <label htmlFor="login-username" className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Usuário</label>
+                <input id="login-username" name="username" type="text" autoComplete="username" required value={username} onChange={e => setUsername(e.target.value)} className={inputClass} placeholder="seu_usuario" />
               </div>
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Senha</label>
-                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className={inputClass} placeholder="- - - - - - - - " />
+                <label htmlFor="login-password" className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Senha</label>
+                <input id="login-password" name="password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} className={inputClass} placeholder="- - - - - - - - " />
               </div>
               <button type="submit" disabled={loading} className={`w-full accent-button py-4 justify-center font-bold disabled:opacity-50 ${!loading ? "glow-pulse" : ""}`}>
                 {loading ? "Entrando..." : "Entrar"}
@@ -124,20 +125,20 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={handleRegister} className="space-y-5">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Nome de exibição</label>
-                <input type="text" value={regName} onChange={e => setRegName(e.target.value)} className={inputClass} placeholder="Seu nome" />
+                <label htmlFor="register-name" className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Nome de exibição</label>
+                <input id="register-name" name="name" type="text" autoComplete="name" value={regName} onChange={e => setRegName(e.target.value)} className={inputClass} placeholder="Seu nome" />
               </div>
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Usuário</label>
-                <input type="text" required value={regUsername} onChange={e => setRegUsername(e.target.value)} className={inputClass} placeholder="letras, números, _" />
+                <label htmlFor="register-username" className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Usuário</label>
+                <input id="register-username" name="username" type="text" autoComplete="username" required minLength={3} maxLength={30} pattern="[a-zA-Z0-9_]+" value={regUsername} onChange={e => setRegUsername(e.target.value)} className={inputClass} placeholder="letras, números, _" />
               </div>
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">E-mail</label>
-                <input type="email" required value={regEmail} onChange={e => setRegEmail(e.target.value)} className={inputClass} placeholder="voce@email.com" />
+                <label htmlFor="register-email" className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">E-mail</label>
+                <input id="register-email" name="email" type="email" autoComplete="email" required value={regEmail} onChange={e => setRegEmail(e.target.value)} className={inputClass} placeholder="voce@email.com" />
               </div>
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Senha (mín. 8 caracteres)</label>
-                <input type="password" required minLength={8} value={regPassword} onChange={e => setRegPassword(e.target.value)} className={inputClass} placeholder="- - - - - - - - " />
+                <label htmlFor="register-password" className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Senha (mín. 8 caracteres)</label>
+                <input id="register-password" name="new-password" type="password" autoComplete="new-password" required minLength={8} maxLength={72} value={regPassword} onChange={e => setRegPassword(e.target.value)} className={inputClass} placeholder="- - - - - - - - " />
               </div>
               <button type="submit" disabled={loading} className={`w-full accent-button py-4 justify-center font-bold disabled:opacity-50 ${!loading ? "glow-pulse" : ""}`}>
                 {loading ? "Criando conta..." : "Criar conta"}

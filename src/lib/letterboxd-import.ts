@@ -29,10 +29,25 @@ export type LetterboxdFilm = {
   events: LetterboxdEvent[];
 };
 
-export type LetterboxdFiles = Partial<Record<
-  "diary.csv" | "reviews.csv" | "ratings.csv" | "watched.csv" | "watchlist.csv" | "profile.csv" | "likes/films.csv",
-  string
->>;
+export type LetterboxdFile =
+  | "diary.csv"
+  | "reviews.csv"
+  | "ratings.csv"
+  | "watched.csv"
+  | "watchlist.csv"
+  | "profile.csv"
+  | "likes/films.csv";
+
+export type LetterboxdFiles = Partial<Record<LetterboxdFile, string>>;
+
+export const MAX_LETTERBOXD_ROWS_PER_FILE = 50_000;
+
+export class LetterboxdImportValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "LetterboxdImportValidationError";
+  }
+}
 
 export function parseCsv(text: string): CsvRow[] {
   const rows: string[][] = [];
@@ -64,6 +79,15 @@ export function parseCsv(text: string): CsvRow[] {
   if (field.length || row.length) {
     row.push(field);
     rows.push(row);
+  }
+
+  if (quoted) {
+    throw new LetterboxdImportValidationError("Um dos CSVs está malformado (aspas não foram fechadas).");
+  }
+  if (rows.length > MAX_LETTERBOXD_ROWS_PER_FILE + 1) {
+    throw new LetterboxdImportValidationError(
+      `Um dos CSVs excede o limite de ${MAX_LETTERBOXD_ROWS_PER_FILE.toLocaleString("pt-BR")} linhas.`,
+    );
   }
 
   const headers = (rows.shift() ?? []).map((header) => header.replace(/^\uFEFF/, "").trim());
@@ -160,7 +184,9 @@ function effectiveTime(event: LetterboxdEvent): number {
 
 export function buildCanonicalLetterboxdImport(files: LetterboxdFiles): Map<string, LetterboxdFilm> {
   const films = new Map<string, LetterboxdFilm>();
-  const rows = (name: keyof LetterboxdFiles) => parseCsv(files[name] ?? "");
+  const rows = (name: keyof LetterboxdFiles) => parseCsv(files[name] ?? "").filter((row) =>
+    name === "profile.csv" || Boolean(row.Name?.trim()),
+  );
 
   rows("diary.csv").forEach((row, index) => {
     const film = filmFor(films, row);

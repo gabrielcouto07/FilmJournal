@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import ArtworkImage from "@/components/ArtworkImage";
 import { useToast } from "@/components/ToastProvider";

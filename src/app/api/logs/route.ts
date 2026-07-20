@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser, getOwnerUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -32,8 +32,8 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || 50, 1), 200);
 
-  const owner = await getOwnerUser();
-  const ownerId = owner?.id || "";
+  const viewer = await getCurrentUser();
+  const ownerId = viewer?.id || "";
 
   const logs = await prisma.logEntry.findMany({
     where: { userId: ownerId },
@@ -70,8 +70,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "OWNER") {
-    return NextResponse.json({ error: "Não autorizado. Apenas o proprietário pode registrar sessões." }, { status: 401 });
+  if (!user) {
+    return NextResponse.json({ error: "Faça login para registrar sessões." }, { status: 401 });
   }
 
   let body: { movieId?: unknown; watchedAt?: unknown; rating?: unknown; review?: unknown; rewatch?: unknown; tags?: unknown };
@@ -146,15 +146,15 @@ export async function POST(request: Request) {
 
     if (!result) return NextResponse.json({ error: "Filme não encontrado." }, { status: 404 });
     return NextResponse.json({ ...result, message: `${result.movie.title} foi registrado.` }, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Não foi possível registrar esta sessão." }, { status: 500 });
   }
 }
 
 export async function PATCH(request: Request) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "OWNER") {
-    return NextResponse.json({ error: "Não autorizado. Apenas o proprietário pode editar entradas do diário." }, { status: 401 });
+  if (!user) {
+    return NextResponse.json({ error: "Faça login para editar entradas do diário." }, { status: 401 });
   }
 
   let body: { id?: unknown; rating?: unknown; review?: unknown; watchedAt?: unknown; rewatch?: unknown; tags?: unknown; favorite?: unknown };
@@ -187,7 +187,7 @@ export async function PATCH(request: Request) {
     });
 
     // Update UserMovie status
-    const updateData: any = {};
+    const updateData: { favorite?: boolean; rating?: number | null } = {};
     if (typeof body.favorite === "boolean") updateData.favorite = body.favorite;
     if (body.rating !== undefined) updateData.rating = rating;
 
@@ -212,8 +212,8 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "OWNER") {
-    return NextResponse.json({ error: "Não autorizado. Apenas o proprietário pode excluir entradas do diário." }, { status: 401 });
+  if (!user) {
+    return NextResponse.json({ error: "Faça login para excluir entradas do diário." }, { status: 401 });
   }
 
   const id = new URL(request.url).searchParams.get("id");

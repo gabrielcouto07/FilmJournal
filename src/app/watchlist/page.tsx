@@ -1,12 +1,12 @@
 import WatchlistExplorer, { type WatchlistMovie } from "@/components/WatchlistExplorer";
 import { prisma } from "@/lib/prisma";
-import { getOwnerUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function WatchlistPage() {
-  const owner = await getOwnerUser();
-  const ownerId = owner?.id || "";
+  const viewer = await getCurrentUser();
+  const ownerId = viewer?.id || "";
 
   const userMovies = await prisma.userMovie.findMany({
     where: { userId: ownerId, watchlist: true },

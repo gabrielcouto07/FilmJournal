@@ -8,6 +8,7 @@ const navigation = [
   { href: "/", label: "Visão Geral" },
   { href: "/diary", label: "Diário" },
   { href: "/search", label: "Descobrir" },
+  { href: "/import", label: "Importar" },
   { href: "/watchlist", label: "Watchlist" },
   { href: "/favorites", label: "Top 10" },
   { href: "/stats", label: "Estatísticas" },

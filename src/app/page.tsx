@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Movie } from "@prisma/client";
 import MovieCard from "@/components/MovieCard";
 import StarRating from "@/components/StarRating";
 import { getBackdropUrl, movieBackdropPath } from "@/lib/tmdb";
@@ -6,13 +7,14 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-import { getOwnerUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { auth } from "@/auth";
 import PublicOverview from "@/components/PublicOverview";
 
 async function getDashboardData() {
-  const owner = await getOwnerUser();
-  const ownerId = owner?.id || "";
+  // Scoped to the signed-in user so every account sees its own journal.
+  const viewer = await getCurrentUser();
+  const ownerId = viewer?.id || "";
 
   const since = new Date(); since.setUTCMonth(since.getUTCMonth() - 11, 1); since.setUTCHours(0,0,0,0);
   const yearStart = new Date(`${new Date().getUTCFullYear()}-01-01T00:00:00.000Z`);
@@ -42,7 +44,7 @@ async function getDashboardData() {
   });
   const umMap = new Map(userMovies.map(um => [um.movieId, um]));
 
-  const enrichMovie = (movie: any) => {
+  const enrichMovie = (movie: Movie) => {
     const um = umMap.get(movie.id);
     return {
       ...movie,
@@ -124,12 +126,10 @@ function ActivationPanel() {
       <div className="surface-subtle rounded-2xl p-6">
         <span className="grid h-11 w-11 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10 text-lg" aria-hidden="true">🎬</span>
         <h2 className="mt-4 text-lg font-black text-white">Importar do Letterboxd</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-400">Traga todo o seu histórico — diário, notas, resenhas, watchlist e favoritos. Teste sem gravar nada e depois confirme:</p>
-        <div className="mt-4 space-y-1.5 font-mono text-[11px] text-amber-200/90">
-          <p><span className="text-slate-600">1.</span> npm run import:letterboxd:dry</p>
-          <p><span className="text-slate-600">2.</span> npm run import:letterboxd -- --yes</p>
+        <p className="mt-2 text-sm leading-6 text-slate-400">Traga todo o seu histórico — diário, notas, resenhas, watchlist e favoritos — enviando o arquivo .zip do Letterboxd. Preenche seu perfil de uma só vez.</p>
+        <div className="mt-5">
+          <Link href="/import" className="accent-button">Importar meus filmes →</Link>
         </div>
-        <p className="mt-3 text-xs text-slate-600">Passo a passo completo no README (“Import Letterboxd Data Safely”).</p>
       </div>
       <div className="surface-subtle rounded-2xl p-6">
         <span className="grid h-11 w-11 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10 text-lg" aria-hidden="true">🍿</span>

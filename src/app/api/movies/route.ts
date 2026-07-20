@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getTmdbMovie, getTmdbMovieWithImages, TmdbError, toMovieMetadata } from "@/lib/tmdb";
-import { getCurrentUser, getOwnerUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +11,10 @@ export async function GET(request: Request) {
   const watchlist = url.searchParams.get("watchlist") === "true";
   const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || 40, 1), 100);
 
-  const owner = await getOwnerUser();
-  const ownerId = owner?.id || "";
+  const viewer = await getCurrentUser();
+  const ownerId = viewer?.id || "";
 
-  let movies: any[] = [];
+  let movies: unknown[] = [];
 
   if (watchlist) {
     const userMovies = await prisma.userMovie.findMany({
@@ -84,10 +84,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  // Check authorization
+  // Any signed-in user can add movies to their own collection.
   const user = await getCurrentUser();
-  if (!user || user.role !== "OWNER") {
-    return NextResponse.json({ error: "Não autorizado. Apenas o proprietário pode adicionar filmes." }, { status: 401 });
+  if (!user) {
+    return NextResponse.json({ error: "Faça login para adicionar filmes." }, { status: 401 });
   }
 
   let body: { tmdbId?: unknown; watchlist?: unknown };
@@ -214,10 +214,11 @@ type CollectionMutation = {
 };
 
 export async function PATCH(request: Request) {
-  // Check authorization
+  // Any signed-in user can modify their own collection state below. Actions that
+  // mutate the shared catalog (poster/backdrop art) are gated to the owner.
   const user = await getCurrentUser();
-  if (!user || user.role !== "OWNER") {
-    return NextResponse.json({ error: "Não autorizado. Apenas o proprietário pode modificar filmes." }, { status: 401 });
+  if (!user) {
+    return NextResponse.json({ error: "Faça login para modificar filmes." }, { status: 401 });
   }
 
   let body: CollectionMutation;
@@ -269,6 +270,9 @@ export async function PATCH(request: Request) {
     }
 
     if (body.action === "poster" || body.action === "backdrop") {
+      if (user.role !== "OWNER") {
+        return NextResponse.json({ error: "A arte do catálogo só pode ser alterada pelo proprietário." }, { status: 403 });
+      }
       if (typeof body.value !== "string" || !body.value.startsWith("/") || body.value.length > 200) {
         return NextResponse.json({ error: "É necessário um caminho de arte válido do TMDb." }, { status: 400 });
       }

@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import { getTasteData } from "@/lib/recommendations";
-import { getOwnerUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
-    const owner = await getOwnerUser();
-    if (!owner) {
-      return NextResponse.json({ error: "Nenhum perfil de proprietário foi configurado ainda." }, { status: 404 });
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Faça login para ver recomendações." }, { status: 401 });
     }
     const url = new URL(request.url);
-    const data = await getTasteData({ refresh: url.searchParams.get("refresh") === "1", userId: owner.id });
+    const data = await getTasteData({ refresh: url.searchParams.get("refresh") === "1", userId: user.id });
     return NextResponse.json(data, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("Recommendation refresh failed", error);

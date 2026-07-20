@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getTmdbFeed, getTmdbMovieWithImages, searchTmdbMovies, TmdbError, type TmdbFeed } from "@/lib/tmdb";
-import { getOwnerUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +20,8 @@ export async function GET(request: Request) {
   const pageValue = Number(url.searchParams.get("page"));
   const feed = url.searchParams.get("feed") as TmdbFeed | null;
 
-  const owner = await getOwnerUser();
-  const ownerId = owner?.id || "";
+  const viewer = await getCurrentUser();
+  const ownerId = viewer?.id || "";
 
   try {
     if (Number.isInteger(id) && id > 0) {

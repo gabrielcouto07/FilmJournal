@@ -1,30 +1,33 @@
-import Link from "next/link";
+import LetterboxdImport from "@/components/LetterboxdImport";
 
 export const metadata = {
-  title: "Letterboxd Import — FilmJournal",
+  title: "Importar do Letterboxd — FilmJournal",
 };
+
+export const dynamic = "force-dynamic";
 
 const STEPS = [
   {
-    title: "Open your Letterboxd data settings",
-    body: "Go to letterboxd.com → Settings → Data (or visit letterboxd.com/data/export while signed in).",
+    title: "Exporte seus dados",
+    body: "No Letterboxd: Settings → Data → “Export your data”. Você recebe um arquivo .zip.",
   },
   {
-    title: "Export your data",
-    body: "Click “Export your data”. Letterboxd emails/serves a ZIP archive of your account.",
+    title: "Envie o .zip aqui",
+    body: "Arraste o arquivo .zip inteiro abaixo — não precisa descompactar. Se preferir, envie os .csv soltos.",
   },
   {
-    title: "Unzip the archive",
-    body: "Inside you’ll find the CSV files this importer reads.",
+    title: "Pronto",
+    body: "Seu diário, notas, resenhas, watchlist e favoritos aparecem na sua conta na hora.",
   },
 ];
 
 const FILES = [
-  { name: "watched.csv", desc: "Every film you’ve marked as watched." },
-  { name: "ratings.csv", desc: "Your star ratings (0.5–5)." },
-  { name: "diary.csv", desc: "Dated diary entries, including rewatches." },
-  { name: "reviews.csv", desc: "Written reviews attached to watches." },
-  { name: "watchlist.csv", desc: "Films you want to watch." },
+  { name: "diary.csv", desc: "Sessões com data, incluindo reexibições." },
+  { name: "reviews.csv", desc: "Resenhas escritas em cada sessão." },
+  { name: "ratings.csv", desc: "Suas notas (0,5–5 estrelas)." },
+  { name: "watched.csv", desc: "Todos os filmes marcados como vistos." },
+  { name: "watchlist.csv", desc: "Filmes que você quer assistir." },
+  { name: "likes/films.csv", desc: "Filmes curtidos (favoritos)." },
 ];
 
 export default function ImportPage() {
@@ -32,14 +35,11 @@ export default function ImportPage() {
     <main className="page-shell max-w-4xl space-y-10">
       <section className="surface relative overflow-hidden rounded-[2rem] p-8 sm:p-12">
         <div className="glass-gradient absolute inset-0 -z-10" />
-        <p className="eyebrow">Phase 2 · Onboarding</p>
-        <h1 className="display-title mt-4 text-4xl sm:text-6xl">Letterboxd Import</h1>
-        <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-amber-200">
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-300" /> Coming Soon
-        </span>
+        <p className="eyebrow">Onboarding</p>
+        <h1 className="display-title mt-4 text-4xl sm:text-6xl">Importar do Letterboxd</h1>
         <p className="mt-6 max-w-2xl text-base leading-7 text-slate-300">
-          Soon you’ll be able to bring your entire Letterboxd history into FilmJournal in one upload —
-          your watched films, ratings, diary, reviews, and watchlist, resolved against TMDB and scoped to your account.
+          Traga toda a sua história do Letterboxd para o FilmJournal em um único envio — filmes vistos,
+          notas, diário, resenhas, watchlist e favoritos, tudo ligado à sua conta.
         </p>
       </section>
 
@@ -53,8 +53,10 @@ export default function ImportPage() {
         ))}
       </section>
 
+      <LetterboxdImport />
+
       <section>
-        <h2 className="section-heading mb-4">The files you’ll upload</h2>
+        <h2 className="section-heading mb-4">O que é lido do seu export</h2>
         <div className="surface rounded-2xl divide-y divide-white/[0.06]">
           {FILES.map((file) => (
             <div key={file.name} className="flex items-center gap-4 p-4">
@@ -63,15 +65,10 @@ export default function ImportPage() {
             </div>
           ))}
         </div>
+        <p className="mt-3 text-xs text-slate-600">
+          Enviar o mesmo arquivo de novo é seguro — as entradas existentes são reconciliadas, não duplicadas. O envio web aceita até 4 MB.
+        </p>
       </section>
-
-      {/* TODO: Phase 2 - build the upload form here and POST the CSVs to
-          /api/import/letterboxd (multipart/form-data), then render the
-          { imported, skipped, errors } summary the route returns. */}
-      <div className="empty-state">
-        <p className="font-bold text-white">The upload experience is under construction.</p>
-        <Link href="/" className="mt-3 inline-flex text-xs font-bold text-amber-300">Back to overview →</Link>
-      </div>
     </main>
   );
 }

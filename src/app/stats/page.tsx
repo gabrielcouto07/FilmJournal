@@ -6,11 +6,11 @@ import { getTasteData } from "@/lib/recommendations";
 
 export const dynamic = "force-dynamic";
 
-import { getOwnerUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 
 export default async function StatsPage() {
-  const owner = await getOwnerUser();
-  const ownerId = owner?.id || "";
+  const viewer = await getCurrentUser();
+  const ownerId = viewer?.id || "";
 
   const [logs, userMoviesWatched, userMoviesHighest, tasteData] = await Promise.all([
     prisma.logEntry.findMany({ where: { userId: ownerId }, include:{movie:true}, orderBy:{watchedAt:"asc"} }),

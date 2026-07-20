@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const schema = z.object({
-  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
-  email: z.string().email(),
+  username: z.string().trim().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
+  email: z.string().trim().email().transform((email) => email.toLowerCase()),
   password: z.string().min(8).max(72),
-  displayName: z.string().min(1).max(60).optional(),
+  displayName: z.string().trim().min(1).max(60).optional(),
 });
 
 // Simple in-memory rate limit: 5 registrations per IP per 10 minutes
@@ -80,6 +81,9 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: "Dados inválidos.", details: err.errors }, { status: 400 });
+    }
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return NextResponse.json({ error: "Nome de usuário ou e-mail já cadastrado." }, { status: 409 });
     }
     console.error("[register]", err);
     return NextResponse.json({ error: "Erro interno." }, { status: 500 });

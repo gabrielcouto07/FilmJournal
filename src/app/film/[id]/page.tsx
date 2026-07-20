@@ -6,10 +6,10 @@ import LogEditor from "@/components/LogEditor";
 import MovieRatingControl from "@/components/MovieRatingControl";
 import PosterPicker from "@/components/PosterPicker";
 import StarRating from "@/components/StarRating";
-import { getBackdropUrl, getTmdbMovie, movieBackdropPath, moviePosterPath, toMovieMetadata } from "@/lib/tmdb";
+import { getBackdropUrl, getTmdbMovie, movieBackdropPath, moviePosterPath, searchTmdbMovie, toMovieMetadata } from "@/lib/tmdb";
 import { prisma } from "@/lib/prisma";
 
-import { getOwnerUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 type Props={params:Promise<{id:string}>};
@@ -17,19 +17,25 @@ function formatDate(date:Date|null){return date?new Intl.DateTimeFormat("pt-BR",
 
 export default async function FilmPage({params}:Props){
   const {id}=await params;
-  const owner = await getOwnerUser();
-  const ownerId = owner?.id || "";
+  const viewer = await getCurrentUser();
+  const ownerId = viewer?.id || "";
 
-  let movie = await prisma.movie.findUnique({
-    where: { id },
-    include: {
-      logs: {
-        where: { userId: ownerId },
-        orderBy: [{ watchedAt: "desc" }, { loggedAt: "desc" }]
-      }
-    }
-  });
+  const logsInclude = { logs: { where: { userId: ownerId }, orderBy: [{ watchedAt: "desc" as const }, { loggedAt: "desc" as const }] } };
+  let movie = await prisma.movie.findUnique({ where: { id }, include: logsInclude });
   if(!movie)notFound();
+  // Movies added via the Letterboxd import start with only title/year. Resolve
+  // their TMDB identity on first view so posters and credits fill in over time.
+  if(!movie.tmdbId){
+    try{
+      const found=await searchTmdbMovie(movie.title,movie.year);
+      if(found){
+        const metadata=toMovieMetadata(await getTmdbMovie(found.id));
+        const clash=await prisma.movie.findUnique({where:{tmdbId:metadata.tmdbId},select:{id:true}});
+        const data=clash&&clash.id!==id?{...metadata,tmdbId:null,imdbId:null}:metadata;
+        movie=await prisma.movie.update({where:{id},data:{...data,posterPath:movie.posterPath??data.posterPath},include:logsInclude});
+      }
+    }catch{/* TMDb unavailable — local title/year stays usable. */}
+  }
   if(movie.tmdbId&&(!movie.directors||!movie.cast||movie.tmdbRating==null)){
     try{
       const metadata=toMovieMetadata(await getTmdbMovie(movie.tmdbId));
