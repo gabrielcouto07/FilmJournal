@@ -45,11 +45,30 @@ model User {
   displayName  String?
   avatarUrl    String?
   bio          String?
-  role         String      @default("USER") // e.g. OWNER, USER
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  role         String        @default("USER") // e.g. OWNER, USER
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   userMovies   UserMovie[]
   logs         LogEntry[]
+  settings     UserSettings?
+}
+
+model UserSettings {
+  userId             String   @id
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme              String   @default("dark") // "system" | "dark" | "light"
+  accentColor        String   @default("#f5c518")
+  language           String   @default("pt-BR") // "pt-BR" | "en"
+  region             String   @default("BR")
+  dateFormat         String   @default("dd/MM/yyyy")
+  defaultRatingScale Int      @default(5) // 5 | 10
+  allowHalfStars     Boolean  @default(true)
+  profileVisibility  String   @default("private") // "private" | "public"
+  showAdultContent   Boolean  @default(false)
+  defaultLandingPage String   @default("/")
+  emailNotifications Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model UserMovie {

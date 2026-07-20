@@ -67,12 +67,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @layer components {
   .page-shell { @apply mx-auto w-full max-w-[1480px] px-4 py-7 sm:px-7 sm:py-10 lg:px-10; }
   .display-title { @apply font-black tracking-[-.02em] text-white; font-family: var(--font-serif), "Playfair Display", Georgia, serif; }
-  .eyebrow { @apply text-[10px] font-extrabold uppercase tracking-[0.24em] text-amber-300/90; }
+  .eyebrow { @apply text-[10px] font-extrabold uppercase tracking-[0.24em]; color: var(--accent); }
   .surface { @apply border border-white/10 bg-[#141414]/80 shadow-[0_22px_80px_rgba(0,0,0,.3)] backdrop-blur-xl; }
   .surface-raised { @apply border border-white/[0.12] bg-[#1a1a1a]/90 shadow-[0_26px_90px_rgba(0,0,0,.38)] backdrop-blur-xl; }
   .surface-subtle { @apply border border-white/[0.07] bg-white/[0.028]; }
   .icon-button { @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-slate-300 transition duration-200 hover:border-amber-300/40 hover:bg-amber-300/10 hover:text-amber-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50; }
-  .accent-button { @apply inline-flex items-center justify-center rounded-full bg-amber-300 px-4 py-2.5 text-sm font-extrabold text-[#1a1400] shadow-[0_8px_28px_rgba(245,197,24,.15)] transition duration-200 hover:-translate-y-0.5 hover:bg-amber-200 hover:shadow-[0_12px_40px_rgba(245,197,24,.28)] active:translate-y-0 active:scale-[.97] disabled:cursor-not-allowed disabled:opacity-60; will-change: transform; }
+  .accent-button { @apply inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-extrabold text-[#1a1400] shadow-[0_8px_28px_rgba(245,197,24,.15)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(245,197,24,.28)] active:translate-y-0 active:scale-[.97] disabled:cursor-not-allowed disabled:opacity-60; will-change: transform; background: var(--accent); }
+  .accent-button:hover { filter: brightness(1.06); }
   .quiet-button { @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-slate-200 transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.09] active:translate-y-0 active:scale-[.97] disabled:cursor-not-allowed disabled:opacity-60; }
   .field { @apply w-full rounded-xl border border-white/10 bg-black/25 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-amber-300/45 focus:ring-4 focus:ring-amber-300/[0.07]; }
   .chip { @apply inline-flex items-center rounded-full border border-white/[0.09] bg-white/[0.035] px-3 py-1.5 text-xs font-bold text-slate-400 transition hover:border-white/20 hover:text-white; }
@@ -148,3 +149,32 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   .poster-card, .poster-card:hover, .poster-image, .poster-image[data-loaded="true"] { transform: none; }
 }
+
+/* Light theme (beta). The app is dark-first; this remaps the core surfaces and
+   text tokens so light mode is readable. Poster/card chrome stays deliberately
+   dark for contrast, matter an editorial look. Accent is driven by --accent. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --canvas: #f6f2e9;
+  --text: #17130c;
+  --text-soft: #40382c;
+  --muted: #6a6250;
+  --line: rgba(20, 16, 8, 0.12);
+}
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(circle at 82% -8%, rgba(245,197,24,.16), transparent 30rem),
+    linear-gradient(180deg, #faf7ef 0%, var(--canvas) 45%, #f1ebdd 100%);
+  color: var(--text);
+}
+:root[data-theme="light"] .surface { background: rgba(255,255,255,.86); border-color: rgba(20,16,8,.10); }
+:root[data-theme="light"] .surface-raised { background: rgba(255,255,255,.95); border-color: rgba(20,16,8,.12); }
+:root[data-theme="light"] .surface-subtle { background: rgba(20,16,8,.035); border-color: rgba(20,16,8,.08); }
+:root[data-theme="light"] .field { background: rgba(255,255,255,.9); border-color: rgba(20,16,8,.14); color: var(--text); }
+:root[data-theme="light"] .display-title,
+:root[data-theme="light"] .text-white { color: #17130c; }
+:root[data-theme="light"] .text-slate-200 { color: #2c261c; }
+:root[data-theme="light"] .text-slate-300 { color: #3a3327; }
+:root[data-theme="light"] .text-slate-400 { color: #524a3a; }
+:root[data-theme="light"] .text-slate-500 { color: #6a6250; }
+:root[data-theme="light"] .text-slate-600 { color: #837a66; }

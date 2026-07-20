@@ -1,5 +1,7 @@
 "use client";
 
+import { useSettings } from "./SettingsProvider";
+
 type StarRatingProps = {
   value?: number | null;
   onChange?: (value: number) => void;
@@ -14,12 +16,13 @@ function Star({ fill }: { fill: "empty" | "half" | "full" }) {
   return (
     <span className="relative inline-block h-[1em] w-[.95em] leading-none" aria-hidden="true">
       <span className="absolute inset-0 text-white/15">★</span>
-      {fill !== "empty" && <span className="absolute inset-0 text-amber-300" style={fill === "half" ? { clipPath: "inset(0 50% 0 0)" } : undefined}>★</span>}
+      {fill !== "empty" && <span className="absolute inset-0" style={{ color: "var(--accent)", ...(fill === "half" ? { clipPath: "inset(0 50% 0 0)" } : {}) }}>★</span>}
     </span>
   );
 }
 
 export default function StarRating({ value = 0, onChange, readOnly = false, size = "md", showValue = false }: StarRatingProps) {
+  const { settings } = useSettings();
   const rating = value ?? 0;
 
   return (
@@ -34,9 +37,10 @@ export default function StarRating({ value = 0, onChange, readOnly = false, size
             key={fullValue}
             type="button"
             className="relative rounded-sm transition hover:scale-110"
-            aria-label={`Definir nota como ${fullValue - 0.5} ou ${fullValue} estrelas`}
+            aria-label={settings.allowHalfStars ? `Definir nota como ${fullValue - 0.5} ou ${fullValue} estrelas` : `Definir nota como ${fullValue} estrelas`}
             onClick={(event) => {
               if (!onChange) return;
+              if (!settings.allowHalfStars) { onChange(fullValue); return; }
               const bounds = event.currentTarget.getBoundingClientRect();
               onChange(event.clientX - bounds.left < bounds.width / 2 ? fullValue - 0.5 : fullValue);
             }}
@@ -45,7 +49,7 @@ export default function StarRating({ value = 0, onChange, readOnly = false, size
           </button>
         );
       })}
-      {showValue && <span className="ml-1 text-xs font-bold tabular-nums text-amber-200">{rating.toFixed(1)}</span>}
+      {showValue && <span className="ml-1 text-xs font-bold tabular-nums" style={{ color: "var(--accent)" }}>{rating.toFixed(1)}</span>}
     </div>
   );
 }
