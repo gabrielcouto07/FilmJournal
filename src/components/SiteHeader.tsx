@@ -8,7 +8,6 @@ const navigation = [
   { href: "/", label: "Visão Geral" },
   { href: "/diary", label: "Diário" },
   { href: "/search", label: "Descobrir" },
-  { href: "/import", label: "Importar" },
   { href: "/watchlist", label: "Watchlist" },
   { href: "/favorites", label: "Top 10" },
   { href: "/stats", label: "Estatísticas" },
@@ -35,7 +34,7 @@ export default function SiteHeader() {
         <button type="button" onClick={() => window.dispatchEvent(new Event("open-command-palette"))} className="quiet-button gap-2 !px-3 !py-2" aria-label="Abrir busca rápida"><span aria-hidden="true">⌕</span><span className="hidden sm:inline">Busca rápida</span><kbd className="hidden rounded border border-white/10 px-1.5 py-0.5 text-[9px] text-slate-500 md:inline">⌘K</kbd></button>
         {user ? (
           <div className="hidden lg:flex items-center gap-3">
-            <span className="text-xs font-bold text-slate-500">{user.displayName || user.username}</span>
+            <Link href="/profile" className={`text-xs font-bold transition ${pathname.startsWith("/profile") ? "text-amber-300" : "text-slate-500 hover:text-white"}`}>{user.displayName || user.username}</Link>
             {user.role === "OWNER" && <Link href="/admin" className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${pathname.startsWith("/admin") ? "bg-amber-300 text-[#1a1400]" : "text-amber-300 hover:bg-amber-300/10"}`}>Admin</Link>}
             <button onClick={() => logout()} className="rounded-full px-3.5 py-1.5 text-xs font-bold border border-white/[0.07] bg-white/[0.025] text-slate-400 hover:bg-white/[0.05] hover:text-white transition">Sair</button>
           </div>
@@ -53,7 +52,7 @@ export default function SiteHeader() {
       </div>
       <div className="shrink-0 border-l border-white/10 pl-2">
         {user ? (
-          <button onClick={() => logout()} className="rounded-full px-3 py-1.5 text-xs font-bold text-slate-400">Sair</button>
+          <div className="flex items-center gap-1"><Link href="/profile" className={`rounded-full px-3 py-1.5 text-xs font-bold ${pathname.startsWith("/profile") ? "bg-amber-300 text-black" : "text-amber-300"}`}>Perfil</Link><button onClick={() => logout()} className="rounded-full px-3 py-1.5 text-xs font-bold text-slate-400">Sair</button></div>
         ) : (
           <Link href="/login" className="rounded-full px-3 py-1.5 text-xs font-bold text-amber-300">Entrar</Link>
         )}

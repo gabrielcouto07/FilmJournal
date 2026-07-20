@@ -55,9 +55,9 @@
     "semantic_hash": "ef2e3d76f1d5791a7f613c8ce6be53c3"
   },
   "src/app/admin/page.tsx": {
-    "mtime": 1784554672.4454694,
-    "ast_hash": "5eb6779cb13cb4d50ae66d01bf2db6ec",
-    "semantic_hash": "5eb6779cb13cb4d50ae66d01bf2db6ec"
+    "mtime": 1784575531.689216,
+    "ast_hash": "619e3ad8575272576471f3eefc01c7af",
+    "semantic_hash": ""
   },
   "src/app/api/admin/db-review/route.ts": {
     "mtime": 1784305105.874612,
@@ -135,8 +135,8 @@
     "semantic_hash": ""
   },
   "src/app/import/page.tsx": {
-    "mtime": 1784574524.216362,
-    "ast_hash": "c84b5793a24e903bb1bcd8e558c130e2",
+    "mtime": 1784575531.6662169,
+    "ast_hash": "5ab4c499f6547dbc9dccb0b6667eabdf",
     "semantic_hash": ""
   },
   "src/app/layout.tsx": {
@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "src/app/page.tsx": {
-    "mtime": 1784574580.118752,
-    "ast_hash": "c50bc413c940697042f3e604c490b0da",
+    "mtime": 1784575531.6842203,
+    "ast_hash": "d335208d1d176f1645ce5079070e7fbb",
     "semantic_hash": ""
   },
   "src/app/roulette/page.tsx": {
@@ -175,8 +175,8 @@
     "semantic_hash": "4f729c17da806411239b600784d14758"
   },
   "src/app/stats/page.tsx": {
-    "mtime": 1784573615.2687218,
-    "ast_hash": "a9e7f90dac54f0f50f5d2df87baedf9a",
+    "mtime": 1784575677.8055665,
+    "ast_hash": "a163921730e8bb361b28b38b646ff613",
     "semantic_hash": ""
   },
   "src/app/watchlist/page.tsx": {
@@ -200,9 +200,9 @@
     "semantic_hash": "e3986b11b1236d4f345f8b0be2ca8fd1"
   },
   "src/components/ArtworkImage.tsx": {
-    "mtime": 1784305385.1230204,
-    "ast_hash": "753eae278c9d15a4ae2472dc931cd770",
-    "semantic_hash": "753eae278c9d15a4ae2472dc931cd770"
+    "mtime": 1784575499.9458492,
+    "ast_hash": "1c98f6a855fb9918563605a63305ad3a",
+    "semantic_hash": ""
   },
   "src/components/AuthProvider.tsx": {
     "mtime": 1784554778.437751,
@@ -265,8 +265,8 @@
     "semantic_hash": "9414c130b191538a0f47637bddd5b210"
   },
   "src/components/SiteHeader.tsx": {
-    "mtime": 1784573598.5006,
-    "ast_hash": "15e0d78980421dd4dcc50c064e3640c3",
+    "mtime": 1784575531.6752176,
+    "ast_hash": "a4a39970fbe042ff7dd863979a47c850",
     "semantic_hash": ""
   },
   "src/components/StarRating.tsx": {
@@ -320,9 +320,9 @@
     "semantic_hash": "9dabe220cf822b37eb199bdd730e3e96"
   },
   "src/lib/recommendations.ts": {
-    "mtime": 1784302587.6911442,
-    "ast_hash": "d8171af5ec321ec86cd89c38d28395f6",
-    "semantic_hash": "d8171af5ec321ec86cd89c38d28395f6"
+    "mtime": 1784575634.6377006,
+    "ast_hash": "f6814c9a7de796fba7a2554ef24c48e8",
+    "semantic_hash": ""
   },
   "src/lib/tmdb.ts": {
     "mtime": 1784304796.9033713,
@@ -517,6 +517,21 @@
   "tests/letterboxd-import.test.ts": {
     "mtime": 1784574483.0366614,
     "ast_hash": "12f65617137d7824a43fff033fda0db2",
+    "semantic_hash": ""
+  },
+  "src/app/api/movies/artwork/route.ts": {
+    "mtime": 1784575677.817566,
+    "ast_hash": "14817fd941fa648c7f42cb0c0f37ebd2",
+    "semantic_hash": ""
+  },
+  "src/app/profile/page.tsx": {
+    "mtime": 1784575531.670217,
+    "ast_hash": "2a1bc435fc61a272344c5d241320c3dd",
+    "semantic_hash": ""
+  },
+  "src/lib/movie-metadata.ts": {
+    "mtime": 1784575605.8771882,
+    "ast_hash": "c13262a19142ccc607bdb1f43c2678aa",
     "semantic_hash": ""
   }
 }

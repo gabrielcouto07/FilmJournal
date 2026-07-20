@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 type Props = {
   src?: string | null;
   fallbackSrc?: string | null;
+  movieId?: string;
   alt: string;
   title?: string;
   className?: string;
@@ -13,6 +14,26 @@ type Props = {
   sizes?: string;
   fit?: "cover" | "contain";
 };
+
+const artworkRequests = new Map<string, Promise<string | null>>();
+
+function resolveArtwork(key: string, payload: { movieId?: string; title?: string }): Promise<string | null> {
+  const existing = artworkRequests.get(key);
+  if (existing) return existing;
+
+  const request = fetch("/api/movies/artwork", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }).then(async (response) => {
+    if (!response.ok) return null;
+    const payload = await response.json() as { posterUrl?: unknown };
+    return typeof payload.posterUrl === "string" ? payload.posterUrl : null;
+  }).catch(() => null);
+
+  artworkRequests.set(key, request);
+  return request;
+}
 
 function initials(value: string) {
   const words = value.replace(/[^\p{L}\p{N}\s]/gu, " ").trim().split(/\s+/).filter(Boolean);
@@ -23,6 +44,7 @@ function initials(value: string) {
 export default function ArtworkImage({
   src,
   fallbackSrc,
+  movieId,
   alt,
   title,
   className = "",
@@ -30,18 +52,55 @@ export default function ArtworkImage({
   sizes = "(max-width: 640px) 45vw, 220px",
   fit = "cover",
 }: Props) {
-  const sources = useMemo(() => [...new Set([src, fallbackSrc].filter((value): value is string => Boolean(value?.trim())))], [fallbackSrc, src]);
+  const [resolvedSource, setResolvedSource] = useState<string | null>(null);
+  const sources = useMemo(() => [...new Set([src, fallbackSrc, resolvedSource].filter((value): value is string => Boolean(value?.trim())))], [fallbackSrc, resolvedSource, src]);
   const sourceKey = sources.join("|");
   const [sourceIndex, setSourceIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement | null>(null);
+  const frameRef = useRef<HTMLSpanElement | null>(null);
+  const requestedRef = useRef(false);
   const label = title?.trim() || alt.replace(/\s+poster$/i, "").trim() || "Filme";
   const activeSource = sources[sourceIndex] ?? null;
+  const resolverKey = movieId ? `id:${movieId}` : title?.trim() ? `title:${title.trim()}` : null;
 
   useEffect(() => {
     setSourceIndex(0);
     setLoaded(false);
   }, [sourceKey]);
+
+  useEffect(() => {
+    requestedRef.current = false;
+    setResolvedSource(null);
+  }, [resolverKey]);
+
+  useEffect(() => {
+    if (activeSource || !resolverKey || requestedRef.current) return;
+    const frame = frameRef.current;
+    if (!frame) return;
+
+    const load = () => {
+      if (requestedRef.current) return;
+      requestedRef.current = true;
+      void resolveArtwork(resolverKey, movieId ? { movieId } : { title: title?.trim() }).then((posterUrl) => {
+        if (posterUrl) setResolvedSource(posterUrl);
+      });
+    };
+
+    if (!("IntersectionObserver" in window)) {
+      load();
+      return;
+    }
+
+    const observer = new IntersectionObserver((records) => {
+      if (records.some((record) => record.isIntersecting)) {
+        observer.disconnect();
+        load();
+      }
+    }, { rootMargin: "240px" });
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, [activeSource, movieId, resolverKey, title]);
 
   useEffect(() => {
     const image = imageRef.current;
@@ -54,7 +113,7 @@ export default function ArtworkImage({
     setSourceIndex((index) => index + 1);
   }
 
-  return <span className={`artwork-frame ${className}`} data-loaded={loaded}>
+  return <span ref={frameRef} className={`artwork-frame ${className}`} data-loaded={loaded}>
     <span className="poster-fallback" role={activeSource ? undefined : "img"} aria-label={activeSource ? undefined : `Pôster de ${label} indisponível`}>
       <span aria-hidden="true" className="poster-fallback-mark">{initials(label)}</span>
       <span className="poster-fallback-title">{label}</span>

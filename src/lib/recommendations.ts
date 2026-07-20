@@ -185,7 +185,7 @@ async function buildTasteData(refresh: boolean, userId: string): Promise<TasteDa
     Promise.all(ratedSeeds.map(async (seed) => {
       try {
         const response = await getTmdbMovieRecommendations(seed.tmdbId!, refresh);
-        return response.results.map((movie) => ({ movie, reason: `Because you rated ${seed.title} ${(effectiveRating(seed) ?? 0).toFixed(1)}` }));
+        return response.results.map((movie) => ({ movie, reason: `Porque você deu ${(effectiveRating(seed) ?? 0).toFixed(1)} para ${seed.title}` }));
       } catch { return []; }
     })),
     Promise.all(topDirectors.map(async ([name, stat]) => {
@@ -206,9 +206,9 @@ async function buildTasteData(refresh: boolean, userId: string): Promise<TasteDa
   const directors: TasteDirector[] = directorResults.map(({ name, stat, movies }) => {
     const averageRating = stat.ratingCount ? stat.ratingTotal / stat.ratingCount : null;
     const reason = stat.favorites
-      ? `${stat.favorites} favorite${stat.favorites === 1 ? "" : "s"} in your archive`
-      : averageRating != null ? `You average ${averageRating.toFixed(1)} across their films` : "A recurring voice in your archive";
-    const films = uniqueRecommendations(movies.map((movie) => toRecommendation(movie, `More from ${name}`, archiveByTmdbId)), new Set([...watchedTmdbIds, ...alreadyCurated]), 6);
+      ? `${stat.favorites} favorito${stat.favorites === 1 ? "" : "s"} no seu acervo`
+      : averageRating != null ? `Sua média nos filmes é ${averageRating.toFixed(1)}` : "Uma voz recorrente no seu acervo";
+    const films = uniqueRecommendations(movies.map((movie) => toRecommendation(movie, `Mais filmes de ${name}`, archiveByTmdbId)), new Set([...watchedTmdbIds, ...alreadyCurated]), 6);
     films.forEach((film) => alreadyCurated.add(film.tmdbId));
     return { name, watchedCount: stat.movies.length, averageRating, favoriteCount: stat.favorites, reason, films };
   });
@@ -216,7 +216,7 @@ async function buildTasteData(refresh: boolean, userId: string): Promise<TasteDa
   const discoveryGenreNames = topGenres.slice(0, 3).map(([name]) => name);
   const genreDiscovery = uniqueRecommendations(genreResult.results.map((movie) => toRecommendation(
     movie,
-    discoveryGenreNames.length ? `Matches your ${discoveryGenreNames.join(" + ")} pattern` : "Aligned with your archive",
+    discoveryGenreNames.length ? `Combina com seu padrão de ${discoveryGenreNames.join(" + ")}` : "Alinhado ao seu acervo",
     archiveByTmdbId,
   )), new Set([...watchedTmdbIds, ...alreadyCurated]), 12);
 
@@ -244,7 +244,7 @@ async function buildTasteData(refresh: boolean, userId: string): Promise<TasteDa
     becauseYouLoved,
     directors,
     genreDiscovery,
-    genreDiscoveryLabel: discoveryGenreNames.join(" · ") || "Your archive mix",
+    genreDiscoveryLabel: discoveryGenreNames.join(" · ") || "seu acervo",
     blindSpots,
   };
 }

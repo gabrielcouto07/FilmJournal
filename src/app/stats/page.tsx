@@ -3,14 +3,18 @@ import MovieCard from "@/components/MovieCard";
 import TasteExplorer from "@/components/TasteExplorer";
 import { prisma } from "@/lib/prisma";
 import { getTasteData } from "@/lib/recommendations";
+import { enrichStatsMoviesForUser } from "@/lib/movie-metadata";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function StatsPage() {
   const viewer = await getCurrentUser();
   const ownerId = viewer?.id || "";
+
+  await enrichStatsMoviesForUser(ownerId);
 
   const [logs, userMoviesWatched, userMoviesHighest, tasteData] = await Promise.all([
     prisma.logEntry.findMany({ where: { userId: ownerId }, include:{movie:true}, orderBy:{watchedAt:"asc"} }),

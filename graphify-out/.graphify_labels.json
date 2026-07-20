@@ -56,18 +56,8 @@
   "54": ".claude/CLAUDE.md",
   "55": ".claude/skills/graphify/references/extraction-spec.md",
   "56": ".codex/skills/graphify/references/extraction-spec.md",
-  "57": "dependencies",
-  "58": "PublicOverview.tsx",
+  "57": "app/page.tsx",
+  "58": "auth.config.ts",
   "59": "logs/route.ts",
-  "60": "app/page.tsx",
-  "61": "ArtworkImage.tsx",
-  "62": "movies/route.ts",
-  "63": "register/route.ts",
-  "64": "[id]/page.tsx",
-  "65": "tmdb/route.ts",
-  "66": "diary/page.tsx",
-  "67": "login/page.tsx",
-  "68": "recommendations/route.ts",
-  "69": "favorites/page.tsx",
-  "70": "PageTransition.tsx"
+  "60": "admin/page.tsx"
 }

@@ -128,7 +128,7 @@ function ActivationPanel() {
         <h2 className="mt-4 text-lg font-black text-white">Importar do Letterboxd</h2>
         <p className="mt-2 text-sm leading-6 text-slate-400">Traga todo o seu histórico — diário, notas, resenhas, watchlist e favoritos — enviando o arquivo .zip do Letterboxd. Preenche seu perfil de uma só vez.</p>
         <div className="mt-5">
-          <Link href="/import" className="accent-button">Importar meus filmes →</Link>
+          <Link href="/profile#importar" className="accent-button">Importar meus filmes →</Link>
         </div>
       </div>
       <div className="surface-subtle rounded-2xl p-6">
