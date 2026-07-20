@@ -14,6 +14,8 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "import:letterboxd": "tsx scripts/import-letterboxd.ts",
+    "import:letterboxd:dry": "tsx scripts/import-letterboxd.ts --dry-run",
+    "import:letterboxd:live": "tsx scripts/import-letterboxd.ts --yes",
     "db:dedupe": "tsx scripts/dedupe-letterboxd.ts",
     "db:dedupe:apply": "tsx scripts/dedupe-letterboxd.ts --apply",
     "dedupe:diary": "npm run db:dedupe",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
@@ -10,6 +10,12 @@ type Tab = "login" | "register";
 
 export default function LoginPage() {
   const [tab, setTab] = useState<Tab>("login");
+
+  // Open the register tab when linked from the public overview (/login?tab=register).
+  // Read from window instead of useSearchParams() to avoid a Suspense boundary.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("tab") === "register") setTab("register");
+  }, []);
 
   // Login state
   const [username, setUsername] = useState("");

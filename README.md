@@ -115,6 +115,50 @@ Keep `APP_OWNER_USERNAME` configured so public journal pages can resolve the own
 
 ***
 
+## Import Letterboxd Data Safely
+
+The importer is idempotent — re-running reconciles existing rows instead of
+duplicating them — and it runs against whatever `DATABASE_URL` is loaded from
+`.env.local` (falling back to `.env`). **If that points at your production Neon
+database, a live import writes straight to production.** Follow this flow:
+
+1. **Export from Letterboxd:** Settings → Data → *Export your data*. Download the ZIP.
+2. **Unzip it.**
+3. **Place the CSVs in the repo root** (`Letterboxc/`). The importer reads any
+   subset of these (missing files are ignored):
+   - `diary.csv` · `reviews.csv` · `ratings.csv` · `watched.csv`
+   - `watchlist.csv` · `profile.csv` · `likes/films.csv` (keep the `likes/` subfolder)
+4. **Dry run first (zero writes).** Prints a safety banner (target DB host/name,
+   owner, TMDB status) and a summary of what *would* be created/updated:
+   ```bash
+   npm run import:letterboxd:dry
+   ```
+5. **Run the live import.** Live runs require explicit confirmation — either the
+   `--yes` flag or typing `yes` at the interactive prompt:
+   ```bash
+   npm run import:letterboxd -- --yes
+   # or, to be prompted interactively:
+   npm run import:letterboxd
+   ```
+   Add `--skip-metadata` to skip TMDB enrichment.
+6. **Validate after import** (read-only; compares the database to the export):
+   ```bash
+   npm run validate:letterboxd
+   ```
+7. **Optional dedupe.** Preview first (no writes), then apply only if it looks right:
+   ```bash
+   npm run db:dedupe          # preview
+   npm run db:dedupe:apply    # apply
+   ```
+8. **Delete the export CSVs from the repo root** once the import is done.
+
+> ⚠️ **Never commit export CSVs** — they contain personal data. The repo's
+> `.gitignore` already excludes `*.csv` (including `likes/films.csv`), but
+> double-check `git status` before committing. Take a Neon branch/snapshot
+> before your first live import as a safety net.
+
+***
+
 ## Security
 
 - Passwords hashed with `scrypt` (Node built-in, no external deps)

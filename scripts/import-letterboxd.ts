@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import readline from "node:readline";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import type { LogEntry, Movie } from "@prisma/client";
@@ -255,8 +256,200 @@ export async function runImport(options: { skipMetadata?: boolean } = {}): Promi
   return { films: canonical.size, events };
 }
 
+type ImportPlan = {
+  filesPresent: string[];
+  filesMissing: string[];
+  films: number;
+  totalEvents: number;
+  moviesToCreate: number;
+  moviesToUpdate: number;
+  userMoviesToCreate: number;
+  userMoviesToUpdate: number;
+  logsToCreate: number;
+  logsToUpdate: number;
+  ownerResolved: boolean;
+  skipped: { unknownTitle: number; missingYear: number; undatedEvents: number };
+};
+
+/**
+ * Read-only preview of a live import. Performs ZERO database writes: it never
+ * calls `ensureOwnerUser` (which would create/promote the owner) and only reads
+ * existing rows to estimate create-vs-update counts, mirroring the match
+ * priority used by `saveEvents` (sourceKey -> sourceUri -> same-day).
+ */
+export async function planImport(): Promise<ImportPlan> {
+  const files = await readLetterboxdExport();
+  const filesPresent = exportFileNames.filter((name) => (files[name] ?? "").trim().length > 0);
+  const filesMissing = exportFileNames.filter((name) => !(files[name] ?? "").trim());
+  const canonical = buildCanonicalLetterboxdImport(files);
+
+  const ownerUsername = process.env.APP_OWNER_USERNAME?.trim() || null;
+  const owner = ownerUsername ? await prisma.user.findUnique({ where: { username: ownerUsername } }) : null;
+  const ownerId = owner?.id ?? "";
+
+  const plan: ImportPlan = {
+    filesPresent,
+    filesMissing,
+    films: canonical.size,
+    totalEvents: 0,
+    moviesToCreate: 0,
+    moviesToUpdate: 0,
+    userMoviesToCreate: 0,
+    userMoviesToUpdate: 0,
+    logsToCreate: 0,
+    logsToUpdate: 0,
+    ownerResolved: Boolean(owner),
+    skipped: { unknownTitle: 0, missingYear: 0, undatedEvents: 0 },
+  };
+
+  for (const film of canonical.values()) {
+    if (film.name === "Unknown title") plan.skipped.unknownTitle += 1;
+    if (film.year == null) plan.skipped.missingYear += 1;
+
+    const movie = await findMovie(film);
+    if (movie) plan.moviesToUpdate += 1;
+    else plan.moviesToCreate += 1;
+
+    if (ownerId) {
+      const existingUserMovie = movie
+        ? await prisma.userMovie.findUnique({ where: { userId_movieId: { userId: ownerId, movieId: movie.id } } })
+        : null;
+      if (existingUserMovie) plan.userMoviesToUpdate += 1;
+      else plan.userMoviesToCreate += 1;
+    } else {
+      // No owner yet: a live run would create it, then create one UserMovie per film.
+      plan.userMoviesToCreate += 1;
+    }
+
+    const existingLogs = movie ? await prisma.logEntry.findMany({ where: { movieId: movie.id } }) : [];
+    const claimed = new Set<string>();
+    for (const event of film.events) {
+      plan.totalEvents += 1;
+      if (!event.watchedAt && !event.loggedAt) plan.skipped.undatedEvents += 1;
+      const match =
+        existingLogs.find((entry) => !claimed.has(entry.id) && entry.sourceKey === event.importKey)
+        ?? existingLogs.find((entry) => !claimed.has(entry.id) && event.sourceUri != null && entry.sourceUri === event.sourceUri)
+        ?? existingLogs.find((entry) => !claimed.has(entry.id) && sameDay(entry, event.watchedAt, event.loggedAt));
+      if (match) {
+        claimed.add(match.id);
+        plan.logsToUpdate += 1;
+      } else {
+        plan.logsToCreate += 1;
+      }
+    }
+  }
+
+  return plan;
+}
+
+function maskHost(host: string): string {
+  const [first, ...rest] = host.split(".");
+  const maskedFirst = !first || first.length <= 4 ? first : `${first.slice(0, 2)}…${first.slice(-2)}`;
+  return [maskedFirst, ...rest].join(".");
+}
+
+function describeDatabase(): { host: string; db: string } {
+  const raw = process.env.DATABASE_URL ?? "";
+  if (!raw) return { host: "(DATABASE_URL not set)", db: "(unknown)" };
+  try {
+    const url = new URL(raw);
+    const db = decodeURIComponent(url.pathname.replace(/^\//, "")) || "(unknown)";
+    return { host: maskHost(url.hostname), db };
+  } catch {
+    return { host: "(unparseable DATABASE_URL)", db: "(unknown)" };
+  }
+}
+
+function printBanner(options: { dryRun: boolean; skipMetadata: boolean }): void {
+  const { host, db } = describeDatabase();
+  const owner = process.env.APP_OWNER_USERNAME?.trim() || "(APP_OWNER_USERNAME not set)";
+  const tmdbEnabled = !options.skipMetadata && Boolean(process.env.TMDB_API_KEY);
+  const tmdbLabel = tmdbEnabled
+    ? "enabled"
+    : options.skipMetadata
+      ? "disabled (--skip-metadata)"
+      : "disabled (TMDB_API_KEY not set)";
+  const mode = options.dryRun ? "DRY RUN — no database writes" : "LIVE IMPORT — writes to the database below";
+
+  console.log("──────────────────────────────────────────────");
+  console.log("  Letterboxd import");
+  console.log("──────────────────────────────────────────────");
+  console.log(`  Mode            : ${mode}`);
+  console.log(`  Database host   : ${host}`);
+  console.log(`  Database name   : ${db}`);
+  console.log(`  Owner user      : ${owner}`);
+  console.log(`  TMDB enrichment : ${tmdbLabel}`);
+  console.log("──────────────────────────────────────────────");
+}
+
+function printPlan(plan: ImportPlan): void {
+  console.log("\nDRY RUN — no database writes were performed.\n");
+  console.log(`Files present (${plan.filesPresent.length}): ${plan.filesPresent.join(", ") || "none"}`);
+  console.log(`Files missing (${plan.filesMissing.length}): ${plan.filesMissing.join(", ") || "none"}`);
+  console.log(`\nParsed ${plan.films} films / ${plan.totalEvents} watch events.`);
+  if (!plan.ownerResolved) {
+    console.log("⚠ APP_OWNER_USERNAME does not exist in this database yet. A live run would create/promote it before writing owner-scoped rows.");
+  }
+  console.log("\nWould write:");
+  console.log(`  Movies      : ${plan.moviesToCreate} create, ${plan.moviesToUpdate} update`);
+  console.log(`  UserMovies  : ${plan.userMoviesToCreate} create, ${plan.userMoviesToUpdate} update${plan.ownerResolved ? "" : " (estimated — owner will be created first)"}`);
+  console.log(`  Log entries : ${plan.logsToCreate} create, ${plan.logsToUpdate} update`);
+
+  const { unknownTitle, missingYear, undatedEvents } = plan.skipped;
+  if (unknownTitle || missingYear || undatedEvents) {
+    console.log("\nParse notes:");
+    if (unknownTitle) console.log(`  ${unknownTitle} film(s) had no title (fell back to "Unknown title")`);
+    if (missingYear) console.log(`  ${missingYear} film(s) had no parseable year`);
+    if (undatedEvents) console.log(`  ${undatedEvents} watch event(s) had no date`);
+  }
+  console.log("\nCreate/update counts reflect the current database state and are an estimate.");
+  console.log("To apply these changes, re-run with confirmation:\n  npm run import:letterboxd -- --yes\n");
+}
+
+async function confirmLiveImport(preConfirmed: boolean): Promise<boolean> {
+  if (preConfirmed) return true;
+
+  if (!process.stdin.isTTY) {
+    console.error("\nRefusing to run a LIVE import without confirmation.");
+    console.error("This would write to the database shown above.\n");
+    console.error("Preview first (no writes):   npm run import:letterboxd:dry");
+    console.error("Confirm and run for real:    npm run import:letterboxd -- --yes\n");
+    return false;
+  }
+
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise<string>((resolve) => {
+    rl.question("Type 'yes' to write these changes to the database above: ", resolve);
+  });
+  rl.close();
+  const confirmed = answer.trim().toLowerCase() === "yes";
+  if (!confirmed) console.error("Confirmation not received — aborting without writing anything.");
+  return confirmed;
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  runImport({ skipMetadata: process.argv.includes("--skip-metadata") })
+  const argv = process.argv.slice(2);
+  const options = {
+    dryRun: argv.includes("--dry-run") || argv.includes("--dry"),
+    skipMetadata: argv.includes("--skip-metadata"),
+    yes: argv.includes("--yes") || argv.includes("-y"),
+  };
+
+  (async () => {
+    printBanner(options);
+
+    if (options.dryRun) {
+      printPlan(await planImport());
+      return;
+    }
+
+    if (!(await confirmLiveImport(options.yes))) {
+      process.exitCode = 1;
+      return;
+    }
+
+    await runImport({ skipMetadata: options.skipMetadata });
+  })()
     .catch((error) => { console.error(error); process.exitCode = 1; })
     .finally(() => prisma.$disconnect());
 }

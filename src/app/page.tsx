@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 import { getOwnerUser } from "@/lib/auth";
+import { auth } from "@/auth";
+import PublicOverview from "@/components/PublicOverview";
 
 async function getDashboardData() {
   const owner = await getOwnerUser();
@@ -66,7 +68,18 @@ async function getDashboardData() {
 }
 
 export default async function HomePage() {
+  const session = await auth();
+  // Unauthenticated visitors get the public discovery experience, never the
+  // owner's private journal. Authenticated users get their personal dashboard.
+  if (!session?.user) return <PublicOverview />;
+  return <OwnerDashboard />;
+}
+
+async function OwnerDashboard() {
   const data = await getDashboardData();
+  const isEmpty = data.logCount === 0 && data.watchedCount === 0
+    && data.favorites.length === 0 && data.watchlist.length === 0 && data.topRated.length === 0;
+  if (isEmpty) return <main className="page-shell space-y-14"><ActivationPanel /></main>;
   const featured = data.recentLogs[0];
   const backdrop = getBackdropUrl(featured ? movieBackdropPath(featured.movie) : null);
   const monthCounts = new Map<string,number>();
@@ -100,3 +113,33 @@ export default async function HomePage() {
 function Metric({label,value,accent=false}:{label:string;value:number;accent?:boolean}) { return <div className="surface-subtle rounded-2xl p-4"><p className="text-[9px] font-black uppercase tracking-wider text-slate-600">{label}</p><p className={`mt-1 text-3xl font-black tabular-nums ${accent?"text-amber-200":"text-white"}`}>{value}</p></div>; }
 function SectionHead({eyebrow,title,href,link}:{eyebrow:string;title:string;href:string;link:string}) { return <div className="mb-5 flex items-end justify-between gap-4"><div><p className="eyebrow">{eyebrow}</p><h2 className="section-heading mt-2">{title}</h2></div><Link href={href} className="text-xs font-bold text-amber-300 hover:text-amber-200 sm:text-sm">{link} →</Link></div>; }
 function Empty({text,href}:{text:string;href:string}) { return <div className="empty-state !py-8"><p className="font-bold text-white">{text}</p><Link href={href} className="mt-3 inline-flex text-xs font-bold text-amber-300">Explorar →</Link></div>; }
+
+function ActivationPanel() {
+  return <section className="fade-up surface relative overflow-hidden rounded-[2rem] p-7 sm:p-10">
+    <div className="glass-gradient absolute inset-0 -z-10" />
+    <p className="eyebrow">Bem-vindo ao FilmJournal</p>
+    <h1 className="display-title balance mt-4 text-4xl sm:text-5xl">Vamos preencher seu diário.</h1>
+    <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">Sua conta ainda não tem filmes. Importe seu histórico do Letterboxd ou explore filmes para começar a registrar.</p>
+    <div className="mt-8 grid gap-4 lg:grid-cols-2">
+      <div className="surface-subtle rounded-2xl p-6">
+        <span className="grid h-11 w-11 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10 text-lg" aria-hidden="true">🎬</span>
+        <h2 className="mt-4 text-lg font-black text-white">Importar do Letterboxd</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-400">Traga todo o seu histórico — diário, notas, resenhas, watchlist e favoritos. Teste sem gravar nada e depois confirme:</p>
+        <div className="mt-4 space-y-1.5 font-mono text-[11px] text-amber-200/90">
+          <p><span className="text-slate-600">1.</span> npm run import:letterboxd:dry</p>
+          <p><span className="text-slate-600">2.</span> npm run import:letterboxd -- --yes</p>
+        </div>
+        <p className="mt-3 text-xs text-slate-600">Passo a passo completo no README (“Import Letterboxd Data Safely”).</p>
+      </div>
+      <div className="surface-subtle rounded-2xl p-6">
+        <span className="grid h-11 w-11 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10 text-lg" aria-hidden="true">🍿</span>
+        <h2 className="mt-4 text-lg font-black text-white">Explorar filmes</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-400">Busque títulos, adicione ao diário ou à watchlist, ou deixe a roleta escolher por você.</p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href="/search" className="accent-button">Descobrir filmes →</Link>
+          <Link href="/roulette" className="quiet-button">Sortear um filme 🎲</Link>
+        </div>
+      </div>
+    </div>
+  </section>;
+}
