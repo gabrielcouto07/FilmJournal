@@ -2,6 +2,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import MovieCard from "@/components/MovieCard";
+import ShareProfileButton from "@/components/ShareProfileButton";
+import StarRating from "@/components/StarRating";
 import { prisma } from "@/lib/prisma";
 import { getUserSettings } from "@/lib/settings";
 import type { EnrichedMovie } from "@/lib/types";
@@ -29,7 +31,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
     );
   }
 
-  const [logCount, watchedCount, ratedCount, favorites, recentLogs] = await Promise.all([
+  const [logCount, watchedCount, ratedCount, favorites, recentLogs, recentReviews] = await Promise.all([
     prisma.logEntry.count({ where: { userId: user.id } }),
     prisma.userMovie.count({ where: { userId: user.id, watched: true } }),
     prisma.userMovie.count({ where: { userId: user.id, rating: { not: null } } }),
@@ -40,6 +42,11 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
     prisma.logEntry.findMany({
       where: { userId: user.id }, include: { movie: true },
       orderBy: [{ watchedAt: "desc" }, { loggedAt: "desc" }], take: 8,
+    }),
+    prisma.logEntry.findMany({
+      where: { userId: user.id, review: { not: null } },
+      include: { movie: { select: { id: true, title: true, year: true } } },
+      orderBy: [{ watchedAt: "desc" }, { loggedAt: "desc" }], take: 4,
     }),
   ]);
 
@@ -58,6 +65,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
             <h1 className="display-title mt-2 text-4xl sm:text-6xl">{displayName}</h1>
             <p className="mt-2 text-sm text-slate-400">@{user.username}</p>
             {user.bio && <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">{user.bio}</p>}
+            <div className="mt-5"><ShareProfileButton username={user.username} /></div>
           </div>
         </div>
         <div className="mt-8 grid grid-cols-3 gap-3 sm:max-w-md">
@@ -87,6 +95,33 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                 <MovieCard movie={log.movie} log={log} />
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {recentReviews.length > 0 && (
+        <section>
+          <p className="eyebrow">Do diário</p>
+          <h2 className="section-heading mt-2">Resenhas recentes.</h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {recentReviews.map((log) => {
+              const date = log.watchedAt ?? log.loggedAt;
+              return (
+                <article key={log.id} className="surface-subtle rounded-2xl p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <Link href={`/film/${log.movie.id}`} className="min-w-0 truncate text-sm font-black text-white hover:underline">
+                      {log.movie.title} <span className="font-bold text-slate-500">({log.movie.year ?? "—"})</span>
+                    </Link>
+                    {log.rating != null && <StarRating value={log.rating} readOnly size="sm" />}
+                  </div>
+                  <p className="mt-3 line-clamp-4 whitespace-pre-wrap text-sm leading-6 text-slate-300">{log.review}</p>
+                  <p className="mt-3 text-[10px] font-black uppercase tracking-wider text-slate-600">
+                    {date ? new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date) : "Sem data"}
+                    {log.rewatch ? " · Reexibição" : ""}
+                  </p>
+                </article>
+              );
+            })}
           </div>
         </section>
       )}
