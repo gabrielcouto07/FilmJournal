@@ -3,7 +3,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useToast } from "@/components/ToastProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { useSettings } from "@/components/SettingsProvider";
@@ -19,11 +18,10 @@ type ProfileUser = {
   memberSince: string;
 };
 
-type Tab = "perfil" | "preferencias" | "privacidade" | "conta";
+type Tab = "perfil" | "preferencias" | "conta";
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: "perfil", label: "Perfil" },
   { id: "preferencias", label: "Preferências" },
-  { id: "privacidade", label: "Privacidade" },
   { id: "conta", label: "Conta" },
 ];
 
@@ -71,7 +69,6 @@ export default function ProfileSettings({ user, settings: initial }: { user: Pro
 
       {tab === "perfil" && <ProfileTab user={user} notify={notify} />}
       {tab === "preferencias" && <PreferencesTab initial={initial} notify={notify} applyLive={setSettings} />}
-      {tab === "privacidade" && <PrivacyTab initial={initial} username={user.username} notify={notify} applyLive={setSettings} />}
       {tab === "conta" && <AccountTab user={user} notify={notify} onDeleted={async () => { await logout(); router.push("/"); router.refresh(); }} />}
     </div>
   );
@@ -240,37 +237,6 @@ function PreferencesTab({ initial, notify, applyLive }: { initial: AppSettings; 
       <Toggle label="Mostrar conteúdo adulto (TMDB)" checked={form.showAdultContent} onChange={(v) => set("showAdultContent", v)} />
       <Toggle label="Receber notificações por e-mail" checked={form.emailNotifications} onChange={(v) => set("emailNotifications", v)} />
       <button type="button" onClick={save} disabled={saving} className="accent-button disabled:opacity-50">{saving ? "Salvando…" : "Salvar preferências"}</button>
-    </Section>
-  );
-}
-
-function PrivacyTab({ initial, username, notify, applyLive }: { initial: AppSettings; username: string; notify: Notify; applyLive: (s: AppSettings) => void }) {
-  const [visibility, setVisibility] = useState(initial.profileVisibility);
-  const [saving, setSaving] = useState(false);
-
-  async function save(next: AppSettings["profileVisibility"]) {
-    setSaving(true);
-    try {
-      const res = await fetch("/api/settings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profileVisibility: next }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Falha ao salvar.");
-      setVisibility(next);
-      applyLive(data.settings as AppSettings);
-      notify("Privacidade atualizada.", "success");
-    } catch (err) {
-      notify(err instanceof Error ? err.message : "Falha ao salvar.", "error");
-    } finally { setSaving(false); }
-  }
-
-  return (
-    <Section title="Privacidade" description="Controle quem pode ver seu diário.">
-      <Toggle label="Perfil público" description="Quando ativo, qualquer pessoa com o link pode ver seu acervo (somente leitura). Seu e-mail e conta permanecem privados." checked={visibility === "public"} onChange={(v) => save(v ? "public" : "private")} disabled={saving} />
-      {visibility === "public" && (
-        <div className="surface-subtle rounded-xl p-4 text-sm">
-          <p className="text-slate-400">Seu perfil público:</p>
-          <Link href={`/u/${username}`} className="mt-1 inline-block font-bold" style={{ color: "var(--accent)" }}>/u/{username} →</Link>
-        </div>
-      )}
     </Section>
   );
 }

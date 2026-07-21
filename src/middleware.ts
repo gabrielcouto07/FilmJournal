@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 import { authConfig } from "@/auth.config";
 
-const PUBLIC_PATHS = ["/login", "/api/auth", "/api/public", "/u"];
+const PUBLIC_PATHS = ["/login", "/api/auth"];
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {

@@ -15,7 +15,6 @@ export type AppSettings = {
   dateFormat: string;
   defaultRatingScale: 5 | 10;
   allowHalfStars: boolean;
-  profileVisibility: "private" | "public";
   showAdultContent: boolean;
   defaultLandingPage: string;
   emailNotifications: boolean;
@@ -29,7 +28,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   dateFormat: "dd/MM/yyyy",
   defaultRatingScale: 5,
   allowHalfStars: true,
-  profileVisibility: "private",
   showAdultContent: false,
   defaultLandingPage: "/",
   emailNotifications: false,
@@ -44,7 +42,6 @@ function coerce(row: UserSettings): AppSettings {
     dateFormat: row.dateFormat,
     defaultRatingScale: row.defaultRatingScale === 10 ? 10 : 5,
     allowHalfStars: row.allowHalfStars,
-    profileVisibility: row.profileVisibility === "public" ? "public" : "private",
     showAdultContent: row.showAdultContent,
     defaultLandingPage: row.defaultLandingPage || "/",
     emailNotifications: row.emailNotifications,
@@ -77,7 +74,6 @@ export const settingsUpdateSchema = z.object({
   dateFormat: z.enum(["dd/MM/yyyy", "MM/dd/yyyy", "yyyy-MM-dd"]).optional(),
   defaultRatingScale: z.union([z.literal(5), z.literal(10)]).optional(),
   allowHalfStars: z.boolean().optional(),
-  profileVisibility: z.enum(["private", "public"]).optional(),
   showAdultContent: z.boolean().optional(),
   defaultLandingPage: z.enum(LANDING_PAGES).optional(),
   emailNotifications: z.boolean().optional(),

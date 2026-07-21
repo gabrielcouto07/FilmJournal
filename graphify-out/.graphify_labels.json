@@ -36,7 +36,10 @@
   "34": "layout.tsx",
   "35": "graphify reference: query, path, explain",
   "36": "graphify reference: query, path, explain",
+  "37": "roulette/page.tsx",
+  "38": "MovieSearch.tsx",
   "39": "Q: onde está a lógica de autenticação e como ela se conecta ao Prisma?",
+  "40": "StarRating.tsx",
   "41": "graphify reference: add a URL and watch a folder",
   "42": "graphify reference: commit hook and native CLAUDE.md integration",
   "43": "graphify reference: incremental update and cluster-only",
@@ -53,7 +56,9 @@
   "54": ".claude/CLAUDE.md",
   "55": ".claude/skills/graphify/references/extraction-spec.md",
   "56": ".codex/skills/graphify/references/extraction-spec.md",
+  "57": "LetterboxdImport.tsx",
   "58": "auth.config.ts",
+  "59": "ToastProvider.tsx",
   "69": "profile/loading.tsx",
   "70": "[username]/loading.tsx"
 }

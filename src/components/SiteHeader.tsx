@@ -4,13 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 
+// New IA: Diário (journal) · Paladar (dashboard) · Descobrir (blind spots) ·
+// Jogar (games) · Roleta. Descobrir/Jogar entries land with their pages.
+// /watchlist, /favorites, /stats and /search stay routable via the overview
+// page and quick search — they just lose their top-nav slots.
 const navigation = [
-  { href: "/", label: "Visão Geral" },
   { href: "/diary", label: "Diário" },
-  { href: "/search", label: "Descobrir" },
-  { href: "/watchlist", label: "Para assistir" },
-  { href: "/favorites", label: "Top 10" },
-  { href: "/stats", label: "Estatísticas" },
   { href: "/dashboard", label: "Paladar" },
   { href: "/roulette", label: "Roleta" },
 ];
