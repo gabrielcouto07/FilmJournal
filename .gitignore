@@ -38,16 +38,10 @@ Thumbs.db
 # ── Vercel ───────────────────────────────────────────────────────────
 .vercel
 
-# Graphify local state
-graphify-out/cost.json
-graphify-out/cache/
-graphify-out/[0-9][0-9][0-9][0-9]-*/
-graphify-out/memory/
-graphify-out/reflections/
-graphify-out/.graphify_learning.json
-graphify-out/.graphify_root
-graphify-out/.vocab.txt
+# Graphify generated output (regenerate with `graphify update .`)
+graphify-out/
 
-# Machine-specific assistant hook configuration
+# Generated assistant tooling (.codex is installed by graphify) and
+# machine-specific assistant hook configuration
+.codex/
 .claude/settings.json
-.codex/hooks.json
