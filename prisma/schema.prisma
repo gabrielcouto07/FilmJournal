@@ -74,6 +74,21 @@ model User {
   logs                LogEntry[]
   settings            UserSettings?
   blindSpotDismissals BlindSpotDismissal[]
+  gameScores          GameScore[]
+}
+
+// Best score per game mode. game is the mode id ("cast" = Guess by Cast);
+// source is the round pool ("mine" = the viewer's films, "popular" = TMDB).
+model GameScore {
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game       String
+  source     String
+  bestScore  Int
+  bestRounds Int
+  updatedAt  DateTime @updatedAt
+
+  @@id([userId, game, source])
 }
 
 // "Not interested" signals for the blind-spot engine. gapKey is a bucket key

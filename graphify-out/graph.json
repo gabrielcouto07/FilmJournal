@@ -967,8 +967,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "prisma_seed",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "seed.ts"
     },
     {
@@ -978,8 +978,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "prisma_seed_main",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "main()"
     },
     {
@@ -989,8 +989,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_backfill_collections",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "backfill-collections.ts"
     },
     {
@@ -1000,8 +1000,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "scripts_backfill_collections_rootdirectory",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "rootdirectory"
     },
     {
@@ -1011,8 +1011,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "scripts_backfill_collections_backfillcollections",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "backfillcollections()"
     },
     {
@@ -1022,8 +1022,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_backfill_metadata",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "backfill-metadata.ts"
     },
     {
@@ -1033,8 +1033,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "scripts_backfill_metadata_root",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "root"
     },
     {
@@ -1044,8 +1044,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "scripts_backfill_metadata_main",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "main()"
     },
     {
@@ -1418,8 +1418,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_import_letterboxd",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "import-letterboxd.ts"
     },
     {
@@ -1429,8 +1429,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_rootdirectory",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "rootdirectory"
     },
     {
@@ -1440,8 +1440,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_exportfilenames",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "exportfilenames"
     },
     {
@@ -1451,8 +1451,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_unionvalues",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "unionvalues()"
     },
     {
@@ -1462,8 +1462,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_readletterboxdexport",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "readletterboxdexport()"
     },
     {
@@ -1473,8 +1473,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_findmovie",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "findmovie()"
     },
     {
@@ -1484,8 +1484,8 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_savemovie",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "savemovie()"
     },
     {
@@ -1495,8 +1495,8 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_sameday",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "sameday()"
     },
     {
@@ -1506,8 +1506,8 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_saveevents",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "saveevents()"
     },
     {
@@ -1517,8 +1517,8 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_runimport",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "runimport()"
     },
     {
@@ -1528,8 +1528,8 @@
       "source_location": "L257",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_importplan",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "importplan"
     },
     {
@@ -1539,8 +1539,8 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_planimport",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "planimport()"
     },
     {
@@ -1550,8 +1550,8 @@
       "source_location": "L343",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_maskhost",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "maskhost()"
     },
     {
@@ -1561,8 +1561,8 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_describedatabase",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "describedatabase()"
     },
     {
@@ -1572,8 +1572,8 @@
       "source_location": "L361",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_printbanner",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "printbanner()"
     },
     {
@@ -1583,8 +1583,8 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_printplan",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "printplan()"
     },
     {
@@ -1594,8 +1594,8 @@
       "source_location": "L407",
       "_origin": "ast",
       "id": "scripts_import_letterboxd_confirmliveimport",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "confirmliveimport()"
     },
     {
@@ -2232,8 +2232,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_api_import_letterboxd_route",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
       "norm_label": "letterboxd/route.ts"
     },
     {
@@ -2243,8 +2243,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_app_api_import_letterboxd_route_known_files",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
       "norm_label": "known_files"
     },
     {
@@ -2254,8 +2254,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_app_api_import_letterboxd_route_json",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
       "norm_label": "json()"
     },
     {
@@ -2265,8 +2265,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_app_api_import_letterboxd_route_knownfilefrompath",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
       "norm_label": "knownfilefrompath()"
     },
     {
@@ -2276,8 +2276,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_app_api_import_letterboxd_route_filesfromzip",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
       "norm_label": "filesfromzip()"
     },
     {
@@ -2287,8 +2287,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "src_app_api_import_letterboxd_route_post",
-      "community": 1,
-      "community_name": "import-letterboxd.ts",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
       "norm_label": "post()"
     },
     {
@@ -2490,6 +2490,182 @@
       "norm_label": "patch()"
     },
     {
+      "label": "guess/route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_play_guess_route",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "guess/route.ts"
+    },
+    {
+      "label": "guessSchema",
+      "file_type": "code",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "src_app_api_play_guess_route_guessschema",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "guessschema"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "src_app_api_play_guess_route_post",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "post()"
+    },
+    {
+      "label": "round/route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_play_round_route",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "round/route.ts"
+    },
+    {
+      "label": "roundSchema",
+      "file_type": "code",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "src_app_api_play_round_route_roundschema",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "roundschema"
+    },
+    {
+      "label": "shufflePick()",
+      "file_type": "code",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "src_app_api_play_round_route_shufflepick",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "shufflepick()"
+    },
+    {
+      "label": "fetchAndCacheCast()",
+      "file_type": "code",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "src_app_api_play_round_route_fetchandcachecast",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "fetchandcachecast()"
+    },
+    {
+      "label": "buildMineRound()",
+      "file_type": "code",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L51",
+      "_origin": "ast",
+      "id": "src_app_api_play_round_route_buildmineround",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "buildmineround()"
+    },
+    {
+      "label": "buildPopularRound()",
+      "file_type": "code",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L88",
+      "_origin": "ast",
+      "id": "src_app_api_play_round_route_buildpopularround",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "buildpopularround()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L120",
+      "_origin": "ast",
+      "id": "src_app_api_play_round_route_post",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "post()"
+    },
+    {
+      "label": "score/route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_play_score_route",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "score/route.ts"
+    },
+    {
+      "label": "scoreSchema",
+      "file_type": "code",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_app_api_play_score_route_scoreschema",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "scoreschema"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "src_app_api_play_score_route_get",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "src_app_api_play_score_route_post",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "post()"
+    },
+    {
+      "label": "search/route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_api_play_search_route",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "search/route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "src_app_api_play_search_route_get",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "get()"
+    },
+    {
       "label": "profile/route.ts",
       "file_type": "code",
       "source_file": "src/app/api/profile/route.ts",
@@ -2540,8 +2716,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_api_recommendations_route",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "recommendations/route.ts"
     },
     {
@@ -2551,8 +2727,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_app_api_recommendations_route_get",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "get()"
     },
     {
@@ -2782,8 +2958,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_api_tmdb_route",
-      "community": 5,
-      "community_name": "recommendations.ts",
+      "community": 6,
+      "community_name": "discover/route.ts",
       "norm_label": "tmdb/route.ts"
     },
     {
@@ -2793,8 +2969,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_app_api_tmdb_route_errorresponse",
-      "community": 5,
-      "community_name": "recommendations.ts",
+      "community": 6,
+      "community_name": "discover/route.ts",
       "norm_label": "errorresponse()"
     },
     {
@@ -2804,8 +2980,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_app_api_tmdb_route_get",
-      "community": 5,
-      "community_name": "recommendations.ts",
+      "community": 6,
+      "community_name": "discover/route.ts",
       "norm_label": "get()"
     },
     {
@@ -2914,8 +3090,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_diary_page",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "diary/page.tsx"
     },
     {
@@ -2925,8 +3101,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_app_diary_page_diarypage",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "diarypage()"
     },
     {
@@ -2936,8 +3112,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_app_diary_page_stat",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "stat()"
     },
     {
@@ -3002,8 +3178,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_favorites_page",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "favorites/page.tsx"
     },
     {
@@ -3013,8 +3189,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_app_favorites_page_favoritespage",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "favoritespage()"
     },
     {
@@ -3046,8 +3222,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_app_film_id_page_formatdate",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "formatdate()"
     },
     {
@@ -3057,8 +3233,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_app_film_id_page_filmpage",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "filmpage()"
     },
     {
@@ -3211,8 +3387,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_page",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "app/page.tsx"
     },
     {
@@ -3222,8 +3398,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_app_page_homepage",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "homepage()"
     },
     {
@@ -3233,8 +3409,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_app_page_ownerdashboard",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "ownerdashboard()"
     },
     {
@@ -3244,8 +3420,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_app_page_metric",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "metric()"
     },
     {
@@ -3255,8 +3431,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_app_page_sectionhead",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "sectionhead()"
     },
     {
@@ -3266,8 +3442,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_app_page_empty",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "empty()"
     },
     {
@@ -3277,9 +3453,42 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "src_app_page_activationpanel",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "activationpanel()"
+    },
+    {
+      "label": "play/page.tsx",
+      "file_type": "code",
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_app_play_page",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "play/page.tsx"
+    },
+    {
+      "label": "metadata",
+      "file_type": "code",
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "src_app_play_page_metadata",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "metadata"
+    },
+    {
+      "label": "PlayPage()",
+      "file_type": "code",
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_app_play_page_playpage",
+      "community": 32,
+      "community_name": "LogEditor.tsx",
+      "norm_label": "playpage()"
     },
     {
       "label": "profile/loading.tsx",
@@ -3475,8 +3684,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_search_page",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 33,
+      "community_name": "getPosterUrl",
       "norm_label": "search/page.tsx"
     },
     {
@@ -3486,8 +3695,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_app_search_page_searchpage",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 33,
+      "community_name": "getPosterUrl",
       "norm_label": "searchpage()"
     },
     {
@@ -3530,8 +3739,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_app_stats_page_statspage",
-      "community": 34,
-      "community_name": "layout.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "statspage()"
     },
     {
@@ -3574,8 +3783,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_watchlist_page",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "watchlist/page.tsx"
     },
     {
@@ -3585,8 +3794,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_app_watchlist_page_watchlistpage",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "watchlistpage()"
     },
     {
@@ -3827,8 +4036,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_collectioncontrols",
-      "community": 33,
-      "community_name": "getPosterUrl",
+      "community": 57,
+      "community_name": "LetterboxdImport.tsx",
       "norm_label": "collectioncontrols.tsx"
     },
     {
@@ -3838,8 +4047,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_components_collectioncontrols_props",
-      "community": 33,
-      "community_name": "getPosterUrl",
+      "community": 57,
+      "community_name": "LetterboxdImport.tsx",
       "norm_label": "props"
     },
     {
@@ -3849,8 +4058,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_components_collectioncontrols_action",
-      "community": 33,
-      "community_name": "getPosterUrl",
+      "community": 57,
+      "community_name": "LetterboxdImport.tsx",
       "norm_label": "action"
     },
     {
@@ -3860,8 +4069,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_components_collectioncontrols_movieresponse",
-      "community": 33,
-      "community_name": "getPosterUrl",
+      "community": 57,
+      "community_name": "LetterboxdImport.tsx",
       "norm_label": "movieresponse"
     },
     {
@@ -3871,8 +4080,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_components_collectioncontrols_collectioncontrols",
-      "community": 33,
-      "community_name": "getPosterUrl",
+      "community": 57,
+      "community_name": "LetterboxdImport.tsx",
       "norm_label": "collectioncontrols()"
     },
     {
@@ -3926,8 +4135,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_components_diaryexplorer_diaryitem",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "diaryitem"
     },
     {
@@ -4146,8 +4355,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_logeditor",
-      "community": 40,
-      "community_name": "StarRating.tsx",
+      "community": 27,
+      "community_name": "tmdb/route.ts",
       "norm_label": "logeditor.tsx"
     },
     {
@@ -4157,8 +4366,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_components_logeditor_props",
-      "community": 40,
-      "community_name": "StarRating.tsx",
+      "community": 27,
+      "community_name": "tmdb/route.ts",
       "norm_label": "props"
     },
     {
@@ -4168,8 +4377,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_components_logeditor_today",
-      "community": 40,
-      "community_name": "StarRating.tsx",
+      "community": 27,
+      "community_name": "tmdb/route.ts",
       "norm_label": "today()"
     },
     {
@@ -4179,8 +4388,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_components_logeditor_logeditor",
-      "community": 40,
-      "community_name": "StarRating.tsx",
+      "community": 27,
+      "community_name": "tmdb/route.ts",
       "norm_label": "logeditor()"
     },
     {
@@ -4256,8 +4465,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_moviesearch",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 33,
+      "community_name": "getPosterUrl",
       "norm_label": "moviesearch.tsx"
     },
     {
@@ -4267,8 +4476,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_components_moviesearch_existingmovie",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 33,
+      "community_name": "getPosterUrl",
       "norm_label": "existingmovie"
     },
     {
@@ -4278,8 +4487,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_components_moviesearch_searchresult",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 33,
+      "community_name": "getPosterUrl",
       "norm_label": "searchresult"
     },
     {
@@ -4289,8 +4498,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_components_moviesearch_searchresponse",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 33,
+      "community_name": "getPosterUrl",
       "norm_label": "searchresponse"
     },
     {
@@ -4300,8 +4509,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_components_moviesearch_feed",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 33,
+      "community_name": "getPosterUrl",
       "norm_label": "feed"
     },
     {
@@ -4311,8 +4520,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_components_moviesearch_feeds",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 33,
+      "community_name": "getPosterUrl",
       "norm_label": "feeds"
     },
     {
@@ -4322,8 +4531,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_components_moviesearch_moviesearch",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 57,
+      "community_name": "LetterboxdImport.tsx",
       "norm_label": "moviesearch()"
     },
     {
@@ -4333,8 +4542,8 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "src_components_moviesearch_cardskeletons",
-      "community": 38,
-      "community_name": "MovieSearch.tsx",
+      "community": 33,
+      "community_name": "getPosterUrl",
       "norm_label": "cardskeletons()"
     },
     {
@@ -4377,8 +4586,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_posterpicker",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "posterpicker.tsx"
     },
     {
@@ -4388,8 +4597,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_components_posterpicker_props",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "props"
     },
     {
@@ -4399,8 +4608,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_components_posterpicker_detailsresponse",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "detailsresponse"
     },
     {
@@ -4410,8 +4619,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_components_posterpicker_posterpicker",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "posterpicker()"
     },
     {
@@ -4421,8 +4630,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_profilesettings",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "profilesettings.tsx"
     },
     {
@@ -4432,8 +4641,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_components_profilesettings_profileuser",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "profileuser"
     },
     {
@@ -4443,8 +4652,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_components_profilesettings_tab",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "tab"
     },
     {
@@ -4454,8 +4663,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_components_profilesettings_tabs",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "tabs"
     },
     {
@@ -4465,8 +4674,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_components_profilesettings_accent_presets",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "accent_presets"
     },
     {
@@ -4476,8 +4685,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_components_profilesettings_filetosquaredataurl",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "filetosquaredataurl()"
     },
     {
@@ -4487,8 +4696,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_components_profilesettings_initialsof",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "initialsof()"
     },
     {
@@ -4498,8 +4707,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_components_profilesettings_profilesettings",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "profilesettings()"
     },
     {
@@ -4509,8 +4718,8 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "src_components_profilesettings_section",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "section()"
     },
     {
@@ -4520,8 +4729,8 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "src_components_profilesettings_field",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "field()"
     },
     {
@@ -4531,8 +4740,8 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "src_components_profilesettings_notify",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "notify"
     },
     {
@@ -4542,8 +4751,8 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "src_components_profilesettings_profiletab",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "profiletab()"
     },
     {
@@ -4553,8 +4762,8 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "src_components_profilesettings_preferencestab",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "preferencestab()"
     },
     {
@@ -4564,8 +4773,8 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "src_components_profilesettings_accounttab",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "accounttab()"
     },
     {
@@ -4575,8 +4784,8 @@
       "source_location": "L298",
       "_origin": "ast",
       "id": "src_components_profilesettings_toggle",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "toggle()"
     },
     {
@@ -4685,8 +4894,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_components_settingsprovider_usesettings",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "usesettings()"
     },
     {
@@ -4748,7 +4957,7 @@
       "label": "SiteHeader()",
       "file_type": "code",
       "source_file": "src/components/SiteHeader.tsx",
-      "source_location": "L18",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "src_components_siteheader_siteheader",
       "community": 33,
@@ -4806,8 +5015,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_components_starrating_starrating",
-      "community": 6,
-      "community_name": "discover/route.ts",
+      "community": 40,
+      "community_name": "StarRating.tsx",
       "norm_label": "starrating()"
     },
     {
@@ -4861,8 +5070,8 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "src_components_tasteexplorer_tastepostercard",
-      "community": 34,
-      "community_name": "layout.tsx",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "tastepostercard()"
     },
     {
@@ -5216,6 +5425,105 @@
       "community": 2,
       "community_name": "app/page.tsx",
       "norm_label": "runtimedistribution()"
+    },
+    {
+      "label": "CastQuizGame.tsx",
+      "file_type": "code",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_components_play_castquizgame",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "castquizgame.tsx"
+    },
+    {
+      "label": "Source",
+      "file_type": "code",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "src_components_play_castquizgame_source",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "source"
+    },
+    {
+      "label": "Phase",
+      "file_type": "code",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "src_components_play_castquizgame_phase",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "phase"
+    },
+    {
+      "label": "Answer",
+      "file_type": "code",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "src_components_play_castquizgame_answer",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "answer"
+    },
+    {
+      "label": "RoundResult",
+      "file_type": "code",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "src_components_play_castquizgame_roundresult",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "roundresult"
+    },
+    {
+      "label": "Suggestion",
+      "file_type": "code",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "src_components_play_castquizgame_suggestion",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "suggestion"
+    },
+    {
+      "label": "SOURCES",
+      "file_type": "code",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "src_components_play_castquizgame_sources",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "sources"
+    },
+    {
+      "label": "posterUrl()",
+      "file_type": "code",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "src_components_play_castquizgame_posterurl",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "posterurl()"
+    },
+    {
+      "label": "CastQuizGame()",
+      "file_type": "code",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "src_components_play_castquizgame_castquizgame",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "castquizgame()"
     },
     {
       "label": "blindspots.ts",
@@ -5664,8 +5972,8 @@
       "source_location": "L261",
       "_origin": "ast",
       "id": "src_lib_analytics_palate_palate",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "palate"
     },
     {
@@ -5697,8 +6005,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_lib_auth_getconfiguredownerusername",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "getconfiguredownerusername()"
     },
     {
@@ -5708,8 +6016,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_lib_auth_findandpromoteowner",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "findandpromoteowner()"
     },
     {
@@ -5719,8 +6027,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_lib_auth_getowneruser",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "getowneruser()"
     },
     {
@@ -5730,8 +6038,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_lib_auth_ensureowneruser",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "ensureowneruser()"
     },
     {
@@ -5752,8 +6060,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_data",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "data.ts"
     },
     {
@@ -5774,8 +6082,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_lib_data_userstate",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "userstate"
     },
     {
@@ -5785,8 +6093,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_lib_data_tocard",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "tocard()"
     },
     {
@@ -5796,8 +6104,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_lib_data_dashboarddata",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "dashboarddata"
     },
     {
@@ -5807,8 +6115,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_lib_data_getdashboarddata",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "getdashboarddata()"
     },
     {
@@ -5818,8 +6126,8 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "src_lib_data_diarydata",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "diarydata"
     },
     {
@@ -5829,8 +6137,8 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "src_lib_data_getdiarydata",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "getdiarydata()"
     },
     {
@@ -5840,8 +6148,8 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "src_lib_data_getwatchlistdata",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "getwatchlistdata()"
     },
     {
@@ -5851,8 +6159,8 @@
       "source_location": "L237",
       "_origin": "ast",
       "id": "src_lib_data_getfavoritesdata",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "getfavoritesdata()"
     },
     {
@@ -5862,8 +6170,8 @@
       "source_location": "L271",
       "_origin": "ast",
       "id": "src_lib_data_statsdata",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "statsdata"
     },
     {
@@ -5873,8 +6181,8 @@
       "source_location": "L297",
       "_origin": "ast",
       "id": "src_lib_data_countvalues",
-      "community": 34,
-      "community_name": "layout.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "countvalues()"
     },
     {
@@ -5884,8 +6192,8 @@
       "source_location": "L305",
       "_origin": "ast",
       "id": "src_lib_data_getstatsdata",
-      "community": 34,
-      "community_name": "layout.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "getstatsdata()"
     },
     {
@@ -6522,8 +6830,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_movie_metadata",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "movie-metadata.ts"
     },
     {
@@ -6533,8 +6841,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_lib_movie_metadata_missingmetadata",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "missingmetadata()"
     },
     {
@@ -6544,8 +6852,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_lib_movie_metadata_metadatawithoutidentity",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "metadatawithoutidentity()"
     },
     {
@@ -6555,8 +6863,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_lib_movie_metadata_enrichmoviemetadata",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "enrichmoviemetadata()"
     },
     {
@@ -6591,6 +6899,138 @@
       "community": 32,
       "community_name": "LogEditor.tsx",
       "norm_label": "verifypassword()"
+    },
+    {
+      "label": "scoring.ts",
+      "file_type": "code",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_play_scoring",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "scoring.ts"
+    },
+    {
+      "label": "LEADING_ARTICLES",
+      "file_type": "code",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "src_lib_play_scoring_leading_articles",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "leading_articles"
+    },
+    {
+      "label": "normalizeGuess()",
+      "file_type": "code",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_lib_play_scoring_normalizeguess",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "normalizeguess()"
+    },
+    {
+      "label": "editDistance()",
+      "file_type": "code",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "src_lib_play_scoring_editdistance",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "editdistance()"
+    },
+    {
+      "label": "allowedDistance()",
+      "file_type": "code",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "src_lib_play_scoring_alloweddistance",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "alloweddistance()"
+    },
+    {
+      "label": "isCorrectGuess()",
+      "file_type": "code",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L68",
+      "_origin": "ast",
+      "id": "src_lib_play_scoring_iscorrectguess",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "iscorrectguess()"
+    },
+    {
+      "label": "computeRoundScore()",
+      "file_type": "code",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L92",
+      "_origin": "ast",
+      "id": "src_lib_play_scoring_computeroundscore",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "computeroundscore()"
+    },
+    {
+      "label": "token.ts",
+      "file_type": "code",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_play_token",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "token.ts"
+    },
+    {
+      "label": "RoundPayload",
+      "file_type": "code",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "src_lib_play_token_roundpayload",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "roundpayload"
+    },
+    {
+      "label": "key()",
+      "file_type": "code",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_lib_play_token_key",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "key()"
+    },
+    {
+      "label": "sealRound()",
+      "file_type": "code",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "src_lib_play_token_sealround",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "sealround()"
+    },
+    {
+      "label": "openRound()",
+      "file_type": "code",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L36",
+      "_origin": "ast",
+      "id": "src_lib_play_token_openround",
+      "community": 13,
+      "community_name": "tmdb.ts",
+      "norm_label": "openround()"
     },
     {
       "label": "prisma.ts",
@@ -7061,8 +7501,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_lib_tmdb_tmdbposter",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "tmdbposter"
     },
     {
@@ -7171,8 +7611,8 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "src_lib_tmdb_searchtmdbmovies",
-      "community": 5,
-      "community_name": "recommendations.ts",
+      "community": 6,
+      "community_name": "discover/route.ts",
       "norm_label": "searchtmdbmovies()"
     },
     {
@@ -7182,8 +7622,8 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "src_lib_tmdb_searchtmdbmovie",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "searchtmdbmovie()"
     },
     {
@@ -7193,8 +7633,8 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "src_lib_tmdb_gettmdbmovie",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "gettmdbmovie()"
     },
     {
@@ -7215,8 +7655,8 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "src_lib_tmdb_gettmdbmoviewithimages",
-      "community": 5,
-      "community_name": "recommendations.ts",
+      "community": 6,
+      "community_name": "discover/route.ts",
       "norm_label": "gettmdbmoviewithimages()"
     },
     {
@@ -7314,8 +7754,8 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "src_lib_tmdb_tomoviemetadata",
-      "community": 32,
-      "community_name": "LogEditor.tsx",
+      "community": 24,
+      "community_name": "TmdbError",
       "norm_label": "tomoviemetadata()"
     },
     {
@@ -7325,8 +7765,8 @@
       "source_location": "L256",
       "_origin": "ast",
       "id": "src_lib_tmdb_movieposterpath",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "movieposterpath()"
     },
     {
@@ -7336,8 +7776,8 @@
       "source_location": "L260",
       "_origin": "ast",
       "id": "src_lib_tmdb_moviebackdroppath",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "moviebackdroppath()"
     },
     {
@@ -7358,8 +7798,8 @@
       "source_location": "L271",
       "_origin": "ast",
       "id": "src_lib_tmdb_getbackdropurl",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "getbackdropurl()"
     },
     {
@@ -7369,8 +7809,8 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "src_lib_tmdb_cleanartworkpath",
-      "community": 27,
-      "community_name": "tmdb/route.ts",
+      "community": 5,
+      "community_name": "recommendations.ts",
       "norm_label": "cleanartworkpath()"
     },
     {
@@ -7380,8 +7820,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_types",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "types.ts"
     },
     {
@@ -7391,8 +7831,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_lib_types_usermoviestate",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "usermoviestate"
     },
     {
@@ -7402,8 +7842,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_lib_types_enrichedmovie",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "enrichedmovie"
     },
     {
@@ -7413,8 +7853,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_lib_types_cardmovie",
-      "community": 2,
-      "community_name": "app/page.tsx",
+      "community": 13,
+      "community_name": "tmdb.ts",
       "norm_label": "cardmovie"
     },
     {
@@ -7658,6 +8098,17 @@
       "community": 2,
       "community_name": "app/page.tsx",
       "norm_label": "film()"
+    },
+    {
+      "label": "play-scoring.test.ts",
+      "file_type": "code",
+      "source_file": "tests/play-scoring.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_play_scoring_test",
+      "community": 38,
+      "community_name": "MovieSearch.tsx",
+      "norm_label": "play-scoring.test.ts"
     },
     {
       "label": "tsconfig.json",
@@ -15296,6 +15747,822 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_app_api_play_guess_route_guessschema",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_app_api_play_guess_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_lib_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_lib_auth_getcurrentuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_lib_play_scoring",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_lib_play_scoring_iscorrectguess",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_lib_play_token",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_lib_play_token_openround",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_lib_security",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_lib_security_crossoriginresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route",
+      "target": "src_lib_security_issameorigin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route_post",
+      "target": "src_lib_auth_getcurrentuser"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route_post",
+      "target": "src_lib_play_scoring_iscorrectguess"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route_post",
+      "target": "src_lib_play_token_openround"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route_post",
+      "target": "src_lib_security_crossoriginresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/guess/route.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_guess_route_post",
+      "target": "src_lib_security_issameorigin"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_app_api_play_round_route_buildmineround",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L88",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_app_api_play_round_route_buildpopularround",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L34",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_app_api_play_round_route_fetchandcachecast",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L120",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_app_api_play_round_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_app_api_play_round_route_roundschema",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_app_api_play_round_route_shufflepick",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_auth_getcurrentuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_play_scoring",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_play_token",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_play_token_roundpayload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_play_token_sealround",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_prisma",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_security",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_security_crossoriginresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_security_issameorigin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_tmdb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_tmdb_gettmdbfeed",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_tmdb_gettmdbmovie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route",
+      "target": "src_lib_tmdb_tmdberror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L61",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_buildmineround",
+      "target": "src_app_api_play_round_route_shufflepick",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L94",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_buildpopularround",
+      "target": "src_app_api_play_round_route_shufflepick",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L66",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_buildmineround",
+      "target": "src_app_api_play_round_route_fetchandcachecast",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_fetchandcachecast",
+      "target": "src_lib_tmdb_gettmdbmovie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L132",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_post",
+      "target": "src_app_api_play_round_route_buildmineround",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L90",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_buildpopularround",
+      "target": "src_lib_tmdb_gettmdbfeed",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L96",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_buildpopularround",
+      "target": "src_lib_tmdb_gettmdbmovie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L133",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_post",
+      "target": "src_app_api_play_round_route_buildpopularround",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L122",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_post",
+      "target": "src_lib_auth_getcurrentuser"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L145",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_post",
+      "target": "src_lib_play_token_sealround"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L121",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_post",
+      "target": "src_lib_security_crossoriginresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/round/route.ts",
+      "source_location": "L121",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_round_route_post",
+      "target": "src_lib_security_issameorigin"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route",
+      "target": "src_app_api_play_score_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route",
+      "target": "src_app_api_play_score_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route",
+      "target": "src_app_api_play_score_route_scoreschema",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route",
+      "target": "src_lib_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route",
+      "target": "src_lib_auth_getcurrentuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route",
+      "target": "src_lib_prisma",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route",
+      "target": "src_lib_security",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route",
+      "target": "src_lib_security_crossoriginresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route",
+      "target": "src_lib_security_issameorigin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route_get",
+      "target": "src_lib_auth_getcurrentuser"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route_post",
+      "target": "src_lib_auth_getcurrentuser"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route_post",
+      "target": "src_lib_security_crossoriginresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/score/route.ts",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_score_route_post",
+      "target": "src_lib_security_issameorigin"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_search_route",
+      "target": "src_app_api_play_search_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_search_route",
+      "target": "src_lib_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_search_route",
+      "target": "src_lib_auth_getcurrentuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_search_route",
+      "target": "src_lib_prisma",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_search_route",
+      "target": "src_lib_tmdb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_search_route",
+      "target": "src_lib_tmdb_searchtmdbmovies",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_search_route_get",
+      "target": "src_lib_auth_getcurrentuser"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/play/search/route.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_api_play_search_route_get",
+      "target": "src_lib_tmdb_searchtmdbmovies"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/app/api/profile/route.ts",
       "source_location": "L11",
       "weight": 1.0,
@@ -18003,6 +19270,88 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_play_page",
+      "target": "src_app_play_page_metadata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_play_page",
+      "target": "src_app_play_page_playpage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_play_page",
+      "target": "src_components_play_castquizgame",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_play_page",
+      "target": "src_lib_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_play_page",
+      "target": "src_lib_auth_getcurrentuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_play_page",
+      "target": "src_lib_prisma",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/play/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_play_page_playpage",
+      "target": "src_lib_auth_getcurrentuser"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/app/profile/loading.tsx",
       "source_location": "L1",
       "weight": 1.0,
@@ -18605,6 +19954,18 @@
       "target": "src_lib_data_getstatsdata"
     },
     {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/app/stats/page.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_app_stats_page_statspage",
+      "target": "src_lib_play_token_key"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -19101,6 +20462,18 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_artworkimage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/components/PosterPicker.tsx",
       "source_location": "L6",
       "weight": 1.0,
@@ -19170,6 +20543,18 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/components/ArtworkImage.tsx",
+      "source_location": "L86",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_artworkimage_artworkimage",
+      "target": "src_components_play_castquizgame_posterurl"
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -19226,6 +20611,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_moviesearch",
+      "target": "src_components_artworkimage_artworkimage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
       "target": "src_components_artworkimage_artworkimage",
       "confidence_score": 1.0
     },
@@ -19531,7 +20928,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/SiteHeader.tsx",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_siteheader_siteheader",
@@ -19955,6 +21352,18 @@
       "target": "src_components_toastprovider_usetoast"
     },
     {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/components/DiaryExplorer.tsx",
+      "source_location": "L116",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_diaryexplorer_diaryexplorer",
+      "target": "src_lib_play_token_key"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -19965,6 +21374,18 @@
       "_origin": "ast",
       "source": "src_components_diaryexplorer_diaryexplorer",
       "target": "src_lib_tmdb_getposterurl"
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/components/DiaryExplorer.tsx",
+      "source_location": "L130",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_diaryexplorer_calendarview",
+      "target": "src_lib_play_token_key"
     },
     {
       "relation": "calls",
@@ -21428,7 +22849,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/SiteHeader.tsx",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_siteheader",
@@ -21689,6 +23110,18 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_toastprovider",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/ToastProvider.tsx",
@@ -21788,6 +23221,30 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_discover_discoverexplorer_discoverexplorer",
+      "target": "src_components_toastprovider_usetoast"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_toastprovider_usetoast",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame_castquizgame",
       "target": "src_components_toastprovider_usetoast"
     },
     {
@@ -22302,6 +23759,142 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_play_castquizgame_answer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_play_castquizgame_castquizgame",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_play_castquizgame_phase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_play_castquizgame_posterurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_play_castquizgame_roundresult",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_play_castquizgame_source",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_play_castquizgame_sources",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_components_play_castquizgame_suggestion",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_lib_play_scoring",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame",
+      "target": "src_lib_play_scoring_computeroundscore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L269",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame_castquizgame",
+      "target": "src_components_play_castquizgame_posterurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/play/CastQuizGame.tsx",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_play_castquizgame_castquizgame",
+      "target": "src_lib_play_scoring_computeroundscore"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/lib/analytics/blindspots.ts",
       "source_location": "L252",
       "weight": 1.0,
@@ -22734,6 +24327,18 @@
       "source": "tests_blindspots_test",
       "target": "src_lib_analytics_blindspots_genredomain",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/lib/analytics/blindspots.ts",
+      "source_location": "L132",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_analytics_blindspots_computecoverage",
+      "target": "src_lib_play_token_key"
     },
     {
       "relation": "imports",
@@ -23982,6 +25587,18 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/lib/data.ts",
+      "source_location": "L106",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_data_getdashboarddata",
+      "target": "src_lib_play_token_key"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -23992,6 +25609,18 @@
       "source": "src_lib_data_getstatsdata",
       "target": "src_lib_data_countvalues",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/lib/data.ts",
+      "source_location": "L338",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_data_getstatsdata",
+      "target": "src_lib_play_token_key"
     },
     {
       "relation": "contains",
@@ -25447,6 +27076,236 @@
       "_origin": "ast",
       "source": "src_lib_password",
       "target": "src_lib_password_verifypassword",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring",
+      "target": "src_lib_play_scoring_alloweddistance",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L92",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring",
+      "target": "src_lib_play_scoring_computeroundscore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring",
+      "target": "src_lib_play_scoring_editdistance",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring",
+      "target": "src_lib_play_scoring_iscorrectguess",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring",
+      "target": "src_lib_play_scoring_leading_articles",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring",
+      "target": "src_lib_play_scoring_normalizeguess",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/play-scoring.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_play_scoring_test",
+      "target": "src_lib_play_scoring",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring_normalizeguess",
+      "target": "src_lib_play_scoring_leading_articles"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring_iscorrectguess",
+      "target": "src_lib_play_scoring_normalizeguess",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/play-scoring.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_play_scoring_test",
+      "target": "src_lib_play_scoring_normalizeguess",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L81",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring_iscorrectguess",
+      "target": "src_lib_play_scoring_editdistance",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/scoring.ts",
+      "source_location": "L81",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_scoring_iscorrectguess",
+      "target": "src_lib_play_scoring_alloweddistance",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/play-scoring.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_play_scoring_test",
+      "target": "src_lib_play_scoring_iscorrectguess",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/play-scoring.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_play_scoring_test",
+      "target": "src_lib_play_scoring_computeroundscore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_token",
+      "target": "src_lib_play_token_key",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_token",
+      "target": "src_lib_play_token_openround",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_token",
+      "target": "src_lib_play_token_roundpayload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_token",
+      "target": "src_lib_play_token_sealround",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L42",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_token_openround",
+      "target": "src_lib_play_token_key",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/play/token.ts",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_play_token_sealround",
+      "target": "src_lib_play_token_key",
       "confidence_score": 1.0
     },
     {
@@ -28433,5 +30292,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "4f514a7c3c9f49ec7e40010580b9cf4cfa06a5fc"
+  "built_at_commit": "92565394a200c78d5cad32298e329bbc2c61e532"
 }

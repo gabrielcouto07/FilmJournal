@@ -10,8 +10,8 @@
     "semantic_hash": "4d224c35be25eabc06386f328e081b6e"
   },
   "package.json": {
-    "mtime": 1784659317.421018,
-    "ast_hash": "09e2598a930667270665f63725498a03",
+    "mtime": 1784660277.1962888,
+    "ast_hash": "dadae40c608826d8f31bb7b9d8e924cf",
     "semantic_hash": ""
   },
   "postcss.config.mjs": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "src/components/SiteHeader.tsx": {
-    "mtime": 1784659460.712154,
-    "ast_hash": "014b9c70693a24f14290c95cf9ae3822",
+    "mtime": 1784660465.6772997,
+    "ast_hash": "0c88d1dfe8fa402f20839dadaae85192",
     "semantic_hash": ""
   },
   "src/components/StarRating.tsx": {
@@ -707,6 +707,56 @@
   "src/app/api/roulette/prefs/route.ts": {
     "mtime": 1784659886.2016509,
     "ast_hash": "c9530443d64209ccc4de4ceb3d305e48",
+    "semantic_hash": ""
+  },
+  "prisma/migrations/20260721185630_add_game_scores/migration.sql": {
+    "mtime": 1784660190.604853,
+    "ast_hash": "cb9d9f625cab7724a1d84c2cb868929c",
+    "semantic_hash": ""
+  },
+  "src/app/api/play/guess/route.ts": {
+    "mtime": 1784660357.3169003,
+    "ast_hash": "8501fac045f10b642c269a73f1119338",
+    "semantic_hash": ""
+  },
+  "src/app/api/play/round/route.ts": {
+    "mtime": 1784660343.2891028,
+    "ast_hash": "68500fbadec55fbbb1c2cc988fac3ada",
+    "semantic_hash": ""
+  },
+  "src/app/api/play/score/route.ts": {
+    "mtime": 1784660364.443273,
+    "ast_hash": "94145a4c9ec793172a7dae2d6594234d",
+    "semantic_hash": ""
+  },
+  "src/app/api/play/search/route.ts": {
+    "mtime": 1784660369.9116266,
+    "ast_hash": "a91e4625a01db392ebce8a43f5a40ec6",
+    "semantic_hash": ""
+  },
+  "src/app/play/page.tsx": {
+    "mtime": 1784660387.511578,
+    "ast_hash": "d2777080444fd8d8a4ce0021f8a2d372",
+    "semantic_hash": ""
+  },
+  "src/components/play/CastQuizGame.tsx": {
+    "mtime": 1784660513.707028,
+    "ast_hash": "d5be62ae5d79a087106f2afcbc78568a",
+    "semantic_hash": ""
+  },
+  "src/lib/play/scoring.ts": {
+    "mtime": 1784660227.94009,
+    "ast_hash": "7958b1d85bcea72909f1495d4e61b921",
+    "semantic_hash": ""
+  },
+  "src/lib/play/token.ts": {
+    "mtime": 1784660244.352556,
+    "ast_hash": "01b65769131646a1e5d0644da4135449",
+    "semantic_hash": ""
+  },
+  "tests/play-scoring.test.ts": {
+    "mtime": 1784660266.5403607,
+    "ast_hash": "cfb52b77bd7c29ea4794d1932a67e144",
     "semantic_hash": ""
   }
 }

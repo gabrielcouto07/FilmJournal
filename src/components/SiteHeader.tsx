@@ -12,6 +12,7 @@ const navigation = [
   { href: "/diary", label: "Diário" },
   { href: "/dashboard", label: "Paladar" },
   { href: "/discover", label: "Descobrir" },
+  { href: "/play", label: "Jogar" },
   { href: "/roulette", label: "Roleta" },
 ];
 
