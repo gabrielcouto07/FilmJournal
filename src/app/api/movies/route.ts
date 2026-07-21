@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getTmdbMovie, getTmdbMovieWithImages, TmdbError, toMovieMetadata } from "@/lib/tmdb";
+import { ensureTaxonomyRows, relationalEnrichmentData } from "@/lib/movie-metadata";
 import { getCurrentUser } from "@/lib/auth";
 import { CATALOG_TAG, userTag } from "@/lib/data";
 import { crossOriginResponse, isSameOrigin } from "@/lib/security";
@@ -107,8 +108,8 @@ export async function POST(request: Request) {
     const details = await getTmdbMovie(tmdbId);
     const metadata = toMovieMetadata(details);
     const existing = await prisma.movie.findUnique({ where: { tmdbId } });
-    
-    const movie = existing
+
+    const base = existing
       ? await prisma.movie.update({
         where: { id: existing.id },
         data: {
@@ -119,6 +120,12 @@ export async function POST(request: Request) {
       : await prisma.movie.create({
         data: metadata,
       });
+
+    // Full enrichment on add: the same relational fields the TMDB backfill
+    // writes (genre/keyword relations, countries, language, director), so films
+    // added through the app never drop out of the taste analytics.
+    await ensureTaxonomyRows([details]);
+    const movie = await prisma.movie.update({ where: { id: base.id }, data: relationalEnrichmentData(details) });
 
     // Create or update UserMovie record for the owner
     const userMovie = await prisma.userMovie.upsert({
@@ -151,6 +158,9 @@ export async function POST(request: Request) {
     };
 
     revalidateTag(userTag(user.id));
+    // Refreshed metadata lives on the shared catalog (same reasoning as the
+    // enrich route): drop every cached page that shows it.
+    revalidateTag(CATALOG_TAG);
     return NextResponse.json({
       movie: mergedMovie,
       created: !existing,

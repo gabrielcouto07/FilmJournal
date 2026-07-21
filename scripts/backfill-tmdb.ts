@@ -3,7 +3,8 @@ import readline from "node:readline";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import { prisma } from "@/lib/prisma";
-import { getTmdbMovieForBackfill, TmdbError, type TmdbMovieDetails } from "@/lib/tmdb";
+import { getTmdbMovie, TmdbError, type TmdbMovieDetails } from "@/lib/tmdb";
+import { ensureTaxonomyRows, relationalEnrichmentData } from "@/lib/movie-metadata";
 
 const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 config({ path: path.join(rootDirectory, ".env.local") });
@@ -51,7 +52,7 @@ type Fetched = { movie: MovieRef; details: TmdbMovieDetails } | { movie: MovieRe
 /** Fetch one film's TMDB details (with retry). Errors are captured, not thrown. */
 async function fetchDetails(movie: MovieRef): Promise<Fetched> {
   try {
-    const details = await withRetry(() => getTmdbMovieForBackfill(movie.tmdbId), movie.title);
+    const details = await withRetry(() => getTmdbMovie(movie.tmdbId), movie.title);
     return { movie, details };
   } catch (error) {
     return { movie, error };
@@ -62,32 +63,11 @@ async function fetchDetails(movie: MovieRef): Promise<Fetched> {
  * Write one film's enriched fields. Genre/Keyword rows are created up front by
  * the caller (see runBackfill), so we only `set` relations here — avoiding the
  * connectOrCreate race where concurrent siblings insert the same taxonomy id.
+ * The field shape is shared with the on-demand enrichment path
+ * (src/lib/movie-metadata.ts) so the two cannot drift.
  */
 async function writeMovie(movie: MovieRef, details: TmdbMovieDetails): Promise<void> {
-  const director = details.credits?.crew.find((person) => person.job === "Director") ?? null;
-  const genres = details.genres ?? [];
-  const keywords = details.keywords?.keywords ?? [];
-  const countries = (details.production_countries ?? [])
-    .map((country) => country.iso_3166_1)
-    .filter((code): code is string => Boolean(code));
-
-  await prisma.movie.update({
-    where: { id: movie.id },
-    data: {
-      // `?? undefined` leaves an existing value untouched when TMDB omits it.
-      runtime: details.runtime ?? undefined,
-      originalLanguage: details.original_language ?? null,
-      tmdbRating: details.vote_average ?? undefined,
-      tmdbVoteCount: details.vote_count ?? undefined,
-      countries,
-      directorId: director?.id ?? null,
-      directorName: director?.name ?? null,
-      // `set` is declarative: it replaces the film's relations with the current
-      // TMDB truth, so a --force re-run stays correct and idempotent.
-      genreList: { set: genres.map((genre) => ({ id: genre.id })) },
-      keywords: { set: keywords.map((keyword) => ({ id: keyword.id })) },
-    },
-  });
+  await prisma.movie.update({ where: { id: movie.id }, data: relationalEnrichmentData(details) });
 }
 
 async function runBackfill(options: BackfillOptions): Promise<Summary> {
@@ -113,19 +93,7 @@ async function runBackfill(options: BackfillOptions): Promise<Summary> {
     // 2. Create every genre/keyword the batch references in one atomic,
     //    conflict-safe write, so the per-movie updates below never race to
     //    insert the same taxonomy id.
-    const genres = new Map<number, string>();
-    const keywords = new Map<number, string>();
-    for (const item of fetched) {
-      if (!("details" in item)) continue;
-      for (const genre of item.details.genres ?? []) genres.set(genre.id, genre.name);
-      for (const keyword of item.details.keywords?.keywords ?? []) keywords.set(keyword.id, keyword.name);
-    }
-    if (genres.size) {
-      await prisma.genre.createMany({ data: [...genres].map(([id, name]) => ({ id, name })), skipDuplicates: true });
-    }
-    if (keywords.size) {
-      await prisma.keyword.createMany({ data: [...keywords].map(([id, name]) => ({ id, name })), skipDuplicates: true });
-    }
+    await ensureTaxonomyRows(fetched.flatMap((item) => ("details" in item ? [item.details] : [])));
 
     // 3. Write each film. A distinct movieId per row means concurrent relation
     //    `set`s cannot collide.

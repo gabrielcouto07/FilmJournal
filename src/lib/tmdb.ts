@@ -140,24 +140,18 @@ export async function searchTmdbMovie(title: string, year?: number | null): Prom
   return choose((await searchTmdbMovies(title)).results);
 }
 
+/**
+ * One fetch shape for every enrichment path (film add, on-demand enrichment,
+ * scripts/backfill-tmdb.ts): credits (director + cast), keywords (motif
+ * analysis) and external_ids, plus the top-level original_language and
+ * production_countries fields — everything a full enrichment needs in a
+ * single request.
+ */
 export function getTmdbMovie(tmdbId: number): Promise<TmdbMovieDetails> {
   if (!Number.isInteger(tmdbId) || tmdbId <= 0) {
     throw new TmdbError("A valid TMDb movie id is required.", 400);
   }
-  return tmdbFetch<TmdbMovieDetails>(`/movie/${tmdbId}`, { append_to_response: "external_ids,credits" });
-}
-
-/**
- * Full movie details for taste-analytics backfill: appends credits (for the
- * director) and keywords (for motif analysis). Combined with the top-level
- * original_language and production_countries fields, this is everything
- * scripts/backfill-tmdb.ts needs in a single request.
- */
-export function getTmdbMovieForBackfill(tmdbId: number): Promise<TmdbMovieDetails> {
-  if (!Number.isInteger(tmdbId) || tmdbId <= 0) {
-    throw new TmdbError("A valid TMDb movie id is required.", 400);
-  }
-  return tmdbFetch<TmdbMovieDetails>(`/movie/${tmdbId}`, { append_to_response: "credits,keywords" });
+  return tmdbFetch<TmdbMovieDetails>(`/movie/${tmdbId}`, { append_to_response: "external_ids,credits,keywords" });
 }
 
 export function getTmdbMovieWithImages(tmdbId: number): Promise<TmdbMovieDetails> {

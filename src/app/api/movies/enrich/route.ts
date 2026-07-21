@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   } else {
     const limit = Math.min(Math.max(Number(body.limit) || 12, 1), 20);
     const candidates = await prisma.userMovie.findMany({
-      where: { userId: user.id, movie: { OR: [{ tmdbId: null }, { posterPath: null }, { genres: null }, { directors: null }] } },
+      where: { userId: user.id, movie: { OR: [{ tmdbId: null }, { posterPath: null }, { genres: null }, { directors: null }, { originalLanguage: null }] } },
       select: { movieId: true },
       orderBy: [{ favorite: "desc" }, { rating: "desc" }, { updatedAt: "desc" }],
       take: limit,
@@ -41,9 +41,9 @@ export async function POST(request: Request) {
   let enriched = 0;
   for (const id of ids) {
     try {
-      const before = await prisma.movie.findUnique({ where: { id }, select: { tmdbId: true, posterPath: true, directors: true } });
+      const before = await prisma.movie.findUnique({ where: { id }, select: { tmdbId: true, posterPath: true, directors: true, originalLanguage: true } });
       const after = await enrichMovieMetadata(id);
-      if (after && (after.tmdbId !== before?.tmdbId || after.posterPath !== before?.posterPath || after.directors !== before?.directors)) {
+      if (after && (after.tmdbId !== before?.tmdbId || after.posterPath !== before?.posterPath || after.directors !== before?.directors || after.originalLanguage !== before?.originalLanguage)) {
         enriched += 1;
       }
     } catch (error) {
