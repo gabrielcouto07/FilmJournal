@@ -130,8 +130,8 @@
     "semantic_hash": ""
   },
   "src/app/film/[id]/page.tsx": {
-    "mtime": 1784641978.6594038,
-    "ast_hash": "21722ca360d17d0338ba067eb731b9dc",
+    "mtime": 1784645236.097429,
+    "ast_hash": "4291ec4213d971f7df4daca6941ae984",
     "semantic_hash": ""
   },
   "src/app/import/page.tsx": {
@@ -220,9 +220,9 @@
     "semantic_hash": "6a73f623995f571c7a8f084e395ab749"
   },
   "src/components/DiaryExplorer.tsx": {
-    "mtime": 1784305823.8534825,
-    "ast_hash": "b4f2b10f09347770da29ab76d18fb08b",
-    "semantic_hash": "b4f2b10f09347770da29ab76d18fb08b"
+    "mtime": 1784645286.6700943,
+    "ast_hash": "d614e368b194cb85b4ac429c590f9487",
+    "semantic_hash": ""
   },
   "src/components/FavoriteToggle.tsx": {
     "mtime": 1784305505.2139516,
@@ -235,8 +235,8 @@
     "semantic_hash": ""
   },
   "src/components/LogEditor.tsx": {
-    "mtime": 1784643770.485395,
-    "ast_hash": "cde3cf56005be6561e29d5ee057b8071",
+    "mtime": 1784645193.776862,
+    "ast_hash": "f47363b1dcf1380f80f85a9f92315fdb",
     "semantic_hash": ""
   },
   "src/components/MovieCard.tsx": {
@@ -467,26 +467,6 @@
   "README.md": {
     "mtime": 1784581311.369704,
     "ast_hash": "eb0187342cc0cb9e7d01ed7d8f3aa112",
-    "semantic_hash": ""
-  },
-  "VERIFY_LOCALLY.md": {
-    "mtime": 1784303014.0260587,
-    "ast_hash": "9396d02c1e7ac03bbfe0b882cff3a193",
-    "semantic_hash": ""
-  },
-  "docs/CURRENT_ARCHITECTURE.md": {
-    "mtime": 1784303027.26347,
-    "ast_hash": "221d3a020bccf01410d86514e361e0dc",
-    "semantic_hash": ""
-  },
-  "docs/NEXT_PHASE_MULTIUSER_AND_IMPORT.md": {
-    "mtime": 1784209519.362609,
-    "ast_hash": "5ecf7c84f4247b8a9b5cce1bd63b6f33",
-    "semantic_hash": ""
-  },
-  "docs/VALIDATION_REPORT.md": {
-    "mtime": 1784210124.896583,
-    "ast_hash": "ee25fc50bf58a40020b40ccec1d09ff8",
     "semantic_hash": ""
   },
   "graphify-out/memory/query_20260720_162254_onde_est\u00e1_a_l\u00f3gica_de_autentica\u00e7\u00e3o_e_como_ela_se_c.md": {

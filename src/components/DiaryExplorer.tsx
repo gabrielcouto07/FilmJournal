@@ -6,6 +6,7 @@ import { getPosterUrl } from "@/lib/tmdb";
 import ArtworkImage from "./ArtworkImage";
 import FavoriteToggle from "./FavoriteToggle";
 import StarRating from "./StarRating";
+import { useToast } from "./ToastProvider";
 
 export type DiaryItem = {
   id: string;
@@ -38,7 +39,11 @@ function monthLabel(key: string): string {
   return new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(year, month - 1, 1)));
 }
 
-export default function DiaryExplorer({ entries }: { entries: DiaryItem[] }) {
+export default function DiaryExplorer({ entries: initialEntries }: { entries: DiaryItem[] }) {
+  const { notify } = useToast();
+  const [entries, setEntries] = useState(initialEntries);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [year, setYear] = useState("all");
   const [minRating, setMinRating] = useState("0");
@@ -78,6 +83,22 @@ export default function DiaryExplorer({ entries }: { entries: DiaryItem[] }) {
     return [...map.entries()];
   }, [filtered]);
 
+  async function deleteEntry(item: DiaryItem) {
+    setDeletingId(item.id);
+    try {
+      const response = await fetch(`/api/logs?id=${item.id}`, { method: "DELETE" });
+      const payload = await response.json() as { message?: string; error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Não foi possível excluir esta entrada.");
+      setEntries((items) => items.filter((entry) => entry.id !== item.id));
+      notify(payload.message ?? "Entrada excluída do diário.");
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "Não foi possível excluir esta entrada.", "error");
+    } finally {
+      setDeletingId(null);
+      setConfirmId(null);
+    }
+  }
+
   return <div>
     <section className="surface sticky top-[7.15rem] z-20 rounded-[1.5rem] p-3 sm:top-20 sm:p-4">
       <div className="grid gap-3 xl:grid-cols-[minmax(14rem,1fr)_repeat(6,auto)]">
@@ -94,7 +115,7 @@ export default function DiaryExplorer({ entries }: { entries: DiaryItem[] }) {
 
     {!filtered.length ? <div className="empty-state mt-6"><p className="text-lg font-bold text-white">Nenhuma entrada corresponde a este recorte.</p><p className="mt-2 text-sm text-slate-500">Amplie a faixa de notas ou limpe um filtro para trazer os filmes de volta.</p></div> : view === "list" ? <div className="mt-8 space-y-10">{grouped.map(([key, items]) => <section key={key}><div className="mb-4 flex items-center gap-4"><h2 className="text-xl font-black tracking-tight text-white">{monthLabel(key)}</h2><span className="h-px flex-1 bg-white/[0.07]" /><span className="text-xs font-bold text-slate-600">{items.length}</span></div><div className="space-y-3">{items.map((item) => {
       const preferredPoster = getPosterUrl(item.movie.preferredPosterPath); const defaultPoster = getPosterUrl(item.movie.posterPath);
-      return <article key={item.id} className="surface group rounded-[1.4rem] p-3 sm:p-4"><div className="flex gap-4 sm:gap-5"><Link href={`/film/${item.movie.id}`} className="h-28 w-[4.7rem] shrink-0 overflow-hidden rounded-xl bg-white/[0.04] sm:h-36 sm:w-24"><ArtworkImage src={preferredPoster} fallbackSrc={defaultPoster} alt={`Pôster de ${item.movie.title}`} title={item.movie.title} className="h-full w-full" sizes="96px" /></Link><div className="min-w-0 flex-1"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="eyebrow !text-slate-500">{dateLabel(item)} {item.rewatch ? "· Reexibição" : ""}</p><Link href={`/film/${item.movie.id}`} className="mt-1 block text-xl font-black tracking-tight text-white transition hover:text-amber-200 sm:text-2xl">{item.movie.title} <span className="text-base font-medium text-slate-600">{item.movie.year}</span></Link></div><div className="flex items-center gap-3">{item.rating != null && <StarRating value={item.rating} readOnly showValue />}<FavoriteToggle movieId={item.movie.id} initialFavorite={item.movie.favorite} compact /></div></div>{item.review ? <p className="mt-3 line-clamp-3 max-w-4xl border-l border-amber-300/35 pl-4 text-sm leading-6 text-slate-300">{item.review}</p> : <p className="mt-3 text-sm italic text-slate-600">Sem nota para esta exibição.</p>}{item.tags && <div className="mt-3 flex flex-wrap gap-1.5">{item.tags.split(",").map((tag) => <span key={tag} className="chip !px-2 !py-1 text-[9px] uppercase tracking-wider">{tag.trim()}</span>)}</div>}</div></div></article>;
+      return <article key={item.id} className="surface group rounded-[1.4rem] p-3 sm:p-4"><div className="flex gap-4 sm:gap-5"><Link href={`/film/${item.movie.id}`} className="h-28 w-[4.7rem] shrink-0 overflow-hidden rounded-xl bg-white/[0.04] sm:h-36 sm:w-24"><ArtworkImage src={preferredPoster} fallbackSrc={defaultPoster} alt={`Pôster de ${item.movie.title}`} title={item.movie.title} className="h-full w-full" sizes="96px" /></Link><div className="min-w-0 flex-1"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="eyebrow !text-slate-500">{dateLabel(item)} {item.rewatch ? "· Reexibição" : ""}</p><Link href={`/film/${item.movie.id}`} className="mt-1 block text-xl font-black tracking-tight text-white transition hover:text-amber-200 sm:text-2xl">{item.movie.title} <span className="text-base font-medium text-slate-600">{item.movie.year}</span></Link></div><div className="flex items-center gap-3">{item.rating != null && <StarRating value={item.rating} readOnly showValue />}<FavoriteToggle movieId={item.movie.id} initialFavorite={item.movie.favorite} compact />{confirmId === item.id ? <span className="flex items-center gap-1.5"><button type="button" onClick={() => deleteEntry(item)} disabled={deletingId === item.id} className="rounded-full bg-red-500/90 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-500 disabled:opacity-60">{deletingId === item.id ? "Excluindo…" : "Excluir"}</button><button type="button" onClick={() => setConfirmId(null)} className="quiet-button !px-3 !py-1.5 text-xs">Cancelar</button></span> : <button type="button" onClick={() => setConfirmId(item.id)} aria-label={`Excluir entrada de ${item.movie.title}`} className="icon-button h-9 w-9 hover:!border-red-400/50 hover:!bg-red-500/10 hover:!text-red-300">🗑</button>}</div></div>{item.review ? <p className="mt-3 line-clamp-3 max-w-4xl border-l border-amber-300/35 pl-4 text-sm leading-6 text-slate-300">{item.review}</p> : <p className="mt-3 text-sm italic text-slate-600">Sem nota para esta exibição.</p>}{item.tags && <div className="mt-3 flex flex-wrap gap-1.5">{item.tags.split(",").map((tag) => <span key={tag} className="chip !px-2 !py-1 text-[9px] uppercase tracking-wider">{tag.trim()}</span>)}</div>}</div></div></article>;
     })}</div></section>)}</div> : view === "posters" ? <div className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">{filtered.map((item) => { const preferredPoster = getPosterUrl(item.movie.preferredPosterPath); const defaultPoster = getPosterUrl(item.movie.posterPath); return <Link href={`/film/${item.movie.id}`} key={item.id} className="poster-card group overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.03]"><div className="relative aspect-[2/3]"><ArtworkImage src={preferredPoster} fallbackSrc={defaultPoster} alt={`Pôster de ${item.movie.title}`} title={item.movie.title} className="h-full w-full" sizes="(max-width: 640px) 30vw, 140px" /><div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black p-2 pt-8"><p className="truncate text-[11px] font-bold text-white">{item.movie.title}</p><p className="text-[9px] text-slate-400">{dateLabel(item)}</p></div></div></Link>; })}</div> : <CalendarView groups={grouped} />}
   </div>;
 }

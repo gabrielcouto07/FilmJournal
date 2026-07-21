@@ -16,6 +16,7 @@ type Props = {
   initialReview?: string | null;
   initialRewatch?: boolean;
   initialTags?: string | null;
+  initialFavorite?: boolean;
   label?: string;
   compact?: boolean;
   autoOpen?: boolean;
@@ -27,13 +28,14 @@ function today(): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-export default function LogEditor({ movieId, title, logId, initialDate, initialRating, initialReview, initialRewatch = false, initialTags, label, compact = false, autoOpen = false, onSaved }: Props) {
+export default function LogEditor({ movieId, title, logId, initialDate, initialRating, initialReview, initialRewatch = false, initialTags, initialFavorite = false, label, compact = false, autoOpen = false, onSaved }: Props) {
   const [open, setOpen] = useState(autoOpen);
   const [date, setDate] = useState(initialDate ?? today());
   const [rating, setRating] = useState<number | null>(initialRating ?? null);
   const [review, setReview] = useState(initialReview ?? "");
   const [rewatch, setRewatch] = useState(initialRewatch);
   const [tags, setTags] = useState(initialTags ?? "");
+  const [liked, setLiked] = useState(initialFavorite);
   const [saving, setSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { notify } = useToast();
@@ -65,6 +67,14 @@ export default function LogEditor({ movieId, title, logId, initialDate, initialR
       });
       const payload = await response.json() as { message?: string; error?: string };
       if (!response.ok) throw new Error(payload.error ?? "Não foi possível salvar esta entrada do diário.");
+      // Sync the "liked" heart to the movie's favorite state when it changed.
+      if (liked !== initialFavorite) {
+        await fetch("/api/movies", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ movieId, action: "favorite", value: liked }),
+        });
+      }
       notify(payload.message ?? (logId ? "Entrada do diário atualizada." : `${title} foi registrado.`));
       setOpen(false);
       onSaved?.();
@@ -81,6 +91,7 @@ export default function LogEditor({ movieId, title, logId, initialDate, initialR
         <div className="mt-7 grid gap-5">
           <label className="grid gap-2"><span className="eyebrow !text-slate-500">Assistido em</span><input type="date" value={date} onChange={(event) => setDate(event.target.value)} required className="field [color-scheme:dark]" /></label>
           <fieldset><legend className="eyebrow !text-slate-500">Sua nota</legend><div className="mt-3 flex items-center gap-4"><StarRating value={rating} onChange={setRating} size="lg" /><button type="button" onClick={() => setRating(null)} className="text-xs font-bold text-slate-500 hover:text-white">Limpar</button></div></fieldset>
+          <button type="button" onClick={() => setLiked((value) => !value)} aria-pressed={liked} className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${liked ? "border-amber-300/50 bg-amber-300/10" : "border-white/[0.08] bg-white/[0.025] hover:border-white/20"}`}><span className={`text-2xl leading-none transition ${liked ? "text-amber-300" : "text-slate-500"}`}>{liked ? "♥" : "♡"}</span><span><span className="block text-sm font-bold text-white">Gostei deste filme</span><span className="text-xs text-slate-500">Marque se curtiu — não importa a nota ou o que escreveu, você teve uma boa sessão.</span></span></button>
           <label className="grid gap-2"><span className="eyebrow !text-slate-500">Resenha ou nota</span><textarea value={review} onChange={(event) => setReview(event.target.value)} rows={6} maxLength={12000} placeholder="O que ficou com você?" className="field resize-y leading-6" /></label>
           <label className="grid gap-2"><span className="eyebrow !text-slate-500">Tags</span><input value={tags} onChange={(event) => setTags(event.target.value)} maxLength={800} placeholder="cinema, família, prêmios" className="field" /></label>
           <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3"><input type="checkbox" checked={rewatch} onChange={(event) => setRewatch(event.target.checked)} className="h-4 w-4 accent-amber-300" /><span><span className="block text-sm font-bold text-white">Isto foi uma reexibição</span><span className="text-xs text-slate-500">Preserva como um evento de exibição independente.</span></span></label>
