@@ -46,12 +46,14 @@ export function normalizeCrowdRating(crowd: number): number {
   return crowd * (USER_SCALE_MAX / CROWD_SCALE_MAX);
 }
 
-function mean(values: number[]): number {
+/** Arithmetic mean (0 for an empty list). Shared with timeline.ts. */
+export function mean(values: number[]): number {
   if (values.length === 0) return 0;
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
-function round(value: number, places = 2): number {
+/** Round to `places` decimals. Shared with timeline.ts. */
+export function round(value: number, places = 2): number {
   const factor = 10 ** places;
   return Math.round(value * factor) / factor;
 }

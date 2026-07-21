@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import type { Movie } from "@prisma/client";
 import { prisma } from "./prisma";
 import { computePalate, type Palate, type PalateFilm } from "./analytics/palate";
+import { computeTimeline, type Timeline, type TimelineEntry } from "./analytics/timeline";
 import type { CardMovie } from "./types";
 import type { DiaryItem } from "@/components/DiaryExplorer";
 import type { WatchlistMovie } from "@/components/WatchlistExplorer";
@@ -418,6 +419,49 @@ export function getPalateData(userId: string): Promise<Palate> {
       return computePalate(films);
     },
     ["palate-v1", userId],
+    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
+  )();
+}
+
+// ----------------------------------------------------------------- timeline
+
+/**
+ * Taste-over-time aggregates for the /dashboard "Evolução" section. The time
+ * axis is the diary (LogEntry), not the UserMovie snapshot — watchedAt falling
+ * back to loggedAt, mirroring getStatsData. The maths lives in the pure,
+ * unit-tested `computeTimeline`.
+ */
+export function getTimelineData(userId: string): Promise<Timeline> {
+  return unstable_cache(
+    async (): Promise<Timeline> => {
+      const logs = await prisma.logEntry.findMany({
+        where: { userId },
+        select: {
+          watchedAt: true,
+          loggedAt: true,
+          rating: true,
+          movie: {
+            select: {
+              year: true, tmdbRating: true, tmdbVoteCount: true,
+              genreList: { select: { name: true } },
+            },
+          },
+        },
+      });
+
+      const entries: TimelineEntry[] = logs.map((log) => ({
+        watchedAt: log.watchedAt,
+        loggedAt: log.loggedAt,
+        userRating: log.rating,
+        filmYear: log.movie.year,
+        crowdRating: log.movie.tmdbRating,
+        crowdVotes: log.movie.tmdbVoteCount,
+        genres: log.movie.genreList.map((genre) => genre.name),
+      }));
+
+      return computeTimeline(entries);
+    },
+    ["timeline-v1", userId],
     { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
   )();
 }

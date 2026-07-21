@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import BackgroundEnrich from "@/components/BackgroundEnrich";
 import { getCurrentUser } from "@/lib/auth";
 import { needsOnboarding } from "@/lib/onboarding";
-import { getPalateData, getStatsData } from "@/lib/data";
+import { getPalateData, getStatsData, getTimelineData } from "@/lib/data";
 import type { ContrarianPoint, DirectorLoyalty } from "@/lib/analytics/palate";
 import {
   ContrarianScatter,
@@ -12,6 +12,7 @@ import {
   GenreRadar,
   RuntimeDistribution,
 } from "@/components/palate/PalateCharts";
+import { EraDrift, GenreShareDrift, RatingLeanTrend } from "@/components/palate/EvolutionCharts";
 
 export const metadata = { title: "Paladar cinematográfico · FilmJournal" };
 
@@ -20,7 +21,11 @@ export default async function DashboardPage() {
   // First-run accounts get the guided welcome instead of an empty dashboard.
   if (viewer && (await needsOnboarding(viewer.id))) redirect("/welcome");
   const userId = viewer?.id ?? "";
-  const [palate, stats] = await Promise.all([getPalateData(userId), getStatsData(userId)]);
+  const [palate, stats, timeline] = await Promise.all([
+    getPalateData(userId),
+    getStatsData(userId),
+    getTimelineData(userId),
+  ]);
   const { contrarian, decades, countries, genres, runtimes, directors, totalFilms } = palate;
 
   if (stats.sessions === 0 && contrarian.sampleSize === 0) {
@@ -177,6 +182,73 @@ export default async function DashboardPage() {
           </div>
         </Card>
       </section>
+
+      {/* Taste over time (Phase 4) */}
+      {timeline.years.length > 0 && (
+        <section className="surface relative overflow-hidden rounded-[1.75rem] p-5 sm:p-7">
+          <div className="glass-gradient absolute inset-0 -z-10" />
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">Evolução</p>
+              <h2 className="section-heading mt-2">Seu gosto ao longo dos anos.</h2>
+            </div>
+            <p className="text-xs font-bold text-slate-600">
+              {timeline.sampleSize} sessões datadas · {timeline.years.length} {timeline.years.length === 1 ? "ano" : "anos"}
+            </p>
+          </div>
+
+          {timeline.years.length >= 2 ? (
+            <>
+              <div className="mt-6 grid gap-5 lg:grid-cols-2">
+                <div className="rounded-2xl bg-black/20 p-3 sm:p-4">
+                  <p className="px-1 text-xs font-black text-slate-400">Notas e consenso, ano a ano</p>
+                  <div className="mt-2">
+                    <RatingLeanTrend years={timeline.years} />
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 px-1 text-[11px] font-bold text-slate-500">
+                    <Legend color="#f5c518" label="Sua nota média" />
+                    <Legend color="#74b9ff" label="Distância do público (+ generoso / − exigente)" />
+                  </div>
+                </div>
+                <div className="rounded-2xl bg-black/20 p-3 sm:p-4">
+                  <p className="px-1 text-xs font-black text-slate-400">Época média dos filmes assistidos</p>
+                  <div className="mt-2">
+                    <EraDrift years={timeline.years} />
+                  </div>
+                  <p className="mt-2 px-1 text-[11px] font-bold text-slate-600">
+                    Para baixo = anos mais fundo no passado; para cima = mais contemporâneo.
+                  </p>
+                </div>
+              </div>
+
+              {timeline.topGenres.length >= 2 && (
+                <div className="mt-5 rounded-2xl bg-black/20 p-3 sm:p-4">
+                  <p className="px-1 text-xs font-black text-slate-400">Gêneros em movimento — participação por ano</p>
+                  <div className="mt-2">
+                    <GenreShareDrift years={timeline.years} genres={timeline.topGenres} />
+                  </div>
+                </div>
+              )}
+
+              {timeline.insights.length > 0 && (
+                <div className="mt-5 space-y-2">
+                  {timeline.insights.slice(-3).map((insight) => (
+                    <div key={insight.year} className="surface-subtle flex flex-wrap items-baseline gap-x-4 gap-y-1 rounded-2xl px-4 py-3">
+                      <span className="text-sm font-black tabular-nums text-amber-200">{insight.year}</span>
+                      <span className="min-w-0 flex-1 text-sm leading-6 text-slate-300">{insight.sentences.join(" ")}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="mt-6 text-sm leading-6 text-slate-500">
+              Seu diário ainda cabe em um único ano ({timeline.years[0].year}). Continue registrando —
+              a partir do segundo ano, a evolução do seu gosto aparece aqui.
+            </p>
+          )}
+        </section>
+      )}
 
       {/* Taste maps */}
       <section className="grid gap-5 lg:grid-cols-2">
