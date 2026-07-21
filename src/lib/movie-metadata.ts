@@ -69,6 +69,34 @@ export async function ensureTaxonomyRows(detailsList: TmdbMovieDetails[]): Promi
   }
 }
 
+/**
+ * Create or refresh the shared-catalog Movie for a TMDB id with FULL metadata:
+ * the denormalized string fields plus the relational taste-analytics fields.
+ * Used by POST /api/movies (film add) and the onboarding seed flow.
+ */
+export async function upsertEnrichedMovie(tmdbId: number): Promise<{ movie: Movie; created: boolean }> {
+  const details = await getTmdbMovie(tmdbId);
+  const metadata = toMovieMetadata(details);
+  const existing = await prisma.movie.findUnique({ where: { tmdbId } });
+
+  const base = existing
+    ? await prisma.movie.update({
+        where: { id: existing.id },
+        data: {
+          ...metadata,
+          posterPath: existing.posterPath ?? metadata.posterPath,
+        },
+      })
+    : await prisma.movie.create({ data: metadata });
+
+  // Full enrichment on add: the same relational fields the TMDB backfill
+  // writes (genre/keyword relations, countries, language, director), so films
+  // added through the app never drop out of the taste analytics.
+  await ensureTaxonomyRows([details]);
+  const movie = await prisma.movie.update({ where: { id: base.id }, data: relationalEnrichmentData(details) });
+  return { movie, created: !existing };
+}
+
 export async function enrichMovieMetadata(movieId: string): Promise<Movie | null> {
   const movie = await prisma.movie.findUnique({ where: { id: movieId } });
   if (!movie || !missingMetadata(movie)) return movie;

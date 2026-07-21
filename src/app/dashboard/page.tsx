@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import BackgroundEnrich from "@/components/BackgroundEnrich";
 import { getCurrentUser } from "@/lib/auth";
+import { needsOnboarding } from "@/lib/onboarding";
 import { getPalateData, getStatsData } from "@/lib/data";
 import type { ContrarianPoint, DirectorLoyalty } from "@/lib/analytics/palate";
 import {
@@ -15,6 +17,8 @@ export const metadata = { title: "Paladar cinematográfico · FilmJournal" };
 
 export default async function DashboardPage() {
   const viewer = await getCurrentUser();
+  // First-run accounts get the guided welcome instead of an empty dashboard.
+  if (viewer && (await needsOnboarding(viewer.id))) redirect("/welcome");
   const userId = viewer?.id ?? "";
   const [palate, stats] = await Promise.all([getPalateData(userId), getStatsData(userId)]);
   const { contrarian, decades, countries, genres, runtimes, directors, totalFilms } = palate;

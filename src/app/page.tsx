@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import MovieCard from "@/components/MovieCard";
 import StarRating from "@/components/StarRating";
 import { getBackdropUrl, movieBackdropPath } from "@/lib/tmdb";
 import { getCurrentUser } from "@/lib/auth";
 import { getDashboardData } from "@/lib/data";
+import { needsOnboarding } from "@/lib/onboarding";
 import { auth } from "@/auth";
 import PublicOverview from "@/components/PublicOverview";
 
@@ -12,6 +14,8 @@ export default async function HomePage() {
   // Unauthenticated visitors get the public discovery experience, never the
   // owner's private journal. Authenticated users get their personal dashboard.
   if (!session?.user) return <PublicOverview />;
+  // First-run accounts get the guided welcome instead of an empty dashboard.
+  if (session.user.id && (await needsOnboarding(session.user.id))) redirect("/welcome");
   return <OwnerDashboard />;
 }
 

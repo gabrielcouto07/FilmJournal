@@ -121,6 +121,9 @@ model UserSettings {
   // Last-used roulette filter set ({ source, genres, people, yearFrom, ... }),
   // written by /api/roulette/prefs so a spin setup survives across devices.
   rouletteFilters    Json?
+  // First-run onboarding: null = the /welcome flow has not been completed yet.
+  // Accounts that already had journal data were backfilled at migration time.
+  onboardedAt        DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
