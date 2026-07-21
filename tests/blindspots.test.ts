@@ -30,6 +30,7 @@ function candidate(overrides: Partial<CandidateMovie> = {}): CandidateMovie {
     overview: null,
     rating: 8.2,
     voteCount: 900,
+    genreIds: [],
     ...overrides,
   };
 }

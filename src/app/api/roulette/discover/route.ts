@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth";
+import { getBlindSpotPool } from "@/lib/discover";
+import { prisma } from "@/lib/prisma";
 import {
   discoverTmdbMovies,
   getTmdbMovieLocalized,
@@ -20,6 +23,9 @@ type PoolMovie = {
   rating: number | null;
   overview: string | null;
   genreIds: number[];
+  /** Present only for blind-spot picks: why this film is a growth pick. */
+  rationale?: string;
+  gapLabel?: string;
 };
 
 function yearOf(releaseDate?: string): number | null {
@@ -86,6 +92,7 @@ export async function GET(request: Request) {
   }
 
   // --- Pool mode: discover a shuffled sample of `count` movies. ---
+  const source = url.searchParams.get("source") ?? "popular";
   const genres = (url.searchParams.get("genres") ?? "").split(",").map((g) => g.trim()).filter(Boolean);
   const people = (url.searchParams.get("people") ?? "").split(",").map((p) => p.trim()).filter(Boolean);
   const yearFrom = Number(url.searchParams.get("yearFrom"));
@@ -93,6 +100,72 @@ export async function GET(request: Request) {
   const runtimeMax = Number(url.searchParams.get("runtimeMax"));
   const requestedCount = Number(url.searchParams.get("count"));
   const count = ALLOWED_COUNTS.includes(requestedCount) ? requestedCount : 8;
+
+  // --- Personal sources need a signed-in viewer. ---
+  if (source === "watchlist" || source === "blindspots") {
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Faça login para usar esta fonte." }, { status: 401 });
+
+    try {
+      if (source === "blindspots") {
+        const entries = await getBlindSpotPool(user.id, {
+          count,
+          yearFrom: Number.isInteger(yearFrom) && yearFrom > 1800 ? yearFrom : undefined,
+          yearTo: Number.isInteger(yearTo) && yearTo > 1800 ? yearTo : undefined,
+          genreIds: genres.map(Number).filter((id) => Number.isInteger(id) && id > 0),
+        });
+        const pool: PoolMovie[] = entries.map((entry) => ({
+          id: entry.tmdbId,
+          title: entry.title,
+          year: entry.year,
+          posterPath: entry.posterPath,
+          backdropPath: entry.backdropPath,
+          rating: entry.rating,
+          overview: entry.overview,
+          genreIds: entry.genreIds,
+          rationale: entry.rationale,
+          gapLabel: entry.gapLabel,
+        }));
+        return NextResponse.json({ movies: pool, totalResults: pool.length });
+      }
+
+      // source === "watchlist": the pool is the viewer's own saved films.
+      const genreIds = genres.map(Number).filter((id) => Number.isInteger(id) && id > 0);
+      const rows = await prisma.userMovie.findMany({
+        where: { userId: user.id, watchlist: true, movie: { tmdbId: { not: null } } },
+        select: {
+          movie: {
+            select: {
+              tmdbId: true, title: true, year: true, runtime: true, overview: true,
+              posterPath: true, preferredPosterPath: true, backdropPath: true, preferredBackdropPath: true,
+              tmdbRating: true, genreList: { select: { id: true } },
+            },
+          },
+        },
+      });
+      const filtered = rows
+        .map((row) => row.movie)
+        .filter((movie) => !(Number.isInteger(yearFrom) && yearFrom > 1800) || (movie.year ?? 0) >= yearFrom)
+        .filter((movie) => !(Number.isInteger(yearTo) && yearTo > 1800) || (movie.year ?? 9999) <= yearTo)
+        // A runtime ceiling excludes films whose runtime is unknown — the filter must be trustworthy.
+        .filter((movie) => !(Number.isInteger(runtimeMax) && runtimeMax > 0) || (movie.runtime != null && movie.runtime <= runtimeMax))
+        .filter((movie) => !genreIds.length || movie.genreList.some((genre) => genreIds.includes(genre.id)));
+
+      const pool: PoolMovie[] = shuffle(filtered).slice(0, count).map((movie) => ({
+        id: movie.tmdbId!,
+        title: movie.title,
+        year: movie.year,
+        posterPath: movie.preferredPosterPath ?? movie.posterPath,
+        backdropPath: movie.preferredBackdropPath ?? movie.backdropPath,
+        rating: movie.tmdbRating,
+        overview: movie.overview,
+        genreIds: movie.genreList.map((genre) => genre.id),
+      }));
+      return NextResponse.json({ movies: pool, totalResults: filtered.length });
+    } catch (error) {
+      return errorResponse(error);
+    }
+  }
 
   const discoverParams: Record<string, string> = {
     language: LANGUAGE,

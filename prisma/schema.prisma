@@ -103,6 +103,9 @@ model UserSettings {
   showAdultContent   Boolean  @default(false)
   defaultLandingPage String   @default("/")
   emailNotifications Boolean  @default(false)
+  // Last-used roulette filter set ({ source, genres, people, yearFrom, ... }),
+  // written by /api/roulette/prefs so a spin setup survives across devices.
+  rouletteFilters    Json?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }

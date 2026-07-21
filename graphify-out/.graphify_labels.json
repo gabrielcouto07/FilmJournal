@@ -12,7 +12,6 @@
   "10": "TmdbError",
   "11": "auth.config.ts",
   "12": "next-auth.d.ts",
-  "13": "import/page.tsx",
   "14": "index.ts",
   "15": "next.config.mjs",
   "16": "next-env.d.ts",
@@ -23,7 +22,6 @@
   "21": "tailwind.config.ts",
   "22": "{ GET, POST }",
   "23": "What You Must Do When Invoked",
-  "24": "[id]/page.tsx",
   "25": "Validation Report - Film Journal",
   "26": "app/page.tsx",
   "27": "tmdb/route.ts",
@@ -58,9 +56,5 @@
   "56": ".codex/skills/graphify/references/extraction-spec.md",
   "57": "LetterboxdImport.tsx",
   "58": "auth.config.ts",
-  "59": "ToastProvider.tsx",
-  "60": "WatchlistExplorer.tsx",
-  "61": "package.json",
-  "62": "middleware.ts",
   "69": "profile/loading.tsx"
 }

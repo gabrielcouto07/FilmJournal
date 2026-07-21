@@ -95,9 +95,9 @@
     "semantic_hash": ""
   },
   "src/app/api/roulette/discover/route.ts": {
-    "mtime": 1784304834.8341794,
-    "ast_hash": "bdd6df5577459daa75e6cd64214729e3",
-    "semantic_hash": "bdd6df5577459daa75e6cd64214729e3"
+    "mtime": 1784659922.64432,
+    "ast_hash": "f2def5f593317d6b706bced943cf6479",
+    "semantic_hash": ""
   },
   "src/app/api/roulette/genres/route.ts": {
     "mtime": 1784304847.3762643,
@@ -160,8 +160,8 @@
     "semantic_hash": ""
   },
   "src/app/roulette/page.tsx": {
-    "mtime": 1784646770.2444773,
-    "ast_hash": "fc075cc80083a4e36e227487f0572750",
+    "mtime": 1784660015.690695,
+    "ast_hash": "e245a07f5bc57b4d119c6c12c0d3f4a6",
     "semantic_hash": ""
   },
   "src/app/search/page.tsx": {
@@ -685,18 +685,28 @@
     "semantic_hash": ""
   },
   "src/lib/analytics/blindspots.ts": {
-    "mtime": 1784659530.5127304,
-    "ast_hash": "aeab9e015055f895cac8041886453207",
+    "mtime": 1784659790.3229501,
+    "ast_hash": "dbe16a96fe31e4f8eafc2b22baf914fe",
     "semantic_hash": ""
   },
   "src/lib/discover.ts": {
-    "mtime": 1784659550.2547207,
-    "ast_hash": "8fc2d7b4b372a7a093f5799b990b8bd4",
+    "mtime": 1784659843.8720734,
+    "ast_hash": "cdac20bec73433e40d90d442025ea77a",
     "semantic_hash": ""
   },
   "tests/blindspots.test.ts": {
-    "mtime": 1784659347.9900613,
-    "ast_hash": "d63164204acf4232721eae5e6fe92332",
+    "mtime": 1784659792.7966359,
+    "ast_hash": "192ae36631037bc3382831fdbc3948d0",
+    "semantic_hash": ""
+  },
+  "prisma/migrations/20260721184928_add_roulette_filters/migration.sql": {
+    "mtime": 1784659768.2846646,
+    "ast_hash": "aadfc0e5a3b400b249a70b19712716ed",
+    "semantic_hash": ""
+  },
+  "src/app/api/roulette/prefs/route.ts": {
+    "mtime": 1784659886.2016509,
+    "ast_hash": "c9530443d64209ccc4de4ceb3d305e48",
     "semantic_hash": ""
   }
 }

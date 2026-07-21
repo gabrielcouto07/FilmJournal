@@ -19,7 +19,18 @@ type PoolMovie = {
   rating: number | null;
   overview: string | null;
   genreIds: number[];
+  /** Blind-spot picks explain themselves in the reveal. */
+  rationale?: string;
+  gapLabel?: string;
 };
+
+type Source = "popular" | "watchlist" | "blindspots";
+
+const SOURCES: Array<{ id: Source; label: string; hint: string }> = [
+  { id: "popular", label: "Populares (TMDB)", hint: "o catálogo global" },
+  { id: "watchlist", label: "Minha watchlist", hint: "o que você já guardou" },
+  { id: "blindspots", label: "Pontos cegos", hint: "lacunas do seu mapa" },
+];
 type WinnerDetail = {
   id: number;
   title: string;
@@ -73,6 +84,7 @@ export default function RoulettePage() {
   const router = useRouter();
 
   // Filter state
+  const [source, setSource] = useState<Source>("popular");
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>([]);
   const [peopleQuery, setPeopleQuery] = useState("");
@@ -82,6 +94,12 @@ export default function RoulettePage() {
   const [yearTo, setYearTo] = useState("");
   const [runtimeMax, setRuntimeMax] = useState(RUNTIME_MAX);
   const [count, setCount] = useState(8);
+
+  // Which filters make sense depends on the source: people search is a TMDB
+  // discover feature; a runtime ceiling needs known runtimes (unknown for
+  // blind-spot candidates until their reveal).
+  const peopleEnabled = source === "popular";
+  const runtimeEnabled = source !== "blindspots";
 
   // Roulette state
   const [pool, setPool] = useState<PoolMovie[]>([]);
@@ -120,6 +138,31 @@ export default function RoulettePage() {
         if (!cancelled && res.ok) setGenres(data.genres ?? []);
       } catch {
         /* non-fatal: chips just stay empty */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Restore the last-used filter set (persisted per user across devices).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/roulette/prefs");
+        const data = await res.json();
+        const prefs = res.ok ? data.prefs : null;
+        if (cancelled || !prefs) return;
+        setSource(prefs.source);
+        setSelectedGenreIds(prefs.genres);
+        setSelectedPeople(prefs.people.map((p: { id: number; name: string }) => ({ ...p, department: null, knownFor: [] })));
+        setYearFrom(prefs.yearFrom);
+        setYearTo(prefs.yearTo);
+        setRuntimeMax(prefs.runtimeMax);
+        setCount(prefs.count);
+      } catch {
+        /* non-fatal: defaults stand */
       }
     })();
     return () => {
@@ -186,6 +229,7 @@ export default function RoulettePage() {
   };
 
   const resetAll = () => {
+    setSource("popular");
     setSelectedGenreIds([]);
     setSelectedPeople([]);
     setPeopleQuery("");
@@ -208,12 +252,28 @@ export default function RoulettePage() {
     setShowReveal(false);
     try {
       const params = new URLSearchParams();
+      params.set("source", source);
       if (selectedGenreIds.length) params.set("genres", selectedGenreIds.join(","));
-      if (selectedPeople.length) params.set("people", selectedPeople.map((p) => p.id).join(","));
+      if (peopleEnabled && selectedPeople.length) params.set("people", selectedPeople.map((p) => p.id).join(","));
       if (yearFrom) params.set("yearFrom", yearFrom);
       if (yearTo) params.set("yearTo", yearTo);
-      if (runtimeMax < RUNTIME_MAX) params.set("runtimeMax", String(runtimeMax));
+      if (runtimeEnabled && runtimeMax < RUNTIME_MAX) params.set("runtimeMax", String(runtimeMax));
       params.set("count", String(count));
+
+      // Remember this setup for the next visit (fire-and-forget).
+      void fetch("/api/roulette/prefs", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source,
+          genres: selectedGenreIds,
+          people: selectedPeople.map((p) => ({ id: p.id, name: p.name })),
+          yearFrom,
+          yearTo,
+          runtimeMax,
+          count,
+        }),
+      }).catch(() => {});
 
       const res = await fetch(`/api/roulette/discover?${params.toString()}`);
       const data = await res.json();
@@ -339,7 +399,8 @@ export default function RoulettePage() {
         <p className="eyebrow">Assistente de Seleção</p>
         <h1 className="display-title mt-3 text-5xl sm:text-7xl">Roleta de Filmes.</h1>
         <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-          Não sabe o que assistir? Defina seus filtros, gire a roleta e deixe o acaso escolher a sessão de hoje.
+          Não sabe o que assistir? Escolha a fonte — o catálogo global, sua watchlist ou seus pontos
+          cegos —, ajuste os filtros e deixe o acaso escolher a sessão de hoje.
         </p>
       </header>
 
@@ -354,6 +415,34 @@ export default function RoulettePage() {
           </div>
 
           <div className="space-y-6">
+            {/* Source — where the pool comes from */}
+            <div className="space-y-2">
+              <span className="block text-xs font-black uppercase tracking-wider text-slate-500">Fonte da roleta</span>
+              <div className="space-y-1.5">
+                {SOURCES.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    disabled={filtersDisabled}
+                    onClick={() => setSource(option.id)}
+                    className={`flex w-full items-baseline justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-left transition disabled:opacity-40 ${
+                      source === option.id
+                        ? "border-amber-300/60 bg-amber-300/10 text-amber-100"
+                        : "border-white/[0.08] bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-white"
+                    }`}
+                  >
+                    <span className="text-sm font-black">{option.label}</span>
+                    <span className="text-[10px] font-bold text-slate-600">{option.hint}</span>
+                  </button>
+                ))}
+              </div>
+              {source === "blindspots" && (
+                <p className="text-[11px] leading-4 text-slate-500">
+                  A roleta gira sobre filmes aclamados das lacunas do seu mapa — o sorteado explica por que apareceu.
+                </p>
+              )}
+            </div>
+
             {/* Genres */}
             <div className="space-y-2">
               <span className="block text-xs font-black uppercase tracking-wider text-slate-500">Gênero(s)</span>
@@ -376,8 +465,8 @@ export default function RoulettePage() {
               </div>
             </div>
 
-            {/* People */}
-            <div className="space-y-2">
+            {/* People (TMDB discover only) */}
+            <div className={`space-y-2 ${peopleEnabled ? "" : "hidden"}`}>
               <label htmlFor="people-search" className="block text-xs font-black uppercase tracking-wider text-slate-500">
                 Ator(es) / Diretor
               </label>
@@ -438,8 +527,8 @@ export default function RoulettePage() {
               </div>
             </div>
 
-            {/* Runtime */}
-            <div className="space-y-2">
+            {/* Runtime (needs known runtimes; blind-spot candidates have none yet) */}
+            <div className={`space-y-2 ${runtimeEnabled ? "" : "hidden"}`}>
               <label htmlFor="runtime-range" className="flex justify-between text-xs font-black uppercase tracking-wider text-slate-500">
                 <span>Duração máxima</span>
                 <span className="font-bold text-amber-300">{runtimeMax < RUNTIME_MAX ? `Até ${runtimeMax} min` : "Qualquer"}</span>
@@ -651,7 +740,7 @@ export default function RoulettePage() {
             <div className="empty-state">
               <p className="text-lg font-bold text-white">Nenhum filme na roleta ainda.</p>
               <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-                Ajuste os filtros ao lado e clique em <span className="font-bold text-amber-300">Montar Roleta</span> para buscar títulos no catálogo do TMDB.
+                Escolha a fonte, ajuste os filtros ao lado e clique em <span className="font-bold text-amber-300">Montar Roleta</span> para buscar os candidatos.
               </p>
             </div>
           )}
@@ -757,6 +846,16 @@ export default function RoulettePage() {
                           <p className="text-sm font-bold text-amber-200">
                             ★ {rating.toFixed(1)} <span className="text-slate-500">/ 10 · TMDB</span>
                           </p>
+                        )}
+                        {base.rationale && (
+                          <motion.p
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="rounded-xl border border-amber-300/25 bg-amber-300/[0.08] p-3 text-sm leading-6 text-amber-100"
+                          >
+                            💡 {base.rationale}
+                          </motion.p>
                         )}
                         <p className="line-clamp-4 text-sm leading-6 text-slate-300">
                           {detailLoading ? "Carregando sinopse…" : detail?.overview ?? base.overview ?? "Sinopse indisponível em português."}

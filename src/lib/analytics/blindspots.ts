@@ -217,6 +217,7 @@ export type CandidateMovie = {
   overview: string | null;
   rating: number | null; // TMDB vote_average, 0–10
   voteCount: number | null;
+  genreIds: number[]; // lets the roulette apply its genre filter to blind-spot pools
 };
 
 export type BlindSpotPick = {

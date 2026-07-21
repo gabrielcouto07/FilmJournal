@@ -2,6 +2,7 @@ import { prisma } from "./prisma";
 import { discoverTmdbMovies, getTmdbGenres } from "./tmdb";
 import {
   assemblePicks,
+  buildRationale,
   computeCoverage,
   COUNTRY_DOMAIN,
   decadeDomain,
@@ -85,10 +86,20 @@ async function candidatesForGap(gap: GapBucket, seenTmdbIds: Set<number>, curren
       overview: movie.overview ?? null,
       rating: movie.vote_average ?? null,
       voteCount: movie.vote_count ?? null,
+      genreIds: movie.genre_ids ?? [],
     }));
 }
 
-export async function getDiscoverPicks(userId: string, focus?: GapDimension): Promise<DiscoverData> {
+type GapContext = {
+  films: CoverageFilm[];
+  seenTmdbIds: Set<number>;
+  gapsByDimension: Partial<Record<GapDimension, GapBucket[]>>;
+  currentYear: number;
+  degraded: boolean;
+};
+
+/** Shared groundwork: the viewer's films, exclusions, dismissals and gaps. */
+async function loadGapContext(userId: string, focus?: GapDimension): Promise<GapContext> {
   // 1. The viewer's logged universe (watched, rated, or diary-logged films).
   const loggedMovies = await prisma.movie.findMany({
     where: {
@@ -145,30 +156,89 @@ export async function getDiscoverPicks(userId: string, focus?: GapDimension): Pr
     genre: genreBuckets,
   };
 
-  // 5. Gaps per dimension, then candidates for the gaps we intend to fill.
+  // 5. Gaps per dimension.
   const dimensions = focus ? [focus] : DIMENSION_ORDER;
-  const gapsToFill = focus ? GAPS_TO_FILL_FOCUSED : GAPS_TO_FILL_AUTO;
   const gapsByDimension: Partial<Record<GapDimension, GapBucket[]>> = {};
   for (const dimension of dimensions) {
     gapsByDimension[dimension] = findGaps({ dimension, domain: domains[dimension], coverage: computeCoverage(films, dimension), dismissed });
   }
 
-  const candidateTargets = dimensions.flatMap((dimension) => (gapsByDimension[dimension] ?? []).slice(0, gapsToFill));
+  return { films, seenTmdbIds, gapsByDimension, currentYear, degraded };
+}
+
+/** Fetch candidate pools for the given gaps; TMDB failures degrade per-gap. */
+async function fetchCandidates(context: GapContext, gaps: GapBucket[]): Promise<Map<string, CandidateMovie[]>> {
   const candidates = new Map<string, CandidateMovie[]>();
-  await Promise.all(candidateTargets.map(async (gap) => {
+  await Promise.all(gaps.map(async (gap) => {
     try {
-      candidates.set(dismissalKey(gap.dimension, gap.key), await candidatesForGap(gap, seenTmdbIds, currentYear));
+      candidates.set(dismissalKey(gap.dimension, gap.key), await candidatesForGap(gap, context.seenTmdbIds, context.currentYear));
     } catch {
-      degraded = true; // this gap simply yields no pick this round
+      context.degraded = true; // this gap simply yields no pick this round
     }
   }));
+  return candidates;
+}
+
+export async function getDiscoverPicks(userId: string, focus?: GapDimension): Promise<DiscoverData> {
+  const context = await loadGapContext(userId, focus);
+  const gapsToFill = focus ? GAPS_TO_FILL_FOCUSED : GAPS_TO_FILL_AUTO;
+  const dimensions = focus ? [focus] : DIMENSION_ORDER;
+  const targets = dimensions.flatMap((dimension) => (context.gapsByDimension[dimension] ?? []).slice(0, gapsToFill));
+  const candidates = await fetchCandidates(context, targets);
 
   return {
-    totalFilms: films.length,
+    totalFilms: context.films.length,
     focus: focus ?? "auto",
-    picks: assemblePicks({ gapsByDimension, candidates, totalFilms: films.length }),
-    degraded,
+    picks: assemblePicks({ gapsByDimension: context.gapsByDimension, candidates, totalFilms: context.films.length }),
+    degraded: context.degraded,
   };
+}
+
+// ------------------------------------------------------------ roulette pool
+
+export type BlindSpotPoolEntry = CandidateMovie & {
+  dimension: GapDimension;
+  gapLabel: string;
+  rationale: string;
+};
+
+/**
+ * A wider blind-spot sample for the roulette: instead of one pick per gap it
+ * flattens every candidate of the top gaps, so a spin has a real pool to land
+ * on. Each entry keeps its gap + rationale so the reveal can explain the win.
+ */
+export async function getBlindSpotPool(
+  userId: string,
+  options: { count: number; yearFrom?: number; yearTo?: number; genreIds?: number[] },
+): Promise<BlindSpotPoolEntry[]> {
+  const context = await loadGapContext(userId);
+  const targets = DIMENSION_ORDER.flatMap((dimension) => (context.gapsByDimension[dimension] ?? []).slice(0, GAPS_TO_FILL_AUTO));
+  const candidates = await fetchCandidates(context, targets);
+
+  const entries: BlindSpotPoolEntry[] = [];
+  const used = new Set<number>();
+  for (const gap of targets) {
+    for (const movie of candidates.get(dismissalKey(gap.dimension, gap.key)) ?? []) {
+      if (used.has(movie.tmdbId)) continue;
+      if (options.yearFrom && (movie.year ?? 0) < options.yearFrom) continue;
+      if (options.yearTo && (movie.year ?? 9999) > options.yearTo) continue;
+      if (options.genreIds?.length && !movie.genreIds.some((id) => options.genreIds!.includes(id))) continue;
+      used.add(movie.tmdbId);
+      entries.push({
+        ...movie,
+        dimension: gap.dimension,
+        gapLabel: gap.label,
+        rationale: buildRationale(gap, context.films.length, movie),
+      });
+    }
+  }
+
+  // Fisher-Yates shuffle so repeated spins vary even with identical gaps.
+  for (let i = entries.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [entries[i], entries[j]] = [entries[j], entries[i]];
+  }
+  return entries.slice(0, options.count);
 }
 
 /** Persist a "not interested" signal (gapKey "*" mutes the whole dimension). */
