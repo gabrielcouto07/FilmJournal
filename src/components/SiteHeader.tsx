@@ -11,6 +11,7 @@ const navigation = [
   { href: "/watchlist", label: "Para assistir" },
   { href: "/favorites", label: "Top 10" },
   { href: "/stats", label: "Estatísticas" },
+  { href: "/dashboard", label: "Paladar" },
   { href: "/roulette", label: "Roleta" },
 ];
 

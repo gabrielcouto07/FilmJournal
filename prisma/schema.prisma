@@ -24,23 +24,45 @@ model Movie {
   runtime               Int?
   genres                String?
   directors             String?
+  directorId            Int?
+  directorName          String?
   cast                  String?
   tmdbRating            Float?
   tmdbVoteCount         Int?
+  originalLanguage      String? // ISO 639-1, e.g. "ja"
+  countries             String[] // ISO 3166-1, e.g. ["JP"]
   imdbId                String?     @unique
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
   logs                  LogEntry[]
   userMovies            UserMovie[]
+  genreList             Genre[]
+  keywords              Keyword[]
 
   @@index([title])
   @@index([year])
 }
 
+// TMDB genre taxonomy (id is the TMDB genre id). Related many-to-many to Movie
+// via genreList; the denormalized Movie.genres string is kept for legacy reads.
+model Genre {
+  id     Int     @id // TMDB genre id
+  name   String
+  movies Movie[]
+}
+
+// TMDB keyword/tag taxonomy (id is the TMDB keyword id). Used by the themes /
+// motifs analysis (see roadmap Phase 5).
+model Keyword {
+  id     Int     @id // TMDB keyword id
+  name   String
+  movies Movie[]
+}
+
 model User {
-  id           String      @id @default(cuid())
-  username     String      @unique
-  email        String      @unique
+  id           String        @id @default(cuid())
+  username     String        @unique
+  email        String        @unique
   passwordHash String
   displayName  String?
   avatarUrl    String?

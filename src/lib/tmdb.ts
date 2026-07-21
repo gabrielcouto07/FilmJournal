@@ -20,7 +20,10 @@ export type TmdbGenre = { id: number; name: string };
 export type TmdbMovieDetails = TmdbMovieSearchResult & {
   tagline?: string;
   runtime?: number | null;
+  original_language?: string;
   genres?: Array<{ id: number; name: string }>;
+  production_countries?: Array<{ iso_3166_1: string; name: string }>;
+  keywords?: { keywords: Array<{ id: number; name: string }> };
   external_ids?: { imdb_id?: string | null };
   images?: { posters: TmdbPoster[]; backdrops: TmdbPoster[] };
   credits?: {
@@ -142,6 +145,19 @@ export function getTmdbMovie(tmdbId: number): Promise<TmdbMovieDetails> {
     throw new TmdbError("A valid TMDb movie id is required.", 400);
   }
   return tmdbFetch<TmdbMovieDetails>(`/movie/${tmdbId}`, { append_to_response: "external_ids,credits" });
+}
+
+/**
+ * Full movie details for taste-analytics backfill: appends credits (for the
+ * director) and keywords (for motif analysis). Combined with the top-level
+ * original_language and production_countries fields, this is everything
+ * scripts/backfill-tmdb.ts needs in a single request.
+ */
+export function getTmdbMovieForBackfill(tmdbId: number): Promise<TmdbMovieDetails> {
+  if (!Number.isInteger(tmdbId) || tmdbId <= 0) {
+    throw new TmdbError("A valid TMDb movie id is required.", 400);
+  }
+  return tmdbFetch<TmdbMovieDetails>(`/movie/${tmdbId}`, { append_to_response: "credits,keywords" });
 }
 
 export function getTmdbMovieWithImages(tmdbId: number): Promise<TmdbMovieDetails> {

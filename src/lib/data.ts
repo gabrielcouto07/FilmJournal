@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import type { Movie } from "@prisma/client";
 import { prisma } from "./prisma";
+import { computePalate, type Palate, type PalateFilm } from "./analytics/palate";
 import type { CardMovie } from "./types";
 import type { DiaryItem } from "@/components/DiaryExplorer";
 import type { WatchlistMovie } from "@/components/WatchlistExplorer";
@@ -381,6 +382,53 @@ export function getStatsData(userId: string): Promise<StatsData> {
       };
     },
     ["stats-v1", userId],
+    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
+  )();
+}
+
+// ------------------------------------------------------------------- palate
+
+/**
+ * Taste-analytics aggregates for the /dashboard page. The Prisma read lives
+ * here; the maths lives in the pure, unit-tested `computePalate`. The palate
+ * universe is the viewer's *rated* films — ratings are the clearest taste
+ * signal and the contrarian analysis needs a user rating per point.
+ */
+export function getPalateData(userId: string): Promise<Palate> {
+  return unstable_cache(
+    async (): Promise<Palate> => {
+      const rows = await prisma.userMovie.findMany({
+        where: { userId, rating: { not: null } },
+        select: {
+          rating: true,
+          movie: {
+            select: {
+              id: true, title: true, year: true, runtime: true,
+              tmdbRating: true, tmdbVoteCount: true, countries: true,
+              directorId: true, directorName: true,
+              genreList: { select: { name: true } },
+            },
+          },
+        },
+      });
+
+      const films: PalateFilm[] = rows.map((row) => ({
+        id: row.movie.id,
+        title: row.movie.title,
+        year: row.movie.year,
+        userRating: row.rating as number,
+        crowdRating: row.movie.tmdbRating,
+        crowdVotes: row.movie.tmdbVoteCount,
+        runtime: row.movie.runtime,
+        countries: row.movie.countries,
+        genres: row.movie.genreList.map((genre) => genre.name),
+        directorId: row.movie.directorId,
+        directorName: row.movie.directorName,
+      }));
+
+      return computePalate(films);
+    },
+    ["palate-v1", userId],
     { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
   )();
 }

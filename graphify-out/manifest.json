@@ -10,8 +10,8 @@
     "semantic_hash": "4d224c35be25eabc06386f328e081b6e"
   },
   "package.json": {
-    "mtime": 1784580872.8847046,
-    "ast_hash": "01f21881cc35de0d41cee5744d9bc864",
+    "mtime": 1784656348.1950295,
+    "ast_hash": "49217b5bda750a942c2f26a60e895a02",
     "semantic_hash": ""
   },
   "postcss.config.mjs": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "src/components/SiteHeader.tsx": {
-    "mtime": 1784638477.2865746,
-    "ast_hash": "5e7b10d372d3e7aae8726e8d32285f2e",
+    "mtime": 1784657009.2378526,
+    "ast_hash": "9129967601664b7b062107be9437aa26",
     "semantic_hash": ""
   },
   "src/components/StarRating.tsx": {
@@ -325,8 +325,8 @@
     "semantic_hash": ""
   },
   "src/lib/tmdb.ts": {
-    "mtime": 1784580663.136336,
-    "ast_hash": "55db29f70455b6777e29c216c9fefb5f",
+    "mtime": 1784654879.33356,
+    "ast_hash": "bd859a790a396dc8d989c3057f19def4",
     "semantic_hash": ""
   },
   "src/middleware.ts": {
@@ -595,8 +595,8 @@
     "semantic_hash": ""
   },
   "src/lib/data.ts": {
-    "mtime": 1784580149.7201731,
-    "ast_hash": "7da47f752f30307ac0027b68d1b684b3",
+    "mtime": 1784656310.8149176,
+    "ast_hash": "b775d3eeda305ddd42d1be53dd05235d",
     "semantic_hash": ""
   },
   "src/app/profile/loading.tsx": {
@@ -637,6 +637,41 @@
   ".claude/settings.local.json": {
     "mtime": 1784638899.6590898,
     "ast_hash": "01777e4f98eca1f97df85d93eaa860be",
+    "semantic_hash": ""
+  },
+  "prisma/migrations/20260721172342_add_taste_analytics_fields/migration.sql": {
+    "mtime": 1784654622.3439286,
+    "ast_hash": "da8573073d9d7ef67a84f0f5e67b24f3",
+    "semantic_hash": ""
+  },
+  "scripts/backfill-tmdb.ts": {
+    "mtime": 1784655168.480237,
+    "ast_hash": "ad6fbbeb9769fbd623e6f9ae2ad91031",
+    "semantic_hash": ""
+  },
+  "scripts/resolve-tmdb-ids.ts": {
+    "mtime": 1784655743.0264359,
+    "ast_hash": "9d82163dc8346287a9f7a119dadd6fe5",
+    "semantic_hash": ""
+  },
+  "src/app/dashboard/page.tsx": {
+    "mtime": 1784656548.197998,
+    "ast_hash": "39e80fb9cc9f796d687a4a80a2c8c4dc",
+    "semantic_hash": ""
+  },
+  "src/components/palate/PalateCharts.tsx": {
+    "mtime": 1784657394.1305952,
+    "ast_hash": "7962f88995f83bbec5da6b5dc3bddf83",
+    "semantic_hash": ""
+  },
+  "src/lib/analytics/palate.ts": {
+    "mtime": 1784656183.8185773,
+    "ast_hash": "72ce930b051a592373d36387964f7f19",
+    "semantic_hash": ""
+  },
+  "tests/palate.test.ts": {
+    "mtime": 1784656262.932348,
+    "ast_hash": "1526e1d76b3ac6a6b1d9a0bc2072b927",
     "semantic_hash": ""
   }
 }

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node --import tsx --test tests/letterboxd-import.test.ts tests/diary-dedupe.test.ts",
+    "test": "node --import tsx --test tests/letterboxd-import.test.ts tests/diary-dedupe.test.ts tests/palate.test.ts",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -25,6 +25,10 @@
     "typecheck": "tsc --noEmit",
     "backfill:collections": "tsx scripts/backfill-collections.ts",
     "backfill:metadata": "tsx scripts/backfill-metadata.ts",
+    "backfill:tmdb:dry": "tsx scripts/backfill-tmdb.ts --dry-run",
+    "backfill:tmdb": "tsx scripts/backfill-tmdb.ts",
+    "resolve:tmdb:dry": "tsx scripts/resolve-tmdb-ids.ts --dry-run",
+    "resolve:tmdb": "tsx scripts/resolve-tmdb-ids.ts",
     "owner:reset": "tsx scripts/reset-owner-password.ts"
   },
   "dependencies": {
@@ -35,6 +39,7 @@
     "next-auth": "^5.0.0-beta.31",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "recharts": "^3.10.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
