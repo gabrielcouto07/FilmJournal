@@ -3,6 +3,7 @@ import type { Movie } from "@prisma/client";
 import { prisma } from "./prisma";
 import { computePalate, type Palate, type PalateFilm } from "./analytics/palate";
 import { computeTimeline, type Timeline, type TimelineEntry } from "./analytics/timeline";
+import { computeMotifSummary, type MotifFilm, type MotifSummary } from "./analytics/motifs";
 import type { CardMovie } from "./types";
 import type { DiaryItem } from "@/components/DiaryExplorer";
 import type { WatchlistMovie } from "@/components/WatchlistExplorer";
@@ -462,6 +463,37 @@ export function getTimelineData(userId: string): Promise<Timeline> {
       return computeTimeline(entries);
     },
     ["timeline-v1", userId],
+    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
+  )();
+}
+
+// ------------------------------------------------------------------- motifs
+
+/**
+ * Recurring themes in the viewer's highly-rated films, from the TMDB keyword
+ * relations (populated on add since the enrichment fix). The maths lives in
+ * the pure, unit-tested `computeMotifSummary`; `sentence` is null when the
+ * data is too thin, and the dashboard hides the section entirely.
+ */
+export function getMotifsData(userId: string): Promise<MotifSummary> {
+  return unstable_cache(
+    async (): Promise<MotifSummary> => {
+      const rows = await prisma.userMovie.findMany({
+        where: { userId, rating: { not: null } },
+        select: {
+          rating: true,
+          movie: { select: { keywords: { select: { name: true } } } },
+        },
+      });
+
+      const films: MotifFilm[] = rows.map((row) => ({
+        userRating: row.rating as number,
+        keywords: row.movie.keywords.map((keyword) => keyword.name),
+      }));
+
+      return computeMotifSummary(films);
+    },
+    ["motifs-v1", userId],
     { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
   )();
 }

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import BackgroundEnrich from "@/components/BackgroundEnrich";
 import { getCurrentUser } from "@/lib/auth";
 import { needsOnboarding } from "@/lib/onboarding";
-import { getPalateData, getStatsData, getTimelineData } from "@/lib/data";
+import { getMotifsData, getPalateData, getStatsData, getTimelineData } from "@/lib/data";
 import type { ContrarianPoint, DirectorLoyalty } from "@/lib/analytics/palate";
 import {
   ContrarianScatter,
@@ -21,10 +21,11 @@ export default async function DashboardPage() {
   // First-run accounts get the guided welcome instead of an empty dashboard.
   if (viewer && (await needsOnboarding(viewer.id))) redirect("/welcome");
   const userId = viewer?.id ?? "";
-  const [palate, stats, timeline] = await Promise.all([
+  const [palate, stats, timeline, motifs] = await Promise.all([
     getPalateData(userId),
     getStatsData(userId),
     getTimelineData(userId),
+    getMotifsData(userId),
   ]);
   const { contrarian, decades, countries, genres, runtimes, directors, totalFilms } = palate;
 
@@ -182,6 +183,18 @@ export default async function DashboardPage() {
           </div>
         </Card>
       </section>
+
+      {/* Recurring motifs (Phase 5) — hidden entirely when the data is thin */}
+      {motifs.sentence && (
+        <section className="surface relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8">
+          <div className="glass-gradient absolute inset-0 -z-10" />
+          <p className="eyebrow">Motivos recorrentes</p>
+          <p className="display-title balance mt-3 max-w-4xl text-2xl leading-snug sm:text-3xl">{motifs.sentence}</p>
+          <p className="mt-3 text-xs font-bold text-slate-600">
+            Temas que se repetem nos seus {motifs.highlyRatedCount} filmes mais bem avaliados ({motifs.threshold.toFixed(1)}★+) · palavras-chave TMDB
+          </p>
+        </section>
+      )}
 
       {/* Taste over time (Phase 4) */}
       {timeline.years.length > 0 && (
