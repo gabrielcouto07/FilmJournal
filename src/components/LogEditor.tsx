@@ -17,6 +17,7 @@ type Props = {
   initialTags?: string | null;
   label?: string;
   compact?: boolean;
+  autoOpen?: boolean;
   onSaved?: () => void;
 };
 
@@ -25,8 +26,8 @@ function today(): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-export default function LogEditor({ movieId, title, logId, initialDate, initialRating, initialReview, initialRewatch = false, initialTags, label, compact = false, onSaved }: Props) {
-  const [open, setOpen] = useState(false);
+export default function LogEditor({ movieId, title, logId, initialDate, initialRating, initialReview, initialRewatch = false, initialTags, label, compact = false, autoOpen = false, onSaved }: Props) {
+  const [open, setOpen] = useState(autoOpen);
   const [date, setDate] = useState(initialDate ?? today());
   const [rating, setRating] = useState<number | null>(initialRating ?? null);
   const [review, setReview] = useState(initialReview ?? "");

@@ -1,7 +1,7 @@
 {
   "0": "useToast",
   "1": "import-letterboxd.ts",
-  "2": "roulette/page.tsx",
+  "2": "[id]/page.tsx",
   "3": "lib/auth.ts",
   "4": "scripts",
   "5": "recommendations.ts",
