@@ -1,244 +1,156 @@
-# 🎬 FilmJournal — Taste Cartography
+# 🎬 FilmJournal
 
-Personal cinema analytics. FilmJournal maps your taste across decades, geography
-and genre, quantifies how far you sit from critical consensus, and recommends
-films that expand your blind spots — all computed from your own viewing log.
+Uma ferramenta pessoal que transforma seu histórico de filmes num autorretrato do seu gosto.
 
-Built with **Next.js 15** · **TypeScript** · **Tailwind CSS** · **Prisma** · **PostgreSQL** · **NextAuth.js**
+Você registra o que assiste e dá suas notas. O app faz o resto: mostra que tipo de espectador você é, como seu gosto mudou com o tempo e o que você ainda não descobriu no cinema.
 
-***
-
-## What makes it different
-
-- **Contrarian analysis** — every rated film is compared against the crowd
-  (TMDB rating). You get a consensus-distance score, a generous/demanding lean,
-  a you-vs-the-crowd scatter, and the films where you disagree hardest in both
-  directions ("contrarian loves" and "contrarian pans").
-- **Blind-spot engine with legible rationale** — the discovery engine compares
-  your archive against cinema at large (by decade, country, language and genre)
-  and suggests acclaimed films exactly where your map is blank. Every suggestion
-  explains why it appeared.
-- **Guess-by-cast game** — a quiz generated from your own archive: guess the
-  film from its cast, with scoring and streaks.
-
-## Features
-
-- **Paladar** (`/dashboard`) — the analytics home: archive totals, year-in-review,
-  viewing rhythm, rating distribution, contrarian analysis, decade / country /
-  genre / runtime maps, and director loyalty.
-- **Diary** — sessions with watch date, rewatches, 0–5 ratings, reviews and tags.
-- **Discover** — blind-spot picks plus similarity rails (because-you-loved,
-  favorite directors, genre trails), each with its reason attached.
-- **Roulette** — intent-aware random pick when you can't decide.
-- **Play** — the guess-by-cast game.
-- **Watchlist & ranked favorites**, TMDB-backed search, and a safe, idempotent
-  **Letterboxd import** (dry-run first).
-- Single-owner by design: your data, your analytics — no feeds, no followers.
-
-## Test coverage
-
-`npm test` runs 37 `node:test` unit tests across five suites: Letterboxd
-import, diary dedupe, palate analytics, blind-spot engine, and game scoring.
-Run `npm run typecheck` for the TypeScript check.
+Feito com **Next.js 15** · **TypeScript** · **Tailwind CSS** · **Prisma** · **PostgreSQL** · **NextAuth.js**
 
 ***
 
-## Stack
+## O que ele faz
 
-| Layer | Tech |
-|---|---|
-| Frontend | Next.js 15 App Router, Tailwind CSS |
-| Auth | NextAuth.js v5 (Credentials) |
-| Database | PostgreSQL via Prisma ORM |
-| Hosting | Vercel (frontend) + Neon (DB) |
-| External API | TMDB |
+O app tem quatro partes. Todas funcionam sozinhas, a partir dos filmes que você registra e avalia.
+
+### 👅 Paladar
+Mostra quem você é como espectador. Quais décadas, países e gêneros dominam seus filmes. Quais diretores você sempre revisita. E o mais divertido: a que distância suas notas ficam da opinião do público — os filmes que você ama e o mundo não, e vice-versa.
+
+### 📈 Evolução
+Mostra como seu gosto mudou ano a ano. Se suas notas ficaram mais generosas ou mais exigentes. Se você mergulhou em filmes antigos ou ficou mais contemporâneo. Quais gêneros ganharam e perderam espaço. O app ainda escreve, em uma frase, a maior mudança de cada ano. E os seus filmes favoritos revelam temas que se repetem — os "motivos recorrentes" do seu gosto.
+
+### 🧭 Descobrir + Roleta
+Mostra o que você está deixando de ver. O Descobrir compara seu histórico com o cinema em geral e aponta seus pontos cegos: décadas, países e gêneros que faltam no seu mapa — sempre explicando por que cada sugestão apareceu. E quando bater a indecisão, a Roleta sorteia o próximo filme por você.
+
+### 🎮 Jogar
+Um jogo rápido: adivinhe o filme pelo elenco. Os nomes aparecem aos poucos e você tenta acertar o título com o mínimo de dicas. Dá para jogar com os seus próprios filmes ou com filmes populares.
 
 ***
 
-## Local Setup
+## Como funciona por baixo
 
-### 1. Clone & install
+Sem segredo:
+
+- **Dois caminhos para começar.** Quem já usa o Letterboxd importa o histórico completo de uma vez (com teste prévio, sem risco). Quem está começando do zero faz um tour guiado e escolhe 5 filmes favoritos — o suficiente para as primeiras análises acenderem.
+- **De onde vêm os dados dos filmes.** As informações de cada filme (pôster, elenco, gênero, país, notas do público) vêm do [TMDB](https://www.themoviedb.org/), um banco de dados aberto de cinema. Suas notas e seu histórico são só seus.
+- **Tudo é privado.** O app é feito para uma pessoa: você. Não há feed, seguidores nem páginas públicas. Ninguém vê seus dados além de você.
+
+***
+
+## Como rodar localmente
+
+Passos para ter o app funcionando no seu computador.
+
+### 1. Baixar o código e instalar as dependências
 ```bash
 git clone https://github.com/gabrielcouto07/FilmJournal
 cd FilmJournal
 npm install
 ```
 
-### 2. Configure environment
-
+### 2. Configurar as variáveis de ambiente
+Copie o arquivo de exemplo e preencha com os seus valores:
 ```bash
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your own values for:
+O que cada variável significa:
 
-- `DATABASE_URL`
-- `DIRECT_URL`
-- `NEXTAUTH_URL`
-- `NEXTAUTH_SECRET`
-- `TMDB_API_KEY`
-- `APP_OWNER_USERNAME`
-- `APP_OWNER_PASSWORD`
+- `DATABASE_URL` — endereço do seu banco de dados PostgreSQL
+- `DIRECT_URL` — endereço direto (sem pool) do mesmo banco
+- `NEXTAUTH_URL` — endereço do app (localmente, `http://localhost:3000`)
+- `NEXTAUTH_SECRET` — chave secreta do login (gere com `openssl rand -base64 32`)
+- `TMDB_API_KEY` — chave gratuita do [TMDB](https://www.themoviedb.org/settings/api)
+- `APP_OWNER_USERNAME` — nome de usuário da conta principal
+- `APP_OWNER_PASSWORD` — senha da conta principal
 
-Next.js reads `.env.local`. If Prisma on your local setup reads `.env`, duplicate
-the same values into a local `.env` file. Never commit either `.env.local` or
-`.env`; both are intentionally ignored by git.
+O Next.js lê o `.env.local`. Se o Prisma na sua máquina ler apenas `.env`, duplique os mesmos valores num `.env` local. Nunca envie esses arquivos para o git — os dois já são ignorados.
 
-**Local DB option — Docker:**
+**Sem banco de dados? Suba um com Docker:**
 ```bash
 docker run -d --name filmjournal-db \
   -e POSTGRES_PASSWORD=dev \
   -e POSTGRES_DB=filmjournal \
   -p 5432:5432 postgres:16
 ```
-Then set `DATABASE_URL="postgresql://postgres:dev@localhost:5432/filmjournal"` in `.env.local`.
+E use `DATABASE_URL="postgresql://postgres:dev@localhost:5432/filmjournal"` no `.env.local`.
 
-### 3. Push database schema
+### 3. Criar as tabelas no banco
 ```bash
 npm run db:push
 ```
 
-### 4. Start dev server
+### 4. Ligar o app
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) and sign in at `/login` with
-the configured owner credentials. The first owner login creates the account when
-it does not exist yet.
+Abra [http://localhost:3000](http://localhost:3000) e entre em `/login` com o usuário e a senha configurados acima. No primeiro login, a conta principal é criada automaticamente.
 
 ***
 
-## Deploy to Vercel + Neon (free tier)
+## Publicar na internet (Vercel + Neon, de graça)
 
-1. Create a PostgreSQL database at [neon.tech](https://neon.tech) (free)
-2. Import this repo at [vercel.com](https://vercel.com)
-3. Use the pooled Neon connection string for `DATABASE_URL` and the direct
-   (non-pooled) Neon connection string for `DIRECT_URL`.
-4. Add these environment variables in the Vercel dashboard:
-   - `DATABASE_URL` — pooled connection string from Neon
-   - `DIRECT_URL` — direct connection string from Neon
-   - `NEXTAUTH_URL` — your Vercel deployment URL
-   - `NEXTAUTH_SECRET` — run `openssl rand -base64 32`
-   - `TMDB_API_KEY` — from [themoviedb.org](https://www.themoviedb.org/settings/api)
-   - `APP_OWNER_USERNAME` — username for the initial owner account
-   - `APP_OWNER_PASSWORD` — strong password for the initial owner account
-5. For a fresh Neon database, initialize the schema once from a trusted local
-   terminal with the Neon environment variables loaded:
-
+1. Crie um banco PostgreSQL gratuito no [neon.tech](https://neon.tech).
+2. Importe este repositório no [vercel.com](https://vercel.com).
+3. No painel da Vercel, cadastre as mesmas variáveis de ambiente da seção anterior — usando o endereço *pooled* do Neon em `DATABASE_URL` e o endereço direto em `DIRECT_URL`.
+4. Com um banco novo, crie as tabelas uma única vez a partir do seu terminal (com as variáveis do Neon carregadas):
 ```bash
-npm run db:push
+npx prisma migrate deploy
 ```
 
-   Commit future `prisma/migrations/` directories and apply them in production
-   with `npm run db:migrate`.
+Para um banco antigo que foi criado com `db push`, marque a base uma vez e depois aplique o resto:
+```bash
+npx prisma migrate resolve --applied 20260721000000_init
+npx prisma migrate deploy
+```
 
-`APP_OWNER_USERNAME` and `APP_OWNER_PASSWORD` are used to auto-create the initial
-owner account. Once that username exists, the app resolves and promotes it without
-reading the bootstrap password, so `APP_OWNER_PASSWORD` can be rotated or removed.
-Keep `APP_OWNER_USERNAME` configured so the app can resolve and promote the
-owner account.
+`APP_OWNER_USERNAME` e `APP_OWNER_PASSWORD` servem só para criar a conta principal na primeira vez. Depois disso, a senha de bootstrap pode ser trocada ou removida — mantenha apenas o `APP_OWNER_USERNAME` configurado.
 
 ***
 
-## Useful commands
+## Importar seu histórico do Letterboxd
 
-| Command | Description |
+A importação é segura: dá para testar antes sem gravar nada, e rodar de novo não duplica registros.
+
+1. **Exporte no Letterboxd:** Settings → Data → *Export your data*. Baixe o ZIP e descompacte.
+2. **Coloque os arquivos CSV na raiz do projeto.** O importador aceita qualquer subconjunto destes (os que faltarem são ignorados): `diary.csv` · `reviews.csv` · `ratings.csv` · `watched.csv` · `watchlist.csv` · `profile.csv` · `likes/films.csv` (mantenha a subpasta `likes/`).
+3. **Teste primeiro, sem gravar nada.** Mostra em qual banco vai gravar e o que *seria* criado:
+```bash
+npm run import:letterboxd:dry
+```
+4. **Rode a importação de verdade.** Ela exige confirmação explícita:
+```bash
+npm run import:letterboxd -- --yes
+```
+5. **Confira o resultado** (só leitura, compara o banco com o export):
+```bash
+npm run validate:letterboxd
+```
+6. **Apague os CSVs da raiz do projeto** quando terminar.
+
+> ⚠️ **Nunca envie os CSVs do export para o git** — eles contêm dados pessoais. O `.gitignore` já os exclui, mas confira o `git status` antes de commitar. Antes da primeira importação real, tire um snapshot/branch do banco no Neon por segurança.
+
+***
+
+## Comandos úteis
+
+| Comando | O que faz |
 |---|---|
-| `npm run dev` | Start local dev server |
-| `npm run build` | Build for production |
-| `npm run typecheck` | TypeScript check |
-| `npm run db:push` | Sync schema to DB (dev) |
-| `npm run db:studio` | Open Prisma Studio |
-| `npm run db:migrate` | Run migrations (prod) |
-| `npm test` | Run the unit test suite (node:test) |
+| `npm run dev` | Liga o app localmente |
+| `npm run build` | Gera a versão de produção |
+| `npm test` | Roda os testes automáticos |
+| `npm run typecheck` | Confere os tipos do TypeScript |
+| `npm run db:push` | Sincroniza o esquema com o banco (desenvolvimento) |
+| `npm run db:migrate` | Aplica as migrações (produção) |
+| `npm run db:studio` | Abre uma interface visual do banco |
 
 ***
 
-## Applying database migrations
+## Como foi construído
 
-The schema now has a real migration history under `prisma/migrations/`. For a
-database that was previously created with `db push` (existing Neon databases),
-baseline once and then deploy:
+Três decisões guiam o código:
 
-```bash
-# Recommended: point DATABASE_URL/DIRECT_URL at a Neon BRANCH first, verify,
-# then repeat against production.
-npx prisma migrate resolve --applied 20260721000000_init   # mark the baseline
-npx prisma migrate deploy                                   # apply the rest
-```
+- **Três camadas bem separadas.** Toda a matemática das análises vive em módulos "puros" — funções que só recebem dados e devolvem resultados, sem tocar em banco ou internet. Uma camada de dados fala com o banco (com cache). E as páginas só exibem o que recebem. Isso deixa cada parte simples de entender e de testar.
+- **Testes de verdade.** `npm test` roda 52 testes automáticos em 7 suítes: importação do Letterboxd, deduplicação do histórico, paladar, pontos cegos, pontuação do jogo, evolução no tempo e motivos recorrentes. Toda a lógica de análise é coberta.
+- **O banco nunca anda para trás.** As migrações do banco de dados só *adicionam* — nunca apagam uma coluna com dados. Uma versão nova do app nunca destrói o histórico de ninguém.
 
-A brand-new database needs only `npx prisma migrate deploy`. The app is
-resilient pre-migration (settings fall back to defaults; saving preferences
-returns a clear error until `UserSettings` exists), but the migrations should be
-applied before real multi-user use.
-
-***
-
-## Profile & settings
-
-- `/profile` — avatar (client-resized data URL or external https URL), display
-  name, bio, preferences (theme, accent color, language, rating scale,
-  half-stars, date format, region, default landing page, adult content),
-  account (change password/email, delete account) and the Letterboxd importer.
-
-Avatars are stored as small data URLs or external URLs today; to move uploads to
-Vercel Blob later, provision `BLOB_READ_WRITE_TOKEN` (see `.env.example`).
-
-***
-
-## Import Letterboxd Data Safely
-
-The importer is idempotent — re-running reconciles existing rows instead of
-duplicating them — and it runs against whatever `DATABASE_URL` is loaded from
-`.env.local` (falling back to `.env`). **If that points at your production Neon
-database, a live import writes straight to production.** Follow this flow:
-
-1. **Export from Letterboxd:** Settings → Data → *Export your data*. Download the ZIP.
-2. **Unzip it.**
-3. **Place the CSVs in the repo root** (`Letterboxc/`). The importer reads any
-   subset of these (missing files are ignored):
-   - `diary.csv` · `reviews.csv` · `ratings.csv` · `watched.csv`
-   - `watchlist.csv` · `profile.csv` · `likes/films.csv` (keep the `likes/` subfolder)
-4. **Dry run first (zero writes).** Prints a safety banner (target DB host/name,
-   owner, TMDB status) and a summary of what *would* be created/updated:
-   ```bash
-   npm run import:letterboxd:dry
-   ```
-5. **Run the live import.** Live runs require explicit confirmation — either the
-   `--yes` flag or typing `yes` at the interactive prompt:
-   ```bash
-   npm run import:letterboxd -- --yes
-   # or, to be prompted interactively:
-   npm run import:letterboxd
-   ```
-   Add `--skip-metadata` to skip TMDB enrichment.
-6. **Validate after import** (read-only; compares the database to the export):
-   ```bash
-   npm run validate:letterboxd
-   ```
-7. **Optional dedupe.** Preview first (no writes), then apply only if it looks right:
-   ```bash
-   npm run db:dedupe          # preview
-   npm run db:dedupe:apply    # apply
-   ```
-8. **Delete the export CSVs from the repo root** once the import is done.
-
-> ⚠️ **Never commit export CSVs** — they contain personal data. The repo's
-> `.gitignore` already excludes `*.csv` (including `likes/films.csv`), but
-> double-check `git status` before committing. Take a Neon branch/snapshot
-> before your first live import as a safety net.
-
-***
-
-## Security
-
-- Passwords hashed with `scrypt` (Node built-in, no external deps)
-- `NEXTAUTH_SECRET` required in all environments
-- `.env` files are gitignored — never commit secrets
-- Registration rate-limited (5/IP per 10 min) via a shared `RateLimit` table
-  (survives serverless cold starts; in-memory fallback pre-migration)
-- Password change/email change/account deletion require the current password and
-  are rate-limited against brute force
-- State-changing API routes reject cross-origin requests (CSRF hardening)
-- Reserved usernames blocked; there are no public per-user pages (the old
-  `/u/[username]` profiles were removed with the social features)
+E sobre segurança, em resumo: senhas guardadas com hash `scrypt`, cadastro com limite de tentativas por IP, ações sensíveis exigem a senha atual, e as rotas que alteram dados rejeitam requisições de outros sites (proteção CSRF).
