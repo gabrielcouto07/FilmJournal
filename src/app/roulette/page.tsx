@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import ArtworkImage from "@/components/ArtworkImage";
 import { useToast } from "@/components/ToastProvider";
 
@@ -33,6 +34,19 @@ type WinnerDetail = {
 const COUNT_OPTIONS = [4, 8, 16];
 const RUNTIME_MAX = 240;
 
+// --- Reel geometry -----------------------------------------------------------
+// The reel is a long strip whose left edge is pinned to the viewport centre
+// (left:50%). Translating it by `xFor(i)` centres reel-item `i` under the
+// fixed selection frame — independent of viewport width, so landing is exact.
+const ITEM_W = 150; // poster width in px
+const ITEM_GAP = 16;
+const STRIDE = ITEM_W + ITEM_GAP; // distance between consecutive item centres
+const TARGET_BASE = 6; // pool repetition the spin lands on (defines runway)
+const RESET_BASE = 2; // repetition each spin instantly resets to before running
+const REPEATS = TARGET_BASE + 3; // total pool copies rendered into the strip
+const SPIN_MS = 5000;
+const xFor = (i: number) => -(i * STRIDE + ITEM_W / 2);
+
 function tmdbImage(path: string | null, size: "w342" | "w780" | "w1280"): string | null {
   if (!path) return null;
   return `https://image.tmdb.org/t/p/${size}${path.startsWith("/") ? path : `/${path}`}`;
@@ -54,6 +68,7 @@ function randomIndex(max: number): number {
 
 export default function RoulettePage() {
   const { notify } = useToast();
+  const router = useRouter();
 
   // Filter state
   const [genres, setGenres] = useState<Genre[]>([]);
@@ -70,12 +85,25 @@ export default function RoulettePage() {
   const [pool, setPool] = useState<PoolMovie[]>([]);
   const [building, setBuilding] = useState(false);
   const [spinning, setSpinning] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(-1);
   const [winnerIndex, setWinnerIndex] = useState(-1);
   const [winnerDetail, setWinnerDetail] = useState<WinnerDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [showReveal, setShowReveal] = useState(false);
+  const [flash, setFlash] = useState(false);
+  const [blur, setBlur] = useState(false);
+  const [openingId, setOpeningId] = useState<number | null>(null);
+  const [savingWatchlist, setSavingWatchlist] = useState(false);
 
-  const genreMap = new Map(genres.map((g) => [g.id, g.name]));
+  const controls = useAnimationControls();
+  const blurTimer = useRef<number | null>(null);
+  const flashTimer = useRef<number | null>(null);
+
+  const genreMap = useMemo(() => new Map(genres.map((g) => [g.id, g.name])), [genres]);
+  const poolKey = useMemo(() => `${pool.length}:${pool[0]?.id ?? 0}`, [pool]);
+  const reelItems = useMemo(
+    () => (pool.length ? Array.from({ length: REPEATS }, (_, r) => pool.map((m, i) => ({ m, key: `${r}-${i}-${m.id}` }))).flat() : []),
+    [pool],
+  );
 
   // Load the TMDB genre list once for the chips.
   useEffect(() => {
@@ -113,6 +141,29 @@ export default function RoulettePage() {
     return () => window.clearTimeout(handle);
   }, [peopleQuery]);
 
+  useEffect(
+    () => () => {
+      if (blurTimer.current) window.clearTimeout(blurTimer.current);
+      if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    },
+    [],
+  );
+
+  // Park the freshly-built reel so the first poster sits under the frame.
+  useEffect(() => {
+    if (pool.length) controls.set({ x: xFor(RESET_BASE * pool.length) });
+  }, [poolKey, pool.length, controls]);
+
+  // Close the reveal with Escape.
+  useEffect(() => {
+    if (!showReveal) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowReveal(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showReveal]);
+
   const toggleGenre = (id: number) => {
     setSelectedGenreIds((current) =>
       current.includes(id) ? current.filter((g) => g !== id) : [...current, id],
@@ -139,17 +190,17 @@ export default function RoulettePage() {
     setRuntimeMax(RUNTIME_MAX);
     setCount(8);
     setPool([]);
-    setActiveIndex(-1);
     setWinnerIndex(-1);
     setWinnerDetail(null);
+    setShowReveal(false);
   };
 
   const buildPool = async () => {
     setBuilding(true);
     setPool([]);
-    setActiveIndex(-1);
     setWinnerIndex(-1);
     setWinnerDetail(null);
+    setShowReveal(false);
     try {
       const params = new URLSearchParams();
       if (selectedGenreIds.length) params.set("genres", selectedGenreIds.join(","));
@@ -183,64 +234,98 @@ export default function RoulettePage() {
       const data = await res.json();
       if (res.ok) setWinnerDetail(data.movie);
     } catch {
-      /* the pool card already shows the essentials */
+      /* the reveal already shows the pool essentials */
     } finally {
       setDetailLoading(false);
     }
   }, []);
 
-  const spinTimer = useRef<number | null>(null);
-
-  const spin = useCallback(() => {
+  const spin = useCallback(async () => {
     if (pool.length === 0 || spinning) return;
-    setSpinning(true);
-    setWinnerIndex(-1);
+    setShowReveal(false);
     setWinnerDetail(null);
+    setSpinning(true);
 
     const target = randomIndex(pool.length);
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (prefersReducedMotion || pool.length === 1) {
-      setActiveIndex(target);
+      controls.set({ x: xFor(TARGET_BASE * pool.length + target) });
       setWinnerIndex(target);
       setSpinning(false);
+      setShowReveal(true);
       void fetchWinnerDetail(pool[target].id);
       return;
     }
 
-    // Sweep the highlight ~2.5s: fast at first, decelerating, landing on `target`.
-    let currentIndex = 0;
-    let tick = 0;
-    const baseLoops = 3; // full passes before it's allowed to stop
-    const totalTicks = baseLoops * pool.length + target;
+    // Instantly park on an identical-looking earlier repetition (same poster
+    // centred as the previous result) so there is runway and no visible jump.
+    const fromCentered = winnerIndex >= 0 ? winnerIndex : 0;
+    controls.set({ x: xFor(RESET_BASE * pool.length + fromCentered) });
 
-    const step = () => {
-      setActiveIndex(currentIndex);
+    setBlur(true);
+    if (blurTimer.current) window.clearTimeout(blurTimer.current);
+    blurTimer.current = window.setTimeout(() => setBlur(false), SPIN_MS - 1200);
 
-      if (tick >= totalTicks) {
-        setWinnerIndex(target);
-        setSpinning(false);
-        void fetchWinnerDetail(pool[target].id);
-        return;
+    const targetIndex = TARGET_BASE * pool.length + target;
+    await controls.start({ x: xFor(targetIndex) }, { duration: SPIN_MS / 1000, ease: [0.16, 1, 0.3, 1] });
+
+    setBlur(false);
+    setWinnerIndex(target);
+    setSpinning(false);
+    setFlash(true);
+    if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setFlash(false), 900);
+    void fetchWinnerDetail(pool[target].id);
+    window.setTimeout(() => setShowReveal(true), 260);
+  }, [pool, spinning, winnerIndex, controls, fetchWinnerDetail]);
+
+  // POST the TMDB movie into the catalog, then open its film page.
+  const openMovie = useCallback(
+    async (movie: { id: number; title: string }) => {
+      if (openingId) return;
+      setOpeningId(movie.id);
+      try {
+        const res = await fetch("/api/movies", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tmdbId: movie.id }),
+        });
+        const data = (await res.json()) as { movie?: { id: string }; error?: string };
+        if (!res.ok || !data.movie) throw new Error(data.error ?? "Não foi possível abrir este filme.");
+        router.push(`/film/${data.movie.id}`);
+      } catch (reason) {
+        notify(reason instanceof Error ? reason.message : "Não foi possível abrir este filme.", "error");
+        setOpeningId(null);
       }
+    },
+    [openingId, router, notify],
+  );
 
-      currentIndex = (currentIndex + 1) % pool.length;
-      tick += 1;
-
-      const remaining = totalTicks - tick;
-      // ease-out: accelerate the delay as we approach the end
-      const delay = remaining > 12 ? 70 : remaining > 6 ? 70 + (12 - remaining) * 22 : 200 + (6 - remaining) * 45;
-      spinTimer.current = window.setTimeout(step, delay);
-    };
-
-    step();
-  }, [pool, spinning, fetchWinnerDetail]);
-
-  useEffect(() => () => {
-    if (spinTimer.current) window.clearTimeout(spinTimer.current);
-  }, []);
+  const addToWatchlist = useCallback(
+    async (movie: { id: number; title: string }) => {
+      if (savingWatchlist) return;
+      setSavingWatchlist(true);
+      try {
+        const res = await fetch("/api/movies", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tmdbId: movie.id, watchlist: true }),
+        });
+        const data = (await res.json()) as { message?: string; error?: string };
+        if (!res.ok) throw new Error(data.error ?? "Não foi possível adicionar à sua lista.");
+        notify(data.message ?? `${movie.title} adicionado à sua lista para assistir.`);
+      } catch (reason) {
+        notify(reason instanceof Error ? reason.message : "Não foi possível adicionar à sua lista.", "error");
+      } finally {
+        setSavingWatchlist(false);
+      }
+    },
+    [savingWatchlist, notify],
+  );
 
   const hasResult = winnerIndex >= 0 && !spinning;
+  const winner = winnerIndex >= 0 ? pool[winnerIndex] : null;
   const filtersDisabled = building || spinning;
 
   return (
@@ -249,7 +334,7 @@ export default function RoulettePage() {
         <p className="eyebrow">Assistente de Seleção</p>
         <h1 className="display-title mt-3 text-5xl sm:text-7xl">Roleta de Filmes.</h1>
         <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-          Não sabe o que assistir? Defina seus filtros e deixe a roleta decidir por você.
+          Não sabe o que assistir? Defina seus filtros, gire a roleta e deixe o acaso escolher a sessão de hoje.
         </p>
       </header>
 
@@ -380,16 +465,112 @@ export default function RoulettePage() {
               {building
                 ? "Buscando no catálogo do TMDB…"
                 : pool.length > 0
-                  ? `${pool.length} filmes no sorteio`
+                  ? `${pool.length} filmes na roleta`
                   : "Monte a roleta para começar."}
             </p>
             {pool.length > 0 && (
-              <button onClick={spin} disabled={spinning} className="accent-button font-black disabled:cursor-not-allowed disabled:opacity-50">
-                {spinning ? "Sorteando…" : "Girar 🎲"}
+              <button onClick={spin} disabled={spinning} className="accent-button gap-2 font-black disabled:cursor-not-allowed disabled:opacity-50">
+                {spinning ? "Girando…" : hasResult ? "Girar de novo 🎲" : "Girar 🎲"}
               </button>
             )}
           </div>
 
+          {/* The reel — the star of the show */}
+          {!building && pool.length > 0 && (
+            <div className="surface relative overflow-hidden rounded-[2rem] border border-white/[0.06] py-8">
+              <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_38%,rgba(245,197,24,0.12),transparent_55%)]" />
+
+              {/* Fixed selection frame + pointers */}
+              <div
+                className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-2 border-amber-300"
+                style={{
+                  width: ITEM_W + 12,
+                  height: ITEM_W * 1.5 + 12,
+                  boxShadow: flash
+                    ? "0 0 0 3px rgba(245,197,24,.5), 0 0 60px 12px rgba(245,197,24,.55)"
+                    : "0 0 0 2px rgba(245,197,24,.25), 0 0 28px 4px rgba(245,197,24,.28)",
+                  transition: "box-shadow .5s var(--ease-out)",
+                }}
+              />
+              <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2" style={{ marginTop: -(ITEM_W * 1.5) / 2 - 22 }}>
+                <span className="block h-0 w-0 border-x-[9px] border-t-[12px] border-x-transparent border-t-amber-300" />
+              </div>
+              <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2" style={{ marginTop: (ITEM_W * 1.5) / 2 + 10 }}>
+                <span className="block h-0 w-0 border-x-[9px] border-b-[12px] border-x-transparent border-b-amber-300" />
+              </div>
+
+              {/* Edge fade mask */}
+              <div
+                className="relative"
+                style={{
+                  height: ITEM_W * 1.5 + 24,
+                  WebkitMaskImage: "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)",
+                  maskImage: "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)",
+                }}
+              >
+                <motion.div
+                  key={poolKey}
+                  animate={controls}
+                  initial={{ x: xFor(RESET_BASE * pool.length) }}
+                  className="absolute left-1/2 top-1/2 flex -translate-y-1/2"
+                  style={{ gap: ITEM_GAP, filter: blur ? "blur(1.4px)" : "none", willChange: "transform" }}
+                >
+                  {reelItems.map(({ m, key }) => (
+                    <div
+                      key={key}
+                      className="relative shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[#18181b]"
+                      style={{ width: ITEM_W, height: ITEM_W * 1.5 }}
+                    >
+                      <ArtworkImage
+                        src={tmdbImage(m.posterPath, "w342")}
+                        fallbackSrc={null}
+                        alt={m.title}
+                        title={m.title}
+                        className="h-full w-full object-cover"
+                        sizes="150px"
+                      />
+                      {m.rating != null && m.rating > 0 && (
+                        <span className="absolute right-1.5 top-1.5 rounded-full border border-white/10 bg-black/70 px-1.5 py-0.5 text-[10px] font-black text-amber-200 backdrop-blur">
+                          ★ {m.rating.toFixed(1)}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+
+              {!spinning && !hasResult && (
+                <p className="relative mt-6 text-center text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                  Aperte <span className="text-amber-300">Girar</span> para sortear
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Inline result bar (when reveal is dismissed) */}
+          <AnimatePresence>
+            {hasResult && winner && !showReveal && (
+              <motion.div
+                key="result-bar"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="surface flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-500/25 p-4"
+              >
+                <p className="text-sm font-bold text-white">
+                  🎬 Sorteado: <span className="text-amber-300">{winner.title}</span> {winner.year ? `(${winner.year})` : ""}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => setShowReveal(true)} className="quiet-button px-4 py-2 text-xs">Ver detalhes</button>
+                  <button onClick={() => openMovie(winner)} disabled={openingId === winner.id} className="accent-button px-4 py-2 text-xs disabled:opacity-60">
+                    {openingId === winner.id ? "Abrindo…" : "Abrir filme"}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Building skeleton */}
           {building && (
             <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(130px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]">
               {Array.from({ length: count }).map((_, index) => (
@@ -398,128 +579,199 @@ export default function RoulettePage() {
             </div>
           )}
 
+          {/* Candidate grid — every card opens its film page */}
           {!building && pool.length > 0 && (
-            <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(130px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]">
-              {pool.map((movie, index) => {
-                const active = activeIndex === index && spinning;
-                const isWinner = hasResult && winnerIndex === index;
-                return (
-                  <motion.div
-                    key={`${movie.id}-${index}`}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{
-                      opacity: hasResult && !isWinner ? 0.45 : 1,
-                      y: 0,
-                      scale: isWinner ? 1.12 : active ? 1.05 : 1,
-                    }}
-                    transition={{ delay: spinning || hasResult ? 0 : index * 0.05, duration: 0.35 }}
-                    className={`relative overflow-hidden rounded-xl border transition-shadow ${
-                      isWinner
-                        ? "z-10 border-amber-300 shadow-[0_0_28px_rgba(245,197,24,0.6)]"
-                        : active
-                          ? "z-10 border-amber-300 shadow-[0_0_18px_rgba(245,197,24,0.45)]"
-                          : "border-white/[0.08] hover:shadow-[0_0_22px_rgba(245,197,24,0.25)]"
-                    }`}
-                  >
-                    <div className="relative aspect-[2/3] bg-[#18181b]">
-                      <ArtworkImage
-                        src={tmdbImage(movie.posterPath, "w342")}
-                        fallbackSrc={null}
-                        alt={movie.title}
-                        title={movie.title}
-                        className="h-full w-full object-cover"
-                        sizes="160px"
-                      />
-                      {movie.rating != null && movie.rating > 0 && (
-                        <span className="absolute right-1.5 top-1.5 rounded-full border border-white/10 bg-black/70 px-1.5 py-0.5 text-[10px] font-black text-amber-200 backdrop-blur">
-                          ★ {movie.rating.toFixed(1)}
-                        </span>
-                      )}
-                      {isWinner && (
-                        <span className="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-300 px-2.5 py-1 text-[10px] font-black text-black shadow-lg">
-                          🎬 Escolhido!
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-2.5">
-                      <h3 className="truncate text-xs font-extrabold text-white">{movie.title}</h3>
-                      <p className="mt-0.5 text-[10px] font-semibold text-slate-500">{movie.year ?? "—"}</p>
-                    </div>
-                  </motion.div>
-                );
-              })}
+            <div>
+              <p className="mb-3 text-xs font-black uppercase tracking-wider text-slate-500">
+                Todos os candidatos <span className="text-slate-600">· clique para abrir</span>
+              </p>
+              <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(130px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]">
+                {pool.map((movie, index) => {
+                  const isWinner = hasResult && winnerIndex === index;
+                  const opening = openingId === movie.id;
+                  return (
+                    <motion.button
+                      type="button"
+                      key={`${movie.id}-${index}`}
+                      onClick={() => openMovie(movie)}
+                      disabled={openingId != null}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: hasResult && !isWinner ? 0.5 : 1, y: 0, scale: isWinner ? 1.06 : 1 }}
+                      transition={{ delay: spinning || hasResult ? 0 : index * 0.04, duration: 0.35 }}
+                      className={`poster-card group relative block overflow-hidden rounded-xl border text-left transition-shadow disabled:cursor-wait ${
+                        isWinner
+                          ? "z-10 border-amber-300 shadow-[0_0_28px_rgba(245,197,24,0.5)]"
+                          : "border-white/[0.08] hover:border-amber-300/40 hover:shadow-[0_0_22px_rgba(245,197,24,0.22)]"
+                      }`}
+                    >
+                      <div className="relative aspect-[2/3] bg-[#18181b]">
+                        <ArtworkImage
+                          src={tmdbImage(movie.posterPath, "w342")}
+                          fallbackSrc={null}
+                          alt={movie.title}
+                          title={movie.title}
+                          className="h-full w-full object-cover"
+                          sizes="160px"
+                        />
+                        {movie.rating != null && movie.rating > 0 && (
+                          <span className="absolute right-1.5 top-1.5 rounded-full border border-white/10 bg-black/70 px-1.5 py-0.5 text-[10px] font-black text-amber-200 backdrop-blur">
+                            ★ {movie.rating.toFixed(1)}
+                          </span>
+                        )}
+                        {isWinner && (
+                          <span className="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-300 px-2.5 py-1 text-[10px] font-black text-black shadow-lg">
+                            🎬 Escolhido!
+                          </span>
+                        )}
+                        <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100">
+                          <span className="mb-3 rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur">
+                            {opening ? "Abrindo…" : "Abrir →"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-2.5">
+                        <h3 className="truncate text-xs font-extrabold text-white">{movie.title}</h3>
+                        <p className="mt-0.5 text-[10px] font-semibold text-slate-500">{movie.year ?? "—"}</p>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
           {!building && pool.length === 0 && (
             <div className="empty-state">
-              <p className="text-lg font-bold text-white">Nenhum filme no sorteio ainda.</p>
+              <p className="text-lg font-bold text-white">Nenhum filme na roleta ainda.</p>
               <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
                 Ajuste os filtros ao lado e clique em <span className="font-bold text-amber-300">Montar Roleta</span> para buscar títulos no catálogo do TMDB.
               </p>
             </div>
           )}
-
-          {/* Winner detail */}
-          <AnimatePresence>
-            {hasResult && pool[winnerIndex] && (
-              <motion.div
-                key="winner"
-                initial={{ opacity: 0, y: 32 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 16 }}
-                transition={{ type: "spring", stiffness: 200, damping: 24 }}
-                className="surface relative overflow-hidden rounded-[2rem] border border-amber-500/25"
-              >
-                {(() => {
-                  const detail = winnerDetail;
-                  const base = pool[winnerIndex];
-                  const backdrop = tmdbImage(detail?.backdropPath ?? base.backdropPath, "w1280");
-                  const genreText = detail?.genres.length
-                    ? detail.genres.join(", ")
-                    : base.genreIds.map((id) => genreMap.get(id)).filter(Boolean).join(", ");
-                  const meta = [
-                    detail?.year ?? base.year,
-                    detail?.runtime ? `${detail.runtime} min` : null,
-                    genreText || null,
-                  ].filter(Boolean).join(" · ");
-                  const rating = detail?.rating ?? base.rating;
-                  return (
-                    <>
-                      {backdrop && (
-                        <div className="absolute inset-0 -z-10 bg-cover bg-center opacity-25" style={{ backgroundImage: `url(${backdrop})` }} />
-                      )}
-                      <div className="glass-gradient absolute inset-0 -z-10" />
-                      <div className="grid gap-6 p-6 sm:grid-cols-[11rem_1fr] sm:p-8">
-                        <div className="mx-auto aspect-[2/3] w-full max-w-[11rem] overflow-hidden rounded-xl border border-white/[0.08] bg-[#18181b]">
-                          <ArtworkImage src={tmdbImage(detail?.posterPath ?? base.posterPath, "w342")} fallbackSrc={null} alt={base.title} title={base.title} className="h-full w-full object-cover" sizes="176px" />
-                        </div>
-                        <div className="space-y-4">
-                          <div>
-                            <span className="eyebrow !text-amber-300">Filme sorteado</span>
-                            <h2 className="mt-1 text-3xl font-black text-white">{detail?.title ?? base.title}</h2>
-                            {meta && <p className="mt-1 text-sm font-bold text-slate-400">{meta}</p>}
-                          </div>
-                          {rating != null && rating > 0 && (
-                            <p className="text-sm font-bold text-amber-200">★ {rating.toFixed(1)} <span className="text-slate-500">/ 10 · TMDB</span></p>
-                          )}
-                          <p className="line-clamp-4 text-sm leading-6 text-slate-300">
-                            {detailLoading ? "Carregando sinopse…" : detail?.overview ?? base.overview ?? "Sinopse indisponível em português."}
-                          </p>
-                          <div className="flex flex-wrap gap-2 pt-1">
-                            <button onClick={spin} disabled={spinning} className="quiet-button px-4 py-2 text-xs disabled:opacity-50">Girar Novamente</button>
-                            <button onClick={resetAll} className="quiet-button px-4 py-2 text-xs">Nova Busca</button>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  );
-                })()}
-              </motion.div>
-            )}
-          </AnimatePresence>
         </section>
       </div>
+
+      {/* Cinematic reveal */}
+      <AnimatePresence>
+        {showReveal && winner && (
+          <motion.div
+            key="reveal"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowReveal(false)}
+          >
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, y: 40, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 220, damping: 22 }}
+              className="surface relative w-full max-w-3xl overflow-hidden rounded-[2rem] border border-amber-500/30"
+            >
+              {(() => {
+                const detail = winnerDetail;
+                const base = winner;
+                const backdrop = tmdbImage(detail?.backdropPath ?? base.backdropPath, "w1280");
+                const genreText = detail?.genres.length
+                  ? detail.genres.join(", ")
+                  : base.genreIds.map((id) => genreMap.get(id)).filter(Boolean).join(", ");
+                const meta = [
+                  detail?.year ?? base.year,
+                  detail?.runtime ? `${detail.runtime} min` : null,
+                  genreText || null,
+                ].filter(Boolean).join(" · ");
+                const rating = detail?.rating ?? base.rating;
+                return (
+                  <>
+                    {backdrop && <div className="absolute inset-0 -z-10 bg-cover bg-center opacity-25" style={{ backgroundImage: `url(${backdrop})` }} />}
+                    <div className="glass-gradient absolute inset-0 -z-10" />
+
+                    {/* Sparkle burst */}
+                    <div className="pointer-events-none absolute left-1/2 top-24 -z-0 h-0 w-0">
+                      {Array.from({ length: 12 }).map((_, i) => {
+                        const angle = (i / 12) * Math.PI * 2;
+                        return (
+                          <motion.span
+                            key={i}
+                            className="absolute h-1.5 w-1.5 rounded-full bg-amber-300"
+                            initial={{ opacity: 0.9, x: 0, y: 0, scale: 1 }}
+                            animate={{ opacity: 0, x: Math.cos(angle) * 150, y: Math.sin(angle) * 150, scale: 0.2 }}
+                            transition={{ duration: 0.9, ease: "easeOut", delay: 0.05 }}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowReveal(false)}
+                      aria-label="Fechar"
+                      className="icon-button absolute right-4 top-4 z-10 h-9 w-9 text-lg"
+                    >
+                      ×
+                    </button>
+
+                    <div className="grid gap-6 p-6 sm:grid-cols-[12rem_1fr] sm:p-8">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.85, rotate: -4 }}
+                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                        transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.08 }}
+                        className="mx-auto aspect-[2/3] w-full max-w-[12rem] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#18181b] shadow-[0_20px_60px_rgba(0,0,0,.55)]"
+                      >
+                        <ArtworkImage src={tmdbImage(detail?.posterPath ?? base.posterPath, "w342")} fallbackSrc={null} alt={base.title} title={base.title} className="h-full w-full object-cover" sizes="192px" />
+                      </motion.div>
+                      <div className="space-y-4">
+                        <div>
+                          <motion.span
+                            className="eyebrow !text-amber-300"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.12 }}
+                          >
+                            🎉 A roleta escolheu
+                          </motion.span>
+                          <motion.h2
+                            className="display-title mt-1 text-3xl leading-tight sm:text-4xl"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.16 }}
+                          >
+                            {detail?.title ?? base.title}
+                          </motion.h2>
+                          {meta && <p className="mt-2 text-sm font-bold text-slate-400">{meta}</p>}
+                        </div>
+                        {rating != null && rating > 0 && (
+                          <p className="text-sm font-bold text-amber-200">
+                            ★ {rating.toFixed(1)} <span className="text-slate-500">/ 10 · TMDB</span>
+                          </p>
+                        )}
+                        <p className="line-clamp-4 text-sm leading-6 text-slate-300">
+                          {detailLoading ? "Carregando sinopse…" : detail?.overview ?? base.overview ?? "Sinopse indisponível em português."}
+                        </p>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <button onClick={() => openMovie(base)} disabled={openingId === base.id} className="accent-button px-5 py-2.5 text-sm disabled:opacity-60">
+                            {openingId === base.id ? "Abrindo…" : "Abrir filme →"}
+                          </button>
+                          <button onClick={() => addToWatchlist(base)} disabled={savingWatchlist} className="quiet-button px-4 py-2.5 text-sm disabled:opacity-60">
+                            {savingWatchlist ? "Salvando…" : "＋ Watchlist"}
+                          </button>
+                          <button onClick={spin} disabled={spinning} className="quiet-button px-4 py-2.5 text-sm disabled:opacity-50">Girar de novo 🎲</button>
+                          <button onClick={resetAll} className="quiet-button px-4 py-2.5 text-sm">Nova busca</button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
