@@ -6,15 +6,15 @@ import ArtworkImage from "./ArtworkImage";
 // server (API key never reaches the client) and degrades gracefully if it fails.
 
 const FEATURES = [
-  { icon: "📖", title: "Diário de filmes", body: "Registre cada sessão com data, reexibições e o que você achou." },
-  { icon: "★", title: "Notas & avaliações", body: "Dê notas de 0 a 5 estrelas e acompanhe sua média ao longo do tempo." },
-  { icon: "✍️", title: "Resenhas", body: "Escreva resenhas e guarde suas impressões para sempre." },
-  { icon: "🔖", title: "Para assistir", body: "Monte a lista do que quer assistir e nunca mais esqueça um título." },
-  { icon: "📊", title: "Estatísticas", body: "Veja seus padrões, gêneros favoritos e seu ritmo de filmes por mês." },
-  { icon: "🎬", title: "Import do Letterboxd", body: "Traga todo o seu histórico do Letterboxd em poucos minutos." },
+  { icon: "🗺️", title: "Mapa de gosto", body: "Veja onde seu gosto pousa por década, país, gênero e duração — o retrato real do que você assiste." },
+  { icon: "🌊", title: "Você contra a maré", body: "Quantifique sua distância do consenso e descubra os filmes em que você discorda do mundo." },
+  { icon: "🕳️", title: "Motor de pontos cegos", body: "Sugestões aclamadas exatamente onde seu mapa está em branco — e cada uma explica por que apareceu." },
+  { icon: "🎭", title: "Jogo do elenco", body: "Adivinhe o filme pelo elenco, com pontuação e sequências — gerado do seu próprio arquivo." },
+  { icon: "🎲", title: "Roleta com intenção", body: "Sem decidir o que ver? Diga o clima e deixe a roleta escolher com critério." },
+  { icon: "🎬", title: "Import do Letterboxd", body: "Traga todo o seu histórico em minutos e veja as análises nascerem prontas." },
 ];
 
-const HERO_TAGS = ["Diário", "Avaliações", "Resenhas", "Para assistir", "Estatísticas", "Import Letterboxd"];
+const HERO_TAGS = ["Mapa de gosto", "Análise contrarian", "Pontos cegos", "Jogo do elenco", "Roleta", "Import Letterboxd"];
 
 async function getTrending(): Promise<TmdbMovieSearchResult[]> {
   try {
@@ -36,15 +36,16 @@ export default async function PublicOverview() {
       {heroBackdrop && <div className="absolute inset-0 -z-20 bg-cover bg-center opacity-40" style={{ backgroundImage: `url(${heroBackdrop})` }} />}
       <div className="glass-gradient absolute inset-0 -z-10" />
       <div className="flex min-h-[24rem] max-w-3xl flex-col justify-center">
-        <p className="eyebrow">FilmJournal · Visão Geral</p>
-        <h1 className="display-title balance mt-5 text-5xl leading-[.95] sm:text-7xl">Seu cinema, registrado com intenção.</h1>
+        <p className="eyebrow">FilmJournal · Cartografia do gosto</p>
+        <h1 className="display-title balance mt-5 text-5xl leading-[.95] sm:text-7xl">Seu gosto, mapeado.</h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-          Acompanhe tudo o que você assiste, dê notas, escreva resenhas, monte sua lista para assistir e
-          descubra seus padrões — em um diário de filmes bonito e só seu.
+          Análises pessoais de cinema: mapeie seu gosto por década, geografia e gênero, meça sua
+          distância do consenso da crítica e receba sugestões que expandem seus pontos cegos —
+          tudo calculado do seu próprio histórico.
         </p>
         <div className="mt-9 flex flex-wrap items-center gap-3">
           <Link href="/login?tab=register" className="accent-button glow-pulse px-6 py-3.5 text-sm font-black">
-            Crie sua conta para acompanhar seus filmes →
+            Crie sua conta e mapeie seu gosto →
           </Link>
           <Link href="/login" className="quiet-button px-5 py-3.5">Já tenho conta · Entrar</Link>
         </div>
@@ -62,7 +63,7 @@ export default async function PublicOverview() {
           <h2 className="section-heading mt-2">Populares esta semana.</h2>
         </div>
         <Link href="/login?tab=register" className="shrink-0 text-xs font-bold text-amber-300 hover:text-amber-200 sm:text-sm">
-          Comece a registrar →
+          Comece a mapear →
         </Link>
       </div>
       {trending.length ? (
@@ -81,8 +82,8 @@ export default async function PublicOverview() {
     {/* What you get */}
     <section className="fade-up fade-up-2">
       <div className="mb-6">
-        <p className="eyebrow">O que você ganha</p>
-        <h2 className="section-heading mt-2">Tudo para acompanhar sua vida no cinema.</h2>
+        <p className="eyebrow">O que o FilmJournal revela</p>
+        <h2 className="section-heading mt-2">Análises que nenhuma prateleira genérica entrega.</h2>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map((feature) => (
@@ -98,9 +99,10 @@ export default async function PublicOverview() {
     {/* Final CTA */}
     <section className="fade-up fade-up-3 surface relative overflow-hidden rounded-[2rem] p-8 text-center sm:p-14">
       <div className="glass-gradient absolute inset-0 -z-10" />
-      <h2 className="display-title balance mx-auto max-w-2xl text-4xl sm:text-5xl">Comece seu diário de filmes hoje.</h2>
+      <h2 className="display-title balance mx-auto max-w-2xl text-4xl sm:text-5xl">Comece a mapear seu gosto hoje.</h2>
       <p className="mx-auto mt-5 max-w-xl text-slate-300">
-        Crie sua conta gratuitamente e, se já usa o Letterboxd, importe todo o seu histórico em minutos.
+        Crie sua conta gratuitamente — e, se já usa o Letterboxd, importe o histórico e veja seu
+        mapa de gosto pronto em minutos.
       </p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link href="/login?tab=register" className="accent-button px-6 py-3.5 text-sm font-black">Criar minha conta →</Link>

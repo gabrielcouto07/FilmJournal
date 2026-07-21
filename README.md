@@ -1,8 +1,45 @@
-# 🎬 FilmJournal
+# 🎬 FilmJournal — Taste Cartography
 
-Personal film tracking app — log, rate, and explore your movie collection.
+Personal cinema analytics. FilmJournal maps your taste across decades, geography
+and genre, quantifies how far you sit from critical consensus, and recommends
+films that expand your blind spots — all computed from your own viewing log.
 
 Built with **Next.js 15** · **TypeScript** · **Tailwind CSS** · **Prisma** · **PostgreSQL** · **NextAuth.js**
+
+***
+
+## What makes it different
+
+- **Contrarian analysis** — every rated film is compared against the crowd
+  (TMDB rating). You get a consensus-distance score, a generous/demanding lean,
+  a you-vs-the-crowd scatter, and the films where you disagree hardest in both
+  directions ("contrarian loves" and "contrarian pans").
+- **Blind-spot engine with legible rationale** — the discovery engine compares
+  your archive against cinema at large (by decade, country, language and genre)
+  and suggests acclaimed films exactly where your map is blank. Every suggestion
+  explains why it appeared.
+- **Guess-by-cast game** — a quiz generated from your own archive: guess the
+  film from its cast, with scoring and streaks.
+
+## Features
+
+- **Paladar** (`/dashboard`) — the analytics home: archive totals, year-in-review,
+  viewing rhythm, rating distribution, contrarian analysis, decade / country /
+  genre / runtime maps, and director loyalty.
+- **Diary** — sessions with watch date, rewatches, 0–5 ratings, reviews and tags.
+- **Discover** — blind-spot picks plus similarity rails (because-you-loved,
+  favorite directors, genre trails), each with its reason attached.
+- **Roulette** — intent-aware random pick when you can't decide.
+- **Play** — the guess-by-cast game.
+- **Watchlist & ranked favorites**, TMDB-backed search, and a safe, idempotent
+  **Letterboxd import** (dry-run first).
+- Single-owner by design: your data, your analytics — no feeds, no followers.
+
+## Test coverage
+
+`npm test` runs 37 `node:test` unit tests across five suites: Letterboxd
+import, diary dedupe, palate analytics, blind-spot engine, and game scoring.
+Run `npm run typecheck` for the TypeScript check.
 
 ***
 
@@ -98,7 +135,8 @@ npm run db:push
 `APP_OWNER_USERNAME` and `APP_OWNER_PASSWORD` are used to auto-create the initial
 owner account. Once that username exists, the app resolves and promotes it without
 reading the bootstrap password, so `APP_OWNER_PASSWORD` can be rotated or removed.
-Keep `APP_OWNER_USERNAME` configured so public journal pages can resolve the owner.
+Keep `APP_OWNER_USERNAME` configured so the app can resolve and promote the
+owner account.
 
 ***
 
@@ -136,16 +174,12 @@ applied before real multi-user use.
 
 ***
 
-## Profile, settings & public profiles
+## Profile & settings
 
 - `/profile` — avatar (client-resized data URL or external https URL), display
   name, bio, preferences (theme, accent color, language, rating scale,
-  half-stars, date format, region, default landing page, adult content), privacy
-  (public/private profile), account (change password/email, delete account) and
-  the Letterboxd importer.
-- `/u/[username]` — read-only public profile (favorites, recent activity,
-  stats), visible only when the user sets **Perfil público** in
-  `/profile → Privacidade`.
+  half-stars, date format, region, default landing page, adult content),
+  account (change password/email, delete account) and the Letterboxd importer.
 
 Avatars are stored as small data URLs or external URLs today; to move uploads to
 Vercel Blob later, provision `BLOB_READ_WRITE_TOKEN` (see `.env.example`).
@@ -206,4 +240,5 @@ database, a live import writes straight to production.** Follow this flow:
 - Password change/email change/account deletion require the current password and
   are rate-limited against brute force
 - State-changing API routes reject cross-origin requests (CSRF hardening)
-- Reserved usernames blocked; private journals are never exposed via `/u/…`
+- Reserved usernames blocked; there are no public per-user pages (the old
+  `/u/[username]` profiles were removed with the social features)
