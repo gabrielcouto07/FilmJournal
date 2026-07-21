@@ -1,7 +1,7 @@
 # Graph Report - Letterboxc  (2026-07-21)
 
 ## Corpus Check
-- 128 files · ~67,179 words
+- 128 files · ~67,183 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0eb1d046`
+- Built from commit: `ee119dc8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -119,8 +119,8 @@ Cohesion: 0.38
 Nodes (9): main(), root, saveMovie(), enrichMovieMetadata(), metadataWithoutIdentity(), missingMetadata(), getTmdbMovie(), searchTmdbMovie() (+1 more)
 
 ### Community 6 - "[id]/page.tsx"
-Cohesion: 0.40
-Nodes (4): useSettings(), sizes, StarRating(), StarRatingProps
+Cohesion: 0.24
+Nodes (9): metadata, ProfilePage(), coerce(), getUserSettings(), LANDING_PAGES, Language, SettingsUpdate, settingsUpdateSchema (+1 more)
 
 ### Community 7 - "compilerOptions"
 Cohesion: 0.07
@@ -155,16 +155,16 @@ Cohesion: 0.14
 Nodes (7): ACCENT_PRESETS, initialsOf(), Notify, ProfileTab(), ProfileUser, Tab, TABS
 
 ### Community 25 - "Validation Report - Film Journal"
-Cohesion: 0.24
-Nodes (9): metadata, ProfilePage(), coerce(), getUserSettings(), LANDING_PAGES, Language, SettingsUpdate, settingsUpdateSchema (+1 more)
-
-### Community 26 - "Part 2: Letterboxd CSV / ZIP Importer"
 Cohesion: 0.25
 Nodes (7): PublicProfilePage(), CardLogInfo, MovieCard(), Props, CardMovie, EnrichedMovie, UserMovieState
 
-### Community 27 - "Current Architecture Audit - Film Journal"
+### Community 26 - "Part 2: Letterboxd CSV / ZIP Importer"
 Cohesion: 0.29
 Nodes (6): inter, metadata, playfair, RootLayout(), AppProviders(), PageTransition()
+
+### Community 27 - "Current Architecture Audit - Film Journal"
+Cohesion: 0.40
+Nodes (4): useSettings(), sizes, StarRating(), StarRatingProps
 
 ### Community 28 - "🎬 FilmJournal"
 Cohesion: 0.14

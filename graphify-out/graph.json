@@ -2331,8 +2331,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_layout",
-      "community": 27,
-      "community_name": "Current Architecture Audit - Film Journal",
+      "community": 26,
+      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
       "norm_label": "layout.tsx"
     },
     {
@@ -2342,8 +2342,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_app_layout_inter",
-      "community": 27,
-      "community_name": "Current Architecture Audit - Film Journal",
+      "community": 26,
+      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
       "norm_label": "inter"
     },
     {
@@ -2353,8 +2353,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_app_layout_playfair",
-      "community": 27,
-      "community_name": "Current Architecture Audit - Film Journal",
+      "community": 26,
+      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
       "norm_label": "playfair"
     },
     {
@@ -2364,8 +2364,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_app_layout_metadata",
-      "community": 27,
-      "community_name": "Current Architecture Audit - Film Journal",
+      "community": 26,
+      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
       "norm_label": "metadata"
     },
     {
@@ -2375,8 +2375,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_app_layout_rootlayout",
-      "community": 27,
-      "community_name": "Current Architecture Audit - Film Journal",
+      "community": 26,
+      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
       "norm_label": "rootlayout()"
     },
     {
@@ -2540,8 +2540,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_profile_page",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "profile/page.tsx"
     },
     {
@@ -2551,8 +2551,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_app_profile_page_metadata",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "metadata"
     },
     {
@@ -2562,8 +2562,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_app_profile_page_profilepage",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "profilepage()"
     },
     {
@@ -2804,8 +2804,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_u_username_page",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "[username]/page.tsx"
     },
     {
@@ -2815,8 +2815,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_app_u_username_page_publicprofilepage",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "publicprofilepage()"
     },
     {
@@ -2826,8 +2826,8 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "src_app_u_username_page_stat",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "stat()"
     },
     {
@@ -2936,8 +2936,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_components_appproviders_appproviders",
-      "community": 27,
-      "community_name": "Current Architecture Audit - Film Journal",
+      "community": 26,
+      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
       "norm_label": "appproviders()"
     },
     {
@@ -3453,8 +3453,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_moviecard",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "moviecard.tsx"
     },
     {
@@ -3464,8 +3464,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_components_moviecard_cardloginfo",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "cardloginfo"
     },
     {
@@ -3475,8 +3475,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_components_moviecard_props",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "props"
     },
     {
@@ -3486,8 +3486,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_components_moviecard_moviecard",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "moviecard()"
     },
     {
@@ -3618,8 +3618,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_pagetransition",
-      "community": 27,
-      "community_name": "Current Architecture Audit - Film Journal",
+      "community": 26,
+      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
       "norm_label": "pagetransition.tsx"
     },
     {
@@ -3629,8 +3629,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_components_pagetransition_pagetransition",
-      "community": 27,
-      "community_name": "Current Architecture Audit - Film Journal",
+      "community": 26,
+      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
       "norm_label": "pagetransition()"
     },
     {
@@ -3959,8 +3959,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_components_settingsprovider_usesettings",
-      "community": 6,
-      "community_name": "[id]/page.tsx",
+      "community": 27,
+      "community_name": "Current Architecture Audit - Film Journal",
       "norm_label": "usesettings()"
     },
     {
@@ -4058,8 +4058,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_starrating",
-      "community": 6,
-      "community_name": "[id]/page.tsx",
+      "community": 27,
+      "community_name": "Current Architecture Audit - Film Journal",
       "norm_label": "starrating.tsx"
     },
     {
@@ -4069,8 +4069,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_components_starrating_starratingprops",
-      "community": 6,
-      "community_name": "[id]/page.tsx",
+      "community": 27,
+      "community_name": "Current Architecture Audit - Film Journal",
       "norm_label": "starratingprops"
     },
     {
@@ -4080,8 +4080,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_components_starrating_sizes",
-      "community": 6,
-      "community_name": "[id]/page.tsx",
+      "community": 27,
+      "community_name": "Current Architecture Audit - Film Journal",
       "norm_label": "sizes"
     },
     {
@@ -4091,8 +4091,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_components_starrating_star",
-      "community": 6,
-      "community_name": "[id]/page.tsx",
+      "community": 27,
+      "community_name": "Current Architecture Audit - Film Journal",
       "norm_label": "star()"
     },
     {
@@ -4102,8 +4102,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_components_starrating_starrating",
-      "community": 6,
-      "community_name": "[id]/page.tsx",
+      "community": 27,
+      "community_name": "Current Architecture Audit - Film Journal",
       "norm_label": "starrating()"
     },
     {
@@ -5389,8 +5389,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_settings",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "settings.ts"
     },
     {
@@ -5400,8 +5400,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_lib_settings_theme",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "theme"
     },
     {
@@ -5411,8 +5411,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_lib_settings_language",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "language"
     },
     {
@@ -5444,8 +5444,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "src_lib_settings_coerce",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "coerce()"
     },
     {
@@ -5455,8 +5455,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_lib_settings_getusersettings",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "getusersettings()"
     },
     {
@@ -5466,8 +5466,8 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "src_lib_settings_landing_pages",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "landing_pages"
     },
     {
@@ -5477,8 +5477,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "src_lib_settings_settingsupdateschema",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "settingsupdateschema"
     },
     {
@@ -5488,8 +5488,8 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "src_lib_settings_settingsupdate",
-      "community": 25,
-      "community_name": "Validation Report - Film Journal",
+      "community": 6,
+      "community_name": "[id]/page.tsx",
       "norm_label": "settingsupdate"
     },
     {
@@ -5851,8 +5851,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_types",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "types.ts"
     },
     {
@@ -5862,8 +5862,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_lib_types_usermoviestate",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "usermoviestate"
     },
     {
@@ -5873,8 +5873,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_lib_types_enrichedmovie",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "enrichedmovie"
     },
     {
@@ -5884,8 +5884,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_lib_types_cardmovie",
-      "community": 26,
-      "community_name": "Part 2: Letterboxd CSV / ZIP Importer",
+      "community": 25,
+      "community_name": "Validation Report - Film Journal",
       "norm_label": "cardmovie"
     },
     {
@@ -23249,5 +23249,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0eb1d0468690529eaaeb43ae63f67ce0737b0952"
+  "built_at_commit": "ee119dc8f29c0c365e5afaa26046dc79559d150c"
 }

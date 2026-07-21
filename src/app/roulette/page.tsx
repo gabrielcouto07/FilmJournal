@@ -519,7 +519,7 @@ export default function RoulettePage() {
                     key={poolKey}
                     animate={controls}
                     initial={{ x: xFor(RESET_BASE * pool.length) }}
-                    className="absolute left-1/2 top-1/2 flex -translate-y-1/2"
+                    className="absolute inset-y-0 left-1/2 flex items-center"
                     style={{ gap: ITEM_GAP, filter: blur ? "blur(1.4px)" : "none", willChange: "transform" }}
                   >
                     {reelItems.map(({ m, key }) => (
