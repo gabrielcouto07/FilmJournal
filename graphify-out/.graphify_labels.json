@@ -32,14 +32,11 @@
   "30": "graphify reference: extra exports and benchmark",
   "31": "graphify reference: extra exports and benchmark",
   "32": "LogEditor.tsx",
-  "33": "useAuth",
   "34": "layout.tsx",
   "35": "graphify reference: query, path, explain",
   "36": "graphify reference: query, path, explain",
-  "37": "StarRating.tsx",
   "38": "Verification and Build Instructions",
   "39": "Q: onde está a lógica de autenticação e como ela se conecta ao Prisma?",
-  "40": "dedupe-letterboxd.ts",
   "41": "graphify reference: add a URL and watch a folder",
   "42": "graphify reference: commit hook and native CLAUDE.md integration",
   "43": "graphify reference: incremental update and cluster-only",
@@ -56,8 +53,9 @@
   "54": ".claude/CLAUDE.md",
   "55": ".claude/skills/graphify/references/extraction-spec.md",
   "56": ".codex/skills/graphify/references/extraction-spec.md",
-  "57": "app/page.tsx",
+  "57": "roulette/page.tsx",
   "58": "auth.config.ts",
-  "59": "logs/route.ts",
-  "60": "admin/page.tsx"
+  "66": "app/page.tsx",
+  "69": "profile/loading.tsx",
+  "70": "[username]/loading.tsx"
 }

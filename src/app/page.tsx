@@ -41,7 +41,7 @@ async function OwnerDashboard() {
 
     <div className="grid gap-10 lg:grid-cols-[1.35fr_.65fr]">
       <section className="fade-up fade-up-3"><SectionHead eyebrow="Seus Favoritos" title="Seus favoritos." href="/favorites" link="Ver favoritos" />{data.favorites.length?<div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-7">{data.favorites.map((movie,index)=><div key={movie.id} className={index===0?"col-span-2 row-span-2 sm:col-span-2":""}><MovieCard movie={movie} rank={movie.favoriteRank??undefined} /></div>)}</div>:<Empty text="Adicione favoritos para ver aqui." href="/diary" />}</section>
-      <section className="fade-up fade-up-4"><SectionHead eyebrow="Watchlist" title="Watchlist." href="/watchlist" link="Ver Watchlist" /><div className="space-y-2">{data.watchlist.length?data.watchlist.map((movie,index)=><Link key={movie.id} href={`/film/${movie.id}`} className="surface-subtle flex items-center gap-3 rounded-xl p-3 transition hover:border-amber-300/25"><span className="w-5 text-xs font-black text-amber-300/60">{String(index+1).padStart(2,"0")}</span><span className="min-w-0 flex-1 truncate text-sm font-bold text-white">{movie.title}</span><span className="text-xs text-slate-600">{movie.year??"—"}</span></Link>):<Empty text="Sua Watchlist está vazia." href="/search" />}</div></section>
+      <section className="fade-up fade-up-4"><SectionHead eyebrow="Para assistir" title="Para assistir." href="/watchlist" link="Ver lista" /><div className="space-y-2">{data.watchlist.length?data.watchlist.map((movie,index)=><Link key={movie.id} href={`/film/${movie.id}`} className="surface-subtle flex items-center gap-3 rounded-xl p-3 transition hover:border-amber-300/25"><span className="w-5 text-xs font-black text-amber-300/60">{String(index+1).padStart(2,"0")}</span><span className="min-w-0 flex-1 truncate text-sm font-bold text-white">{movie.title}</span><span className="text-xs text-slate-600">{movie.year??"—"}</span></Link>):<Empty text="Sua lista para assistir está vazia." href="/search" />}</div></section>
     </div>
 
     <section className="fade-up fade-up-5"><SectionHead eyebrow="Melhores Avaliados" title="Os mais bem avaliados." href="/stats" link="Ver estatísticas" />{data.topRated.length?<div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">{data.topRated.map((movie)=><MovieCard key={movie.id} movie={movie}/>)}</div>:<Empty text="Avalie filmes para ver aqui." href="/diary" />}</section>
@@ -62,7 +62,7 @@ function ActivationPanel() {
       <div className="surface-subtle rounded-2xl p-6">
         <span className="grid h-11 w-11 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10 text-lg" aria-hidden="true">🎬</span>
         <h2 className="mt-4 text-lg font-black text-white">Importar do Letterboxd</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-400">Traga todo o seu histórico — diário, notas, resenhas, watchlist e favoritos — enviando o arquivo .zip do Letterboxd. Preenche seu perfil de uma só vez.</p>
+        <p className="mt-2 text-sm leading-6 text-slate-400">Traga todo o seu histórico — diário, notas, resenhas, lista para assistir e favoritos — enviando o arquivo .zip do Letterboxd. Preenche seu perfil de uma só vez.</p>
         <div className="mt-5">
           <Link href="/profile#importar" className="accent-button">Importar meus filmes →</Link>
         </div>
@@ -70,7 +70,7 @@ function ActivationPanel() {
       <div className="surface-subtle rounded-2xl p-6">
         <span className="grid h-11 w-11 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10 text-lg" aria-hidden="true">🍿</span>
         <h2 className="mt-4 text-lg font-black text-white">Explorar filmes</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-400">Busque títulos, adicione ao diário ou à watchlist, ou deixe a roleta escolher por você.</p>
+        <p className="mt-2 text-sm leading-6 text-slate-400">Busque títulos, adicione ao diário ou à sua lista para assistir, ou deixe a roleta escolher por você.</p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/search" className="accent-button">Descobrir filmes →</Link>
           <Link href="/roulette" className="quiet-button">Sortear um filme 🎲</Link>

@@ -45,7 +45,10 @@ export function useAuth(): AuthContextType {
   };
 
   const logout = async () => {
-    await signOut({ redirect: false });
+    // Full navigation (not redirect:false) so the server re-renders the
+    // logged-out public home, private Server Component data is dropped, and
+    // no stale client state survives. signOut() sets window.location.href.
+    await signOut({ redirectTo: "/" });
   };
 
   return { user, loading: status === "loading", login, logout };

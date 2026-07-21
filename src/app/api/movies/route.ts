@@ -240,7 +240,7 @@ export async function PATCH(request: Request) {
   try {
     if (body.action === "watchlist") {
       if (typeof body.value !== "boolean") {
-        return NextResponse.json({ error: "As atualizações da watchlist exigem um valor booleano." }, { status: 400 });
+        return NextResponse.json({ error: "As atualizações da lista para assistir exigem um valor booleano." }, { status: 400 });
       }
       const existing = await prisma.movie.findUnique({ where: { id: movieId } });
       if (!existing) return NextResponse.json({ error: "Filme não encontrado." }, { status: 404 });
@@ -270,7 +270,7 @@ export async function PATCH(request: Request) {
       };
 
       revalidateTag(userTag(user.id));
-      return NextResponse.json({ movie: mergedMovie, message: body.value ? "Adicionado à sua watchlist." : "Removido da sua watchlist." });
+      return NextResponse.json({ movie: mergedMovie, message: body.value ? "Adicionado à sua lista para assistir." : "Removido da sua lista para assistir." });
     }
 
     if (body.action === "poster" || body.action === "backdrop") {

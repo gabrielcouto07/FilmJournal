@@ -9,12 +9,12 @@ const FEATURES = [
   { icon: "📖", title: "Diário de filmes", body: "Registre cada sessão com data, reexibições e o que você achou." },
   { icon: "★", title: "Notas & avaliações", body: "Dê notas de 0 a 5 estrelas e acompanhe sua média ao longo do tempo." },
   { icon: "✍️", title: "Resenhas", body: "Escreva resenhas e guarde suas impressões para sempre." },
-  { icon: "🔖", title: "Watchlist", body: "Monte a lista do que quer assistir e nunca mais esqueça um título." },
+  { icon: "🔖", title: "Para assistir", body: "Monte a lista do que quer assistir e nunca mais esqueça um título." },
   { icon: "📊", title: "Estatísticas", body: "Veja seus padrões, gêneros favoritos e seu ritmo de filmes por mês." },
   { icon: "🎬", title: "Import do Letterboxd", body: "Traga todo o seu histórico do Letterboxd em poucos minutos." },
 ];
 
-const HERO_TAGS = ["Diário", "Avaliações", "Resenhas", "Watchlist", "Estatísticas", "Import Letterboxd"];
+const HERO_TAGS = ["Diário", "Avaliações", "Resenhas", "Para assistir", "Estatísticas", "Import Letterboxd"];
 
 async function getTrending(): Promise<TmdbMovieSearchResult[]> {
   try {
@@ -39,7 +39,7 @@ export default async function PublicOverview() {
         <p className="eyebrow">FilmJournal · Visão Geral</p>
         <h1 className="display-title balance mt-5 text-5xl leading-[.95] sm:text-7xl">Seu cinema, registrado com intenção.</h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-          Acompanhe tudo o que você assiste, dê notas, escreva resenhas, monte sua watchlist e
+          Acompanhe tudo o que você assiste, dê notas, escreva resenhas, monte sua lista para assistir e
           descubra seus padrões — em um diário de filmes bonito e só seu.
         </p>
         <div className="mt-9 flex flex-wrap items-center gap-3">

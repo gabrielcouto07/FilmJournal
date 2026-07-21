@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getPosterUrl } from "@/lib/tmdb";
 import ArtworkImage from "./ArtworkImage";
@@ -25,6 +25,7 @@ export default function MovieSearch() {
   const [feedCache, setFeedCache] = useState<Partial<Record<Feed, SearchResult[]>>>({});
   const [feedLoading, setFeedLoading] = useState(false);
   const { notify } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const normalized = query.trim();
@@ -55,7 +56,10 @@ export default function MovieSearch() {
     return () => controller.abort();
   }, [activeFeed, feedCache, notify, query]);
 
-  async function act(result: SearchResult, action: "add"|"watchlist"|"favorite"|"log") {
+  async function act(result: SearchResult, action: "open"|"watchlist"|"favorite"|"log") {
+    // Cards already in the archive open instantly via a real <Link>; this path
+    // only creates-then-opens titles that aren't in the archive yet.
+    if (action === "open" && result.existing) { router.push(`/film/${result.existing.id}`); return; }
     const token = `${result.id}:${action}`; setPending(token);
     try {
       const addResponse = await fetch("/api/movies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tmdbId: result.id, ...(action === "watchlist" ? { watchlist: !result.existing?.watchlist } : {}) }) });
@@ -63,6 +67,12 @@ export default function MovieSearch() {
       if (!addResponse.ok || !addPayload.movie) throw new Error(addPayload.error ?? "Não foi possível salvar este filme.");
       let saved = addPayload.movie;
       let notice = addPayload.message ?? "Filme salvo.";
+      if (action === "open") {
+        const replace = (items: SearchResult[]) => items.map((item) => item.id === result.id ? { ...item, existing: saved } : item);
+        setResults(replace); setFeedCache((cache) => Object.fromEntries(Object.entries(cache).map(([key,value]) => [key, replace(value ?? [])])) as Partial<Record<Feed, SearchResult[]>>);
+        router.push(`/film/${saved.id}`);
+        return;
+      }
       if (action === "favorite") {
         const response = await fetch("/api/movies", { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({movieId:saved.id,action:"favorite",value:!result.existing?.favorite}) });
         const payload = await response.json() as { movie?: typeof saved; message?: string; error?: string };
@@ -90,27 +100,43 @@ export default function MovieSearch() {
 
 function CardSkeletons() { return <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">{Array.from({length:8},(_,index)=><div key={index} className="shimmer aspect-[2/3.8] rounded-[1.2rem]" />)}</div>; }
 
-function ResultCard({ result, pending, act }: { result: SearchResult; pending: string | null; act: (result: SearchResult, action: "add"|"watchlist"|"favorite"|"log") => void }) {
+function ResultCard({ result, pending, act }: { result: SearchResult; pending: string | null; act: (result: SearchResult, action: "open"|"watchlist"|"favorite"|"log") => void }) {
   const poster = getPosterUrl(result.poster_path);
   const busy = pending?.startsWith(`${result.id}:`) ?? false;
   const { user } = useAuth();
+  const onWatchlist = Boolean(result.existing?.watchlist);
+  const isFavorite = Boolean(result.existing?.favorite);
+  const openLabel = `Abrir detalhes de ${result.title}`;
+  // The poster + title is the primary affordance: it opens the film's detail
+  // page. Archived titles use a real <Link> (keyboard, middle-click, new-tab);
+  // new titles create-then-open via a <button>. The action buttons below are
+  // siblings — never nested inside the link — so there is no double navigation.
+  const media = <div className="relative aspect-[2/3] bg-white/[0.04]">
+    <ArtworkImage src={poster} alt={`Pôster de ${result.title}`} title={result.title} className="h-full w-full" sizes="(max-width: 768px) 45vw, 280px" />
+    <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black via-black/60 p-3 pt-16"><h3 className="line-clamp-2 text-sm font-black text-white">{result.title}</h3><p className="mt-1 text-[10px] font-bold text-slate-400">{result.release_date?.slice(0,4) ?? "—"} · {result.vote_average ? `★ ${result.vote_average.toFixed(1)}` : "Sem nota"}</p></div>
+    {result.existing && <span className="absolute left-2.5 top-2.5 z-10 rounded-full bg-amber-300 px-2 py-1 text-[9px] font-black uppercase text-black">No arquivo</span>}
+  </div>;
 
-  return <article className="poster-card group overflow-hidden rounded-[1.2rem] border border-white/[0.09] bg-[#141414]"><div className="relative aspect-[2/3] bg-white/[0.04]"><ArtworkImage src={poster} alt={`Pôster de ${result.title}`} title={result.title} className="h-full w-full" sizes="(max-width: 768px) 45vw, 280px" /><div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black via-black/60 p-3 pt-16"><h3 className="line-clamp-2 text-sm font-black text-white">{result.title}</h3><p className="mt-1 text-[10px] font-bold text-slate-400">{result.release_date?.slice(0,4) ?? "—"} · {result.vote_average ? `★ ${result.vote_average.toFixed(1)}` : "Sem nota"}</p></div>{result.existing && <span className="absolute left-2.5 top-2.5 z-10 rounded-full bg-amber-300 px-2 py-1 text-[9px] font-black uppercase text-black">No arquivo</span>}</div><div className="p-2">
+  return <article className="poster-card group flex flex-col overflow-hidden rounded-[1.2rem] border border-white/[0.09] bg-[#141414]">
+    {result.existing
+      ? <Link href={`/film/${result.existing.id}`} aria-label={openLabel} className="block rounded-t-[1.2rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-300/70">{media}</Link>
+      : user
+        ? <button type="button" disabled={busy} onClick={() => act(result,"open")} aria-label={openLabel} className="block w-full rounded-t-[1.2rem] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-300/70 disabled:cursor-progress">{media}</button>
+        : <div className="block">{media}</div>}
     {user ? (
-      <div className="grid grid-cols-2 gap-1.5">
-        <button type="button" disabled={busy} onClick={() => act(result,"watchlist")} className="quiet-button !px-2 !py-2 text-[10px]">{result.existing?.watchlist ? "✓ Salvo" : "+ Lista"}</button>
-        <button type="button" disabled={busy} onClick={() => act(result,"log")} className="accent-button !px-2 !py-2 text-[10px]">{pending === `${result.id}:log` ? "Registrando…" : "Registrar agora"}</button>
-        <button type="button" disabled={busy} onClick={() => act(result,"favorite")} className="quiet-button !px-2 !py-2 text-[10px]">{result.existing?.favorite ? "♥ Favorito" : "♡ Favorito"}</button>
-        {result.existing ? <Link href={`/film/${result.existing.id}`} className="quiet-button !px-2 !py-2 text-[10px]">Abrir</Link> : <button type="button" disabled={busy} onClick={() => act(result,"add")} className="quiet-button !px-2 !py-2 text-[10px]">Adicionar</button>}
+      <div className="space-y-1.5 p-2">
+        <button type="button" disabled={busy} onClick={() => act(result,"log")} className="accent-button w-full !py-2 text-[11px]">{pending === `${result.id}:log` ? "Registrando…" : "Registrar"}</button>
+        <div className="grid grid-cols-2 gap-1.5">
+          <button type="button" disabled={busy} onClick={() => act(result,"watchlist")} aria-pressed={onWatchlist} className={`!px-2 !py-2 text-[10px] ${onWatchlist ? "accent-button" : "quiet-button"}`}>{onWatchlist ? "✓ Para assistir" : "＋ Para assistir"}</button>
+          <button type="button" disabled={busy} onClick={() => act(result,"favorite")} aria-pressed={isFavorite} className={`quiet-button !px-2 !py-2 text-[10px] ${isFavorite ? "border-amber-300/35 text-amber-100" : ""}`}>{isFavorite ? "♥ Favorito" : "♡ Favorito"}</button>
+        </div>
       </div>
     ) : (
-      <div className="flex justify-center w-full">
-        {result.existing ? (
-          <Link href={`/film/${result.existing.id}`} className="accent-button text-center w-full !py-2 text-[10px]">Abrir detalhes do filme</Link>
-        ) : (
-          <span className="text-xs font-semibold text-slate-600 py-1.5">Fora do arquivo</span>
-        )}
+      <div className="p-2">
+        {result.existing
+          ? <Link href={`/film/${result.existing.id}`} className="accent-button w-full !py-2 text-[10px]">Abrir detalhes</Link>
+          : <span className="flex w-full justify-center py-1.5 text-xs font-semibold text-slate-600">Fora do arquivo</span>}
       </div>
     )}
-  </div></article>;
+  </article>;
 }
