@@ -58,5 +58,12 @@
   "56": ".codex/skills/graphify/references/extraction-spec.md",
   "57": "LetterboxdImport.tsx",
   "58": "auth.config.ts",
+  "59": "dedupe-letterboxd.ts",
+  "60": "PublicOverview.tsx",
+  "61": "validate-letterboxd.ts",
+  "62": "diary-dedupe.ts",
+  "63": "LetterboxdImport.tsx",
+  "64": "score/route.ts",
+  "65": "search/route.ts",
   "69": "profile/loading.tsx"
 }

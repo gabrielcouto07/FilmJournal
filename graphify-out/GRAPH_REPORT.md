@@ -5,12 +5,12 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 910 nodes · 1751 edges · 60 communities (44 shown, 16 thin omitted)
+- 910 nodes · 1699 edges · 67 communities (50 shown, 17 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `92565394`
+- Built from commit: `9be6a939`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -70,47 +70,53 @@
 - .codex/skills/graphify/references/extraction-spec.md
 - LetterboxdImport.tsx
 - auth.config.ts
+- dedupe-letterboxd.ts
+- PublicOverview.tsx
+- validate-letterboxd.ts
+- diary-dedupe.ts
+- LetterboxdImport.tsx
+- score/route.ts
 
 ## God Nodes (most connected - your core abstractions)
-1. `getCurrentUser` - 77 edges
-2. `isSameOrigin()` - 36 edges
-3. `crossOriginResponse()` - 36 edges
-4. `useToast()` - 33 edges
+1. `getCurrentUser` - 66 edges
+2. `useToast()` - 31 edges
+3. `isSameOrigin()` - 30 edges
+4. `crossOriginResponse()` - 30 edges
 5. `scripts` - 28 edges
 6. `getPosterUrl()` - 24 edges
 7. `buildCanonicalLetterboxdImport()` - 17 edges
 8. `userTag()` - 16 edges
 9. `compilerOptions` - 16 edges
-10. `ArtworkImage()` - 15 edges
+10. `ArtworkImage()` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `main()` --calls--> `runImport()`  [EXTRACTED]
   prisma/seed.ts → scripts/import-letterboxd.ts
 - `backfillCollections()` --calls--> `ensureOwnerUser()`  [EXTRACTED]
   scripts/backfill-collections.ts → src/lib/auth.ts
-- `saveMovie()` --calls--> `normalizeTitle()`  [EXTRACTED]
-  scripts/import-letterboxd.ts → src/lib/diary-dedupe.ts
-- `saveEvents()` --calls--> `createDiaryDedupeKey()`  [EXTRACTED]
-  scripts/import-letterboxd.ts → src/lib/diary-dedupe.ts
-- `runImport()` --calls--> `buildCanonicalLetterboxdImport()`  [EXTRACTED]
-  scripts/import-letterboxd.ts → src/lib/letterboxd-import.ts
+- `createPlan()` --calls--> `isAuthoritativeWatch()`  [EXTRACTED]
+  scripts/dedupe-letterboxd.ts → src/lib/diary-dedupe.ts
+- `dedupeLetterboxd()` --calls--> `createDiaryDedupeKey()`  [EXTRACTED]
+  scripts/dedupe-letterboxd.ts → src/lib/diary-dedupe.ts
+- `saveMovie()` --calls--> `ensureOwnerUser()`  [EXTRACTED]
+  scripts/import-letterboxd.ts → src/lib/auth.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (60 total, 16 thin omitted)
+## Communities (67 total, 17 thin omitted)
 
 ### Community 0 - "useToast"
 Cohesion: 0.11
 Nodes (37): GET(), DiscoverPage(), metadata, DiscoverExplorer(), Focus, FOCUS_CHIPS, PickCard(), assemblePicks() (+29 more)
 
 ### Community 1 - "import-letterboxd.ts"
-Cohesion: 0.08
-Nodes (45): @prisma/client, @prisma/client, createPlan(), dedupeLetterboxd(), Entry, eventTime(), groupAuthoritative(), MergeGroup (+37 more)
+Cohesion: 0.25
+Nodes (15): normalizeText(), buildCanonicalLetterboxdImport(), CsvRow, day(), effectiveTime(), eventFromRow(), filmFor(), LetterboxdEvent (+7 more)
 
 ### Community 2 - "app/page.tsx"
-Cohesion: 0.08
-Nodes (33): DashboardPage(), metadata, AXIS_LINE, AXIS_TICK, C, contrarianColor(), ContrarianScatter(), COUNTRY_NAMES (+25 more)
+Cohesion: 0.06
+Nodes (42): DashboardPage(), metadata, DiaryItem, AXIS_LINE, AXIS_TICK, C, contrarianColor(), ContrarianScatter() (+34 more)
 
 ### Community 3 - "lib/auth.ts"
 Cohesion: 0.15
@@ -121,12 +127,12 @@ Cohesion: 0.04
 Nodes (48): fflate, framer-motion, next, next-auth, dependencies, fflate, framer-motion, next (+40 more)
 
 ### Community 5 - "recommendations.ts"
-Cohesion: 0.05
-Nodes (56): GET(), ALLOWED_COUNTS, errorResponse(), GET(), PoolMovie, shuffle(), toPoolMovie(), yearOf() (+48 more)
+Cohesion: 0.07
+Nodes (40): BackfillOptions, BackfillPlan, describeDatabase(), ENRICHED_WHERE, fetchDetails(), Fetched, maskHost(), MovieRef (+32 more)
 
 ### Community 6 - "discover/route.ts"
-Cohesion: 0.09
-Nodes (28): errorResponse(), GET(), inter, metadata, playfair, RootLayout(), metadata, ProfilePage() (+20 more)
+Cohesion: 0.05
+Nodes (39): errorResponse(), GET(), inter, metadata, playfair, RootLayout(), metadata, ProfilePage() (+31 more)
 
 ### Community 7 - "compilerOptions"
 Cohesion: 0.07
@@ -149,36 +155,36 @@ Cohesion: 0.33
 Nodes (5): JWT, next-auth, next-auth/jwt, Session, User
 
 ### Community 13 - "tmdb.ts"
-Cohesion: 0.08
-Nodes (30): buildMineRound(), buildPopularRound(), fetchAndCacheCast(), POST(), roundSchema, shufflePick(), DiaryPage(), FavoritesPage() (+22 more)
+Cohesion: 0.23
+Nodes (13): filesFromZip(), json(), KNOWN_FILES, knownFileFromPath(), POST(), createDiaryDedupeKey(), LetterboxdFile, LetterboxdImportValidationError (+5 more)
 
 ### Community 23 - "What You Must Do When Invoked"
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 24 - "TmdbError"
-Cohesion: 0.10
-Nodes (29): main(), backfillCollections(), rootDirectory, main(), root, describeDatabase(), exportFileNames, findMovie() (+21 more)
+Cohesion: 0.17
+Nodes (15): main(), describeDatabase(), exportFileNames, findMovie(), ImportPlan, maskHost(), planImport(), printBanner() (+7 more)
 
 ### Community 25 - "Validation Report - Film Journal"
-Cohesion: 0.14
-Nodes (17): ArtworkImage(), artworkRequests, initials(), Props, resolveArtwork(), FavoriteMovie, FavoritesManager(), CardLogInfo (+9 more)
+Cohesion: 0.18
+Nodes (14): ArtworkImage(), artworkRequests, initials(), Props, resolveArtwork(), FavoriteMovie, FavoritesManager(), DetailsResponse (+6 more)
 
 ### Community 26 - "app/page.tsx"
 Cohesion: 0.54
 Nodes (7): CalendarView(), dateLabel(), dateOf(), DiaryExplorer(), monthKey(), monthLabel(), View
 
 ### Community 27 - "tmdb/route.ts"
-Cohesion: 0.31
-Nodes (5): Props, BackgroundEnrich(), LogEditor(), Props, today()
+Cohesion: 0.29
+Nodes (9): FilmPage(), formatDate(), Props, OwnerDashboard(), BackgroundEnrich(), cleanArtworkPath(), getBackdropUrl(), movieBackdropPath() (+1 more)
 
 ### Community 28 - "🎬 FilmJournal"
 Cohesion: 0.14
 Nodes (13): 1. Clone & install, 2. Configure environment, 3. Push database schema, 4. Start dev server, Applying database migrations, Deploy to Vercel + Neon (free tier), 🎬 FilmJournal, Import Letterboxd Data Safely (+5 more)
 
 ### Community 29 - "backfill-tmdb.ts"
-Cohesion: 0.11
-Nodes (19): BackfillOptions, BackfillPlan, describeDatabase(), ENRICHED_WHERE, fetchDetails(), Fetched, maskHost(), MovieRef (+11 more)
+Cohesion: 0.38
+Nodes (9): main(), root, saveMovie(), enrichMovieMetadata(), metadataWithoutIdentity(), missingMetadata(), getTmdbMovie(), searchTmdbMovie() (+1 more)
 
 ### Community 30 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -190,15 +196,15 @@ Nodes (8): graphify reference: extra exports and benchmark, Step 6b - Wiki (only
 
 ### Community 32 - "LogEditor.tsx"
 Cohesion: 0.07
-Nodes (65): main(), resetOwnerPassword(), rootDirectory, SafeResetError, AdminPage(), metadata, POST(), schema (+57 more)
+Nodes (64): backfillCollections(), rootDirectory, main(), resetOwnerPassword(), rootDirectory, SafeResetError, AdminPage(), metadata (+56 more)
 
 ### Community 33 - "getPosterUrl"
-Cohesion: 0.12
-Nodes (15): LoginPage(), Tab, AuthContextType, AuthProvider(), AuthUser, useAuth(), MovieRatingControl(), ExistingMovie (+7 more)
+Cohesion: 0.20
+Nodes (6): ExistingMovie, Feed, feeds, MovieSearch(), SearchResponse, SearchResult
 
 ### Community 34 - "layout.tsx"
-Cohesion: 0.17
-Nodes (4): RecommendationAction, TasteExplorer(), TasteData, TasteRecommendation
+Cohesion: 0.09
+Nodes (24): GET(), RecommendationAction, TasteExplorer(), TastePosterCard(), archiveFingerprint(), ArchiveMovie, buildTasteData(), effectiveRating() (+16 more)
 
 ### Community 35 - "graphify reference: query, path, explain"
 Cohesion: 0.33
@@ -213,16 +219,16 @@ Cohesion: 0.21
 Nodes (11): COUNT_OPTIONS, Genre, Person, PoolMovie, randomIndex(), RoulettePage(), Source, SOURCES (+3 more)
 
 ### Community 38 - "MovieSearch.tsx"
-Cohesion: 0.19
-Nodes (14): Answer, CastQuizGame(), Phase, posterUrl(), RoundResult, Source, SOURCES, Suggestion (+6 more)
+Cohesion: 0.09
+Nodes (30): guessSchema, POST(), buildMineRound(), buildPopularRound(), fetchAndCacheCast(), POST(), roundSchema, shufflePick() (+22 more)
 
 ### Community 39 - "Q: onde está a lógica de autenticação e como ela se conecta ao Prisma?"
 Cohesion: 0.40
 Nodes (4): Answer, Outcome, Q: onde está a lógica de autenticação e como ela se conecta ao Prisma?, Source Nodes
 
 ### Community 40 - "StarRating.tsx"
-Cohesion: 0.11
-Nodes (12): ACCENT_PRESETS, initialsOf(), Notify, ProfileSettings(), ProfileTab(), ProfileUser, Tab, TABS (+4 more)
+Cohesion: 0.14
+Nodes (7): CardLogInfo, MovieCard(), Props, sizes, StarRatingProps, getDashboardData(), toCard()
 
 ### Community 41 - "graphify reference: add a URL and watch a folder"
 Cohesion: 0.50
@@ -249,32 +255,52 @@ Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
 ### Community 57 - "LetterboxdImport.tsx"
-Cohesion: 0.13
-Nodes (16): Action, CollectionControls(), MovieResponse, Props, FavoriteToggle(), Props, KNOWN_CSVS, LetterboxdImport() (+8 more)
+Cohesion: 0.12
+Nodes (22): LoginPage(), Tab, AuthContextType, AuthProvider(), AuthUser, useAuth(), Action, CollectionControls() (+14 more)
 
 ### Community 58 - "auth.config.ts"
 Cohesion: 0.25
 Nodes (3): { auth }, config, PUBLIC_PATHS
 
+### Community 59 - "dedupe-letterboxd.ts"
+Cohesion: 0.27
+Nodes (10): createPlan(), dedupeLetterboxd(), Entry, eventTime(), groupAuthoritative(), MergeGroup, MoviePlan, richness() (+2 more)
+
+### Community 60 - "PublicOverview.tsx"
+Cohesion: 0.28
+Nodes (8): FEATURES, getTrending(), HERO_TAGS, PublicOverview(), TrendingCard(), getTmdbFeed(), TmdbFeed, TmdbMovieSearchResult
+
+### Community 61 - "validate-letterboxd.ts"
+Cohesion: 0.29
+Nodes (6): @prisma/client, @prisma/client, fixture, main(), root, LetterboxdFiles
+
+### Community 62 - "diary-dedupe.ts"
+Cohesion: 0.52
+Nodes (5): createFilmIdentity(), DedupeInput, hasSource(), isAuthoritativeWatch(), normalizeTitle()
+
+### Community 63 - "LetterboxdImport.tsx"
+Cohesion: 0.40
+Nodes (4): KNOWN_CSVS, LetterboxdImport(), mapCsvName(), Summary
+
 ## Knowledge Gaps
-- **344 isolated node(s):** `compat`, `eslintConfig`, `nextConfig`, `name`, `version` (+339 more)
+- **343 isolated node(s):** `name`, `version`, `private`, `dev`, `build` (+338 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `buildCanonicalLetterboxdImport()` connect `import-letterboxd.ts` to `TmdbError`?**
-  _High betweenness centrality (0.119) - this node is a cross-community bridge._
-- **Why does `@prisma/client` connect `import-letterboxd.ts` to `scripts`?**
+- **Why does `main()` connect `validate-letterboxd.ts` to `import-letterboxd.ts`?**
   _High betweenness centrality (0.118) - this node is a cross-community bridge._
-- **What connects `compat`, `eslintConfig`, `nextConfig` to the rest of the system?**
-  _344 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `buildCanonicalLetterboxdImport()` connect `import-letterboxd.ts` to `TmdbError`, `tmdb.ts`, `validate-letterboxd.ts`?**
+  _High betweenness centrality (0.117) - this node is a cross-community bridge._
+- **Why does `@prisma/client` connect `validate-letterboxd.ts` to `scripts`?**
+  _High betweenness centrality (0.116) - this node is a cross-community bridge._
+- **What connects `name`, `version`, `private` to the rest of the system?**
+  _343 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `useToast` be split into smaller, more focused modules?**
   _Cohesion score 0.1109936575052854 - nodes in this community are weakly interconnected._
-- **Should `import-letterboxd.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
 - **Should `app/page.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07729468599033816 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06077694235588972 - nodes in this community are weakly interconnected._
 - **Should `scripts` be split into smaller, more focused modules?**
   _Cohesion score 0.04081632653061224 - nodes in this community are weakly interconnected._
