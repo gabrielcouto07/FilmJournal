@@ -60,19 +60,33 @@ model Keyword {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  username     String        @unique
-  email        String        @unique
-  passwordHash String
-  displayName  String?
-  avatarUrl    String?
-  bio          String?
-  role         String        @default("USER") // e.g. OWNER, USER
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  userMovies   UserMovie[]
-  logs         LogEntry[]
-  settings     UserSettings?
+  id                  String               @id @default(cuid())
+  username            String               @unique
+  email               String               @unique
+  passwordHash        String
+  displayName         String?
+  avatarUrl           String?
+  bio                 String?
+  role                String               @default("USER") // e.g. OWNER, USER
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  userMovies          UserMovie[]
+  logs                LogEntry[]
+  settings            UserSettings?
+  blindSpotDismissals BlindSpotDismissal[]
+}
+
+// "Not interested" signals for the blind-spot engine. gapKey is a bucket key
+// within the dimension ("1960" for a decade, "JP" for a country, "ja" for a
+// language, a TMDB genre id for a genre) or "*" to mute the whole dimension.
+model BlindSpotDismissal {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dimension String // "decade" | "country" | "language" | "genre"
+  gapKey    String
+  createdAt DateTime @default(now())
+
+  @@id([userId, dimension, gapKey])
 }
 
 model UserSettings {

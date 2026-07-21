@@ -59,6 +59,8 @@
   "57": "LetterboxdImport.tsx",
   "58": "auth.config.ts",
   "59": "ToastProvider.tsx",
-  "69": "profile/loading.tsx",
-  "70": "[username]/loading.tsx"
+  "60": "WatchlistExplorer.tsx",
+  "61": "package.json",
+  "62": "middleware.ts",
+  "69": "profile/loading.tsx"
 }

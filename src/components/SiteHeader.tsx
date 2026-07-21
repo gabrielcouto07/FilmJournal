@@ -11,6 +11,7 @@ import { useAuth } from "./AuthProvider";
 const navigation = [
   { href: "/diary", label: "Diário" },
   { href: "/dashboard", label: "Paladar" },
+  { href: "/discover", label: "Descobrir" },
   { href: "/roulette", label: "Roleta" },
 ];
 

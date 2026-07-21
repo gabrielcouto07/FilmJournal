@@ -10,8 +10,8 @@
     "semantic_hash": "4d224c35be25eabc06386f328e081b6e"
   },
   "package.json": {
-    "mtime": 1784656348.1950295,
-    "ast_hash": "49217b5bda750a942c2f26a60e895a02",
+    "mtime": 1784659317.421018,
+    "ast_hash": "09e2598a930667270665f63725498a03",
     "semantic_hash": ""
   },
   "postcss.config.mjs": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "src/components/SiteHeader.tsx": {
-    "mtime": 1784657009.2378526,
-    "ast_hash": "9129967601664b7b062107be9437aa26",
+    "mtime": 1784659460.712154,
+    "ast_hash": "014b9c70693a24f14290c95cf9ae3822",
     "semantic_hash": ""
   },
   "src/components/StarRating.tsx": {
@@ -330,8 +330,8 @@
     "semantic_hash": ""
   },
   "src/middleware.ts": {
-    "mtime": 1784578572.819464,
-    "ast_hash": "deac999f40e4a0f4375979cfd525c0e8",
+    "mtime": 1784658854.0832124,
+    "ast_hash": "c63c4ceab6f9454f2bb5c7fcc11060e8",
     "semantic_hash": ""
   },
   "src/types/index.ts": {
@@ -559,14 +559,9 @@
     "ast_hash": "1477dafb6c13c440f0732a9e3a6b2380",
     "semantic_hash": ""
   },
-  "src/app/u/[username]/page.tsx": {
-    "mtime": 1784581579.5056016,
-    "ast_hash": "bd4067051538da8273b2f3acae80c6e8",
-    "semantic_hash": ""
-  },
   "src/components/ProfileSettings.tsx": {
-    "mtime": 1784638521.6100821,
-    "ast_hash": "f995835e665ac3a473624ee2ecb7d90f",
+    "mtime": 1784658877.0623698,
+    "ast_hash": "70b2d040c0a23bef186715736b96f252",
     "semantic_hash": ""
   },
   "src/components/SettingsProvider.tsx": {
@@ -575,8 +570,8 @@
     "semantic_hash": ""
   },
   "src/lib/settings.ts": {
-    "mtime": 1784580636.4187074,
-    "ast_hash": "ef845ef189cdff60d8517bb0162b5043",
+    "mtime": 1784658852.523952,
+    "ast_hash": "dc9a0ad3ac4d1c34cdb61327b2faa11c",
     "semantic_hash": ""
   },
   "prisma/migrations/20260721000300_add_query_indexes/migration.sql": {
@@ -604,11 +599,6 @@
     "ast_hash": "5e97f304c6e3b3dda35e0dd3eff6913c",
     "semantic_hash": ""
   },
-  "src/app/u/[username]/loading.tsx": {
-    "mtime": 1784580702.3852618,
-    "ast_hash": "d8881363923f8e4d8d546a8d1d2789ca",
-    "semantic_hash": ""
-  },
   "tests/diary-dedupe.test.ts": {
     "mtime": 1784580863.2282045,
     "ast_hash": "cc7eb1ecc685dd8ec2de787688ac11e5",
@@ -627,11 +617,6 @@
   "src/lib/security.ts": {
     "mtime": 1784581147.0611537,
     "ast_hash": "a22c6071b7f94826f04217b81a7b50e1",
-    "semantic_hash": ""
-  },
-  "src/components/ShareProfileButton.tsx": {
-    "mtime": 1784581549.0806735,
-    "ast_hash": "c67f9a3092e1adc8fd9575adac998782",
     "semantic_hash": ""
   },
   ".claude/settings.local.json": {
@@ -672,6 +657,46 @@
   "tests/palate.test.ts": {
     "mtime": 1784656262.932348,
     "ast_hash": "1526e1d76b3ac6a6b1d9a0bc2072b927",
+    "semantic_hash": ""
+  },
+  "prisma/migrations/20260721183838_add_blindspot_dismissals/migration.sql": {
+    "mtime": 1784659118.8312242,
+    "ast_hash": "315979962bd2d08c08e1f8fe840ce279",
+    "semantic_hash": ""
+  },
+  "src/app/api/discover/dismiss/route.ts": {
+    "mtime": 1784659407.5177975,
+    "ast_hash": "e7e80b31ae9074acced51ec84765e2ca",
+    "semantic_hash": ""
+  },
+  "src/app/api/discover/route.ts": {
+    "mtime": 1784659402.6359968,
+    "ast_hash": "c02194a60db269451a909f8d14bef494",
+    "semantic_hash": ""
+  },
+  "src/app/discover/page.tsx": {
+    "mtime": 1784659420.1113696,
+    "ast_hash": "599d1d1165e781e4e832ffea4bdeb37d",
+    "semantic_hash": ""
+  },
+  "src/components/discover/DiscoverExplorer.tsx": {
+    "mtime": 1784659451.0899005,
+    "ast_hash": "4167441acdbd099c9581d9c54203bb6e",
+    "semantic_hash": ""
+  },
+  "src/lib/analytics/blindspots.ts": {
+    "mtime": 1784659530.5127304,
+    "ast_hash": "aeab9e015055f895cac8041886453207",
+    "semantic_hash": ""
+  },
+  "src/lib/discover.ts": {
+    "mtime": 1784659550.2547207,
+    "ast_hash": "8fc2d7b4b372a7a093f5799b990b8bd4",
+    "semantic_hash": ""
+  },
+  "tests/blindspots.test.ts": {
+    "mtime": 1784659347.9900613,
+    "ast_hash": "d63164204acf4232721eae5e6fe92332",
     "semantic_hash": ""
   }
 }
