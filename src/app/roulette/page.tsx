@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import ArtworkImage from "@/components/ArtworkImage";
@@ -45,6 +46,7 @@ const TARGET_BASE = 6; // pool repetition the spin lands on (defines runway)
 const RESET_BASE = 2; // repetition each spin instantly resets to before running
 const REPEATS = TARGET_BASE + 3; // total pool copies rendered into the strip
 const SPIN_MS = 5000;
+const STAGE_H = ITEM_W * 1.5 + 44; // reel stage height; keeps frame + strip co-centred
 const xFor = (i: number) => -(i * STRIDE + ITEM_W / 2);
 
 function tmdbImage(path: string | null, size: "w342" | "w780" | "w1280"): string | null {
@@ -93,6 +95,7 @@ export default function RoulettePage() {
   const [blur, setBlur] = useState(false);
   const [openingId, setOpeningId] = useState<number | null>(null);
   const [savingWatchlist, setSavingWatchlist] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const controls = useAnimationControls();
   const blurTimer = useRef<number | null>(null);
@@ -104,6 +107,8 @@ export default function RoulettePage() {
     () => (pool.length ? Array.from({ length: REPEATS }, (_, r) => pool.map((m, i) => ({ m, key: `${r}-${i}-${m.id}` }))).flat() : []),
     [pool],
   );
+
+  useEffect(() => setMounted(true), []);
 
   // Load the TMDB genre list once for the chips.
   useEffect(() => {
@@ -477,70 +482,73 @@ export default function RoulettePage() {
 
           {/* The reel — the star of the show */}
           {!building && pool.length > 0 && (
-            <div className="surface relative overflow-hidden rounded-[2rem] border border-white/[0.06] py-8">
-              <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_38%,rgba(245,197,24,0.12),transparent_55%)]" />
+            <div className="surface relative overflow-hidden rounded-[2rem] border border-white/[0.06] px-4 py-8">
+              <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_45%,rgba(245,197,24,0.12),transparent_55%)]" />
 
-              {/* Fixed selection frame + pointers */}
-              <div
-                className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-2 border-amber-300"
-                style={{
-                  width: ITEM_W + 12,
-                  height: ITEM_W * 1.5 + 12,
-                  boxShadow: flash
-                    ? "0 0 0 3px rgba(245,197,24,.5), 0 0 60px 12px rgba(245,197,24,.55)"
-                    : "0 0 0 2px rgba(245,197,24,.25), 0 0 28px 4px rgba(245,197,24,.28)",
-                  transition: "box-shadow .5s var(--ease-out)",
-                }}
-              />
-              <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2" style={{ marginTop: -(ITEM_W * 1.5) / 2 - 22 }}>
-                <span className="block h-0 w-0 border-x-[9px] border-t-[12px] border-x-transparent border-t-amber-300" />
-              </div>
-              <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2" style={{ marginTop: (ITEM_W * 1.5) / 2 + 10 }}>
-                <span className="block h-0 w-0 border-x-[9px] border-b-[12px] border-x-transparent border-b-amber-300" />
-              </div>
+              {/* Fixed-height stage keeps the selection frame and the strip perfectly co-centred */}
+              <div className="relative mx-auto" style={{ height: STAGE_H }}>
+                {/* Selection frame */}
+                <div
+                  className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-2 border-amber-300"
+                  style={{
+                    width: ITEM_W + 12,
+                    height: ITEM_W * 1.5 + 12,
+                    boxShadow: flash
+                      ? "0 0 0 3px rgba(245,197,24,.5), 0 0 60px 12px rgba(245,197,24,.55)"
+                      : "0 0 0 2px rgba(245,197,24,.25), 0 0 28px 4px rgba(245,197,24,.28)",
+                    transition: "box-shadow .5s var(--ease-out)",
+                  }}
+                />
+                {/* Pointers */}
+                <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2" style={{ marginTop: -(ITEM_W * 1.5 + 12) / 2 - 14 }}>
+                  <span className="block h-0 w-0 border-x-[9px] border-t-[12px] border-x-transparent border-t-amber-300" />
+                </div>
+                <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2" style={{ marginTop: (ITEM_W * 1.5 + 12) / 2 + 2 }}>
+                  <span className="block h-0 w-0 border-x-[9px] border-b-[12px] border-x-transparent border-b-amber-300" />
+                </div>
 
-              {/* Edge fade mask */}
-              <div
-                className="relative"
-                style={{
-                  height: ITEM_W * 1.5 + 24,
-                  WebkitMaskImage: "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)",
-                  maskImage: "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)",
-                }}
-              >
-                <motion.div
-                  key={poolKey}
-                  animate={controls}
-                  initial={{ x: xFor(RESET_BASE * pool.length) }}
-                  className="absolute left-1/2 top-1/2 flex -translate-y-1/2"
-                  style={{ gap: ITEM_GAP, filter: blur ? "blur(1.4px)" : "none", willChange: "transform" }}
+                {/* Reel strip with edge-fade mask */}
+                <div
+                  className="absolute inset-0 overflow-hidden"
+                  style={{
+                    WebkitMaskImage: "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)",
+                    maskImage: "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)",
+                  }}
                 >
-                  {reelItems.map(({ m, key }) => (
-                    <div
-                      key={key}
-                      className="relative shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[#18181b]"
-                      style={{ width: ITEM_W, height: ITEM_W * 1.5 }}
-                    >
-                      <ArtworkImage
-                        src={tmdbImage(m.posterPath, "w342")}
-                        fallbackSrc={null}
-                        alt={m.title}
-                        title={m.title}
-                        className="h-full w-full object-cover"
-                        sizes="150px"
-                      />
-                      {m.rating != null && m.rating > 0 && (
-                        <span className="absolute right-1.5 top-1.5 rounded-full border border-white/10 bg-black/70 px-1.5 py-0.5 text-[10px] font-black text-amber-200 backdrop-blur">
-                          ★ {m.rating.toFixed(1)}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </motion.div>
+                  <motion.div
+                    key={poolKey}
+                    animate={controls}
+                    initial={{ x: xFor(RESET_BASE * pool.length) }}
+                    className="absolute left-1/2 top-1/2 flex -translate-y-1/2"
+                    style={{ gap: ITEM_GAP, filter: blur ? "blur(1.4px)" : "none", willChange: "transform" }}
+                  >
+                    {reelItems.map(({ m, key }) => (
+                      <div
+                        key={key}
+                        className="relative shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[#18181b]"
+                        style={{ width: ITEM_W, height: ITEM_W * 1.5 }}
+                      >
+                        <ArtworkImage
+                          src={tmdbImage(m.posterPath, "w342")}
+                          fallbackSrc={null}
+                          alt={m.title}
+                          title={m.title}
+                          className="h-full w-full object-cover"
+                          sizes="150px"
+                        />
+                        {m.rating != null && m.rating > 0 && (
+                          <span className="absolute right-1.5 top-1.5 rounded-full border border-white/10 bg-black/70 px-1.5 py-0.5 text-[10px] font-black text-amber-200 backdrop-blur">
+                            ★ {m.rating.toFixed(1)}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </motion.div>
+                </div>
               </div>
 
               {!spinning && !hasResult && (
-                <p className="relative mt-6 text-center text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                <p className="mt-6 text-center text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
                   Aperte <span className="text-amber-300">Girar</span> para sortear
                 </p>
               )}
@@ -588,7 +596,6 @@ export default function RoulettePage() {
               <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(130px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]">
                 {pool.map((movie, index) => {
                   const isWinner = hasResult && winnerIndex === index;
-                  const opening = openingId === movie.id;
                   return (
                     <motion.button
                       type="button"
@@ -625,7 +632,7 @@ export default function RoulettePage() {
                         )}
                         <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100">
                           <span className="mb-3 rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur">
-                            {opening ? "Abrindo…" : "Abrir →"}
+                            Abrir →
                           </span>
                         </div>
                       </div>
@@ -651,12 +658,13 @@ export default function RoulettePage() {
         </section>
       </div>
 
-      {/* Cinematic reveal */}
-      <AnimatePresence>
+      {/* Cinematic reveal — portaled to <body> so it sits above the sticky header */}
+      {mounted && createPortal(
+        <AnimatePresence>
         {showReveal && winner && (
           <motion.div
             key="reveal"
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -771,7 +779,9 @@ export default function RoulettePage() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body,
+      )}
     </main>
   );
 }

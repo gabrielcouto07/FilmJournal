@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import StarRating from "./StarRating";
 import { useToast } from "./ToastProvider";
@@ -34,9 +35,12 @@ export default function LogEditor({ movieId, title, logId, initialDate, initialR
   const [rewatch, setRewatch] = useState(initialRewatch);
   const [tags, setTags] = useState(initialTags ?? "");
   const [saving, setSaving] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { notify } = useToast();
   const router = useRouter();
   const { user } = useAuth();
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!user || !open) return;
@@ -71,7 +75,7 @@ export default function LogEditor({ movieId, title, logId, initialDate, initialR
 
   return <>
     <button type="button" onClick={() => setOpen(true)} className={compact ? "quiet-button !px-3 !py-2 text-xs" : "accent-button"}>{label ?? (logId ? "Editar entrada" : "Registrar sessão")}</button>
-    {open && <div className="fixed inset-0 z-[65] flex items-end justify-center bg-black/75 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-labelledby={`log-title-${movieId}`} onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
+    {open && mounted && createPortal(<div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/75 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-labelledby={`log-title-${movieId}`} onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
       <form onSubmit={submit} className="modal-enter surface-raised max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-[1.75rem] p-5 sm:rounded-[1.75rem] sm:p-7">
         <header className="flex items-start justify-between gap-5"><div><p className="eyebrow">{logId ? "Refine a memória" : "Nova entrada no diário"}</p><h2 id={`log-title-${movieId}`} className="mt-2 text-2xl font-black tracking-tight text-white">{title}</h2></div><button type="button" onClick={() => setOpen(false)} className="icon-button h-9 w-9" aria-label="Fechar editor do diário">×</button></header>
         <div className="mt-7 grid gap-5">
@@ -83,6 +87,6 @@ export default function LogEditor({ movieId, title, logId, initialDate, initialR
         </div>
         <footer className="mt-7 flex justify-end gap-2"><button type="button" onClick={() => setOpen(false)} className="quiet-button">Cancelar</button><button type="submit" disabled={saving} className="accent-button">{saving ? "Salvando…" : logId ? "Salvar alterações" : "Adicionar ao diário"}</button></footer>
       </form>
-    </div>}
+    </div>, document.body)}
   </>;
 }

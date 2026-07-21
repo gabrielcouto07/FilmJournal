@@ -59,7 +59,8 @@ export default function MovieSearch() {
   async function act(result: SearchResult, action: "open"|"watchlist"|"favorite"|"log") {
     // Cards already in the archive open instantly via a real <Link>; this path
     // only creates-then-opens titles that aren't in the archive yet.
-    if (action === "open" && result.existing) { router.push(`/film/${result.existing.id}`); return; }
+    // "open" and "log" both go to the film page; "log" opens the rating/review editor there.
+    if ((action === "open" || action === "log") && result.existing) { router.push(`/film/${result.existing.id}${action === "log" ? "?log=1" : ""}`); return; }
     const token = `${result.id}:${action}`; setPending(token);
     try {
       const addResponse = await fetch("/api/movies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tmdbId: result.id, ...(action === "watchlist" ? { watchlist: !result.existing?.watchlist } : {}) }) });
@@ -67,21 +68,16 @@ export default function MovieSearch() {
       if (!addResponse.ok || !addPayload.movie) throw new Error(addPayload.error ?? "Não foi possível salvar este filme.");
       let saved = addPayload.movie;
       let notice = addPayload.message ?? "Filme salvo.";
-      if (action === "open") {
+      if (action === "open" || action === "log") {
         const replace = (items: SearchResult[]) => items.map((item) => item.id === result.id ? { ...item, existing: saved } : item);
         setResults(replace); setFeedCache((cache) => Object.fromEntries(Object.entries(cache).map(([key,value]) => [key, replace(value ?? [])])) as Partial<Record<Feed, SearchResult[]>>);
-        router.push(`/film/${saved.id}`);
+        router.push(`/film/${saved.id}${action === "log" ? "?log=1" : ""}`);
         return;
       }
       if (action === "favorite") {
         const response = await fetch("/api/movies", { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({movieId:saved.id,action:"favorite",value:!result.existing?.favorite}) });
         const payload = await response.json() as { movie?: typeof saved; message?: string; error?: string };
         if (!response.ok || !payload.movie) throw new Error(payload.error ?? "Não foi possível atualizar os favoritos."); saved = payload.movie; notice = payload.message ?? notice;
-      }
-      if (action === "log") {
-        const response = await fetch("/api/logs", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({movieId:saved.id}) });
-        const payload = await response.json() as { message?: string; error?: string };
-        if (!response.ok) throw new Error(payload.error ?? "Não foi possível registrar este filme."); notice = payload.message ?? notice; saved = { ...saved, watchlist: false };
       }
       const replace = (items: SearchResult[]) => items.map((item) => item.id === result.id ? { ...item, existing: saved } : item);
       setResults(replace); setFeedCache((cache) => Object.fromEntries(Object.entries(cache).map(([key,value]) => [key, replace(value ?? [])])) as Partial<Record<Feed, SearchResult[]>>);
@@ -125,7 +121,7 @@ function ResultCard({ result, pending, act }: { result: SearchResult; pending: s
         : <div className="block">{media}</div>}
     {user ? (
       <div className="space-y-1.5 p-2">
-        <button type="button" disabled={busy} onClick={() => act(result,"log")} className="accent-button w-full !py-2 text-[11px]">{pending === `${result.id}:log` ? "Registrando…" : "Registrar"}</button>
+        <button type="button" disabled={busy} onClick={() => act(result,"log")} className="accent-button w-full !py-2 text-[11px]">{pending === `${result.id}:log` ? "Abrindo…" : "Registrar"}</button>
         <div className="grid grid-cols-2 gap-1.5">
           <button type="button" disabled={busy} onClick={() => act(result,"watchlist")} aria-pressed={onWatchlist} className={`!px-2 !py-2 text-[10px] ${onWatchlist ? "accent-button" : "quiet-button"}`}>{onWatchlist ? "✓ Para assistir" : "＋ Para assistir"}</button>
           <button type="button" disabled={busy} onClick={() => act(result,"favorite")} aria-pressed={isFavorite} className={`quiet-button !px-2 !py-2 text-[10px] ${isFavorite ? "border-amber-300/35 text-amber-100" : ""}`}>{isFavorite ? "♥ Favorito" : "♡ Favorito"}</button>
