@@ -43,7 +43,8 @@ function coerce(row: UserSettings): AppSettings {
     defaultRatingScale: row.defaultRatingScale === 10 ? 10 : 5,
     allowHalfStars: row.allowHalfStars,
     showAdultContent: row.showAdultContent,
-    defaultLandingPage: row.defaultLandingPage || "/",
+    // "/stats" was merged into "/dashboard"; migrate stored preferences on read.
+    defaultLandingPage: row.defaultLandingPage === "/stats" ? "/dashboard" : row.defaultLandingPage || "/",
     emailNotifications: row.emailNotifications,
   };
 }
@@ -64,7 +65,7 @@ export async function getUserSettings(userId: string | null | undefined): Promis
   }
 }
 
-const LANDING_PAGES = ["/", "/diary", "/watchlist", "/favorites", "/stats", "/roulette"] as const;
+const LANDING_PAGES = ["/", "/diary", "/watchlist", "/favorites", "/dashboard", "/roulette"] as const;
 
 export const settingsUpdateSchema = z.object({
   theme: z.enum(["system", "dark", "light"]).optional(),

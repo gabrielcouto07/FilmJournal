@@ -279,10 +279,6 @@ export type StatsData = {
   maxRating: number;
   monthSeries: Array<{ key: string; count: number }>;
   maxMonth: number;
-  genres: Array<[string, number]>;
-  maxGenre: number;
-  directors: Array<[string, number]>;
-  highestRated: CardMovie[];
   retro: {
     year: number;
     sessions: number;
@@ -308,15 +304,14 @@ export function getStatsData(userId: string): Promise<StatsData> {
       const currentYear = new Date().getUTCFullYear();
       const yearStart = new Date(Date.UTC(currentYear, 0, 1));
 
-      const [logs, watchedMovies, highest, yearLogs] = await Promise.all([
+      const [logs, watchedCount, yearLogs] = await Promise.all([
         // Note: no movie include — the aggregate charts only need the log fields.
         prisma.logEntry.findMany({
           where: { userId },
           select: { rating: true, review: true, rewatch: true, watchedAt: true, loggedAt: true },
           orderBy: { watchedAt: "asc" },
         }),
-        prisma.userMovie.findMany({ where: { userId, watched: true }, select: { movie: { select: { genres: true, directors: true } } } }),
-        prisma.userMovie.findMany({ where: { userId, rating: { not: null } }, include: { movie: true }, orderBy: [{ rating: "desc" }, { updatedAt: "desc" }], take: 8 }),
+        prisma.userMovie.count({ where: { userId, watched: true } }),
         prisma.logEntry.findMany({
           where: { userId, OR: [{ watchedAt: { gte: yearStart } }, { watchedAt: null, loggedAt: { gte: yearStart } }] },
           select: { rating: true, review: true, watchedAt: true, loggedAt: true, movie: { select: { genres: true, directors: true } } },
@@ -340,9 +335,6 @@ export function getStatsData(userId: string): Promise<StatsData> {
       });
       const monthSeries = [...months.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-18).map(([key, count]) => ({ key, count }));
 
-      const genres = countValues(watchedMovies.map((um) => um.movie.genres)).slice(0, 8);
-      const directors = countValues(watchedMovies.map((um) => um.movie.directors)).slice(0, 6);
-
       // Year in review ("Retrospectiva").
       const yearRated = yearLogs.filter((log) => log.rating != null);
       const yearMonths = new Map<string, number>();
@@ -365,7 +357,7 @@ export function getStatsData(userId: string): Promise<StatsData> {
 
       return {
         sessions: logs.length,
-        watchedCount: watchedMovies.length,
+        watchedCount,
         average,
         reviews: logs.filter((log) => log.review?.trim()).length,
         rewatches: logs.filter((log) => log.rewatch).length,
@@ -374,14 +366,11 @@ export function getStatsData(userId: string): Promise<StatsData> {
         maxRating: Math.max(1, ...distribution.map((item) => item.count)),
         monthSeries,
         maxMonth: Math.max(1, ...monthSeries.map((item) => item.count)),
-        genres,
-        maxGenre: Math.max(1, ...genres.map(([, count]) => count)),
-        directors,
-        highestRated: highest.map((um) => toCard(um.movie, um)),
         retro,
       };
     },
-    ["stats-v1", userId],
+    // v2: genre/director/highest-rated aggregates moved to the palate data.
+    ["stats-v2", userId],
     { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
   )();
 }

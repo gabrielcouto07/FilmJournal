@@ -1,13 +1,16 @@
 import { getCurrentUser } from "@/lib/auth";
 import { getDiscoverPicks } from "@/lib/discover";
+import { getTasteData } from "@/lib/recommendations";
 import DiscoverExplorer from "@/components/discover/DiscoverExplorer";
+import TasteExplorer from "@/components/TasteExplorer";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Descobrir · FilmJournal" };
 
 export default async function DiscoverPage() {
   const viewer = await getCurrentUser();
-  const initial = await getDiscoverPicks(viewer?.id ?? "");
+  const userId = viewer?.id ?? "";
+  const [initial, tasteData] = await Promise.all([getDiscoverPicks(userId), getTasteData({ userId })]);
 
   return (
     <main className="page-shell space-y-8">
@@ -25,6 +28,10 @@ export default async function DiscoverPage() {
       </header>
 
       <DiscoverExplorer initial={initial} />
+
+      {/* Similarity-based curation (moved from the retired /stats page): the
+          blind-spot engine above expands the map; these rails deepen it. */}
+      <TasteExplorer initialData={tasteData} />
     </main>
   );
 }

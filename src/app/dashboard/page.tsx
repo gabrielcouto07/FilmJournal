@@ -1,6 +1,7 @@
 import Link from "next/link";
+import BackgroundEnrich from "@/components/BackgroundEnrich";
 import { getCurrentUser } from "@/lib/auth";
-import { getPalateData } from "@/lib/data";
+import { getPalateData, getStatsData } from "@/lib/data";
 import type { ContrarianPoint, DirectorLoyalty } from "@/lib/analytics/palate";
 import {
   ContrarianScatter,
@@ -14,10 +15,11 @@ export const metadata = { title: "Paladar cinematográfico · FilmJournal" };
 
 export default async function DashboardPage() {
   const viewer = await getCurrentUser();
-  const palate = await getPalateData(viewer?.id ?? "");
+  const userId = viewer?.id ?? "";
+  const [palate, stats] = await Promise.all([getPalateData(userId), getStatsData(userId)]);
   const { contrarian, decades, countries, genres, runtimes, directors, totalFilms } = palate;
 
-  if (contrarian.sampleSize === 0) {
+  if (stats.sessions === 0 && contrarian.sampleSize === 0) {
     return (
       <main className="page-shell">
         <header>
@@ -26,8 +28,8 @@ export default async function DashboardPage() {
         </header>
         <div className="empty-state mt-10">
           <p className="text-sm text-slate-400">
-            Ainda não há filmes avaliados com dados do público suficientes para montar seu mapa.
-            Avalie alguns filmes no diário e volte aqui.
+            Ainda não há registros suficientes para montar seu mapa. Registre e avalie alguns
+            filmes no diário e volte aqui.
           </p>
           <Link href="/diary" className="accent-button mt-6">Abrir diário</Link>
         </div>
@@ -43,59 +45,136 @@ export default async function DashboardPage() {
         ? `Você avalia ${lean.toFixed(2)} estrela acima do público, em média — um paladar generoso.`
         : `Você avalia ${Math.abs(lean).toFixed(2)} estrela abaixo do público, em média — um paladar exigente.`;
 
+  const monthLabel = (key: string) =>
+    new Intl.DateTimeFormat("pt-BR", { month: "short", year: "2-digit", timeZone: "UTC" }).format(new Date(`${key}-01T12:00:00Z`));
+
   return (
     <main className="page-shell space-y-10">
+      <BackgroundEnrich />
       <header className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
           <p className="eyebrow">Paladar cinematográfico</p>
           <h1 className="display-title mt-3 text-5xl sm:text-7xl">Seu mapa de gosto.</h1>
           <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-            Onde seu gosto pousa por década, geografia e gênero — e a que distância você fica do
-            consenso da crítica e do público.
+            O arquivo em números e onde seu gosto pousa por década, geografia e gênero — e a que
+            distância você fica do consenso da crítica e do público.
           </p>
         </div>
         <p className="self-end text-xs font-bold text-slate-600">
-          {totalFilms} filmes avaliados · {contrarian.sampleSize} com dados do público
+          {stats.sessions} sessões · {totalFilms} filmes avaliados · {contrarian.sampleSize} com dados do público
         </p>
       </header>
 
-      {/* Hero — contrarian analysis */}
-      <section className="surface relative overflow-hidden rounded-[1.75rem] p-5 sm:p-7">
-        <div className="glass-gradient absolute inset-0 -z-10" />
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="eyebrow">Você contra a maré</p>
-            <h2 className="section-heading mt-2">Você e o consenso.</h2>
-          </div>
-          <div className="flex gap-3">
-            <Headline label="Distância do consenso" value={`${contrarian.contrarianScore.toFixed(2)}★`} />
-            <Headline
-              label={lean >= 0 ? "Tendência generosa" : "Tendência exigente"}
-              value={`${lean > 0 ? "+" : ""}${lean.toFixed(2)}★`}
-              accent
-            />
-          </div>
-        </div>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">{leanText}</p>
-
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1.45fr_1fr]">
-          <div className="rounded-2xl bg-black/20 p-3 sm:p-4">
-            <ContrarianScatter points={contrarian.points} />
-            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 px-1 text-[11px] font-bold text-slate-500">
-              <Legend color="#f5c518" label="Você gosta mais que o público" />
-              <Legend color="#74b9ff" label="Você gosta menos" />
-              <Legend color="#6b655c" label="Vocês concordam" />
-              <span className="text-slate-600">— linha tracejada = acordo perfeito</span>
-            </div>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-            <ContrarianList title="Amores contrarian" subtitle="Você ama, o público nem tanto" points={contrarian.loves} tone="love" />
-            <ContrarianList title="Rejeições contrarian" subtitle="O público ama, você nem tanto" points={contrarian.pans} tone="pan" />
-          </div>
-        </div>
+      {/* Archive at a glance (merged from /stats) */}
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+        <Stat label="Total de sessões" value={stats.sessions} />
+        <Stat label="Filmes assistidos" value={stats.watchedCount} />
+        <Stat label="Nota média" value={stats.average != null ? stats.average.toFixed(2) : "—"} accent />
+        <Stat label="Resenhas" value={stats.reviews} />
+        <Stat label="Reexibições" value={stats.rewatches} />
+        <Stat label="Entradas avaliadas" value={stats.ratedCount} />
       </section>
 
-      {/* Secondary cards */}
+      {/* Year in review (merged from /stats) */}
+      {stats.retro.sessions > 0 && (
+        <section className="surface relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8">
+          <div className="glass-gradient absolute inset-0 -z-10" />
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">Retrospectiva · {stats.retro.year}</p>
+              <h2 className="section-heading mt-2">Seu ano em cartaz.</h2>
+            </div>
+            <p className="text-xs font-bold text-slate-500">Atualizada em tempo real ao longo do ano</p>
+          </div>
+          <div className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+            <Retro label="Sessões" value={stats.retro.sessions} accent />
+            <Retro label="Nota média" value={stats.retro.average != null ? stats.retro.average.toFixed(2) : "—"} />
+            <Retro label="Resenhas" value={stats.retro.reviews} />
+            <Retro label="Gênero do ano" value={stats.retro.topGenre ?? "—"} />
+            <Retro label="Diretor(a) do ano" value={stats.retro.topDirector ?? "—"} />
+            <Retro label="Mês mais ativo" value={stats.retro.busiestMonth ?? "—"} />
+          </div>
+        </section>
+      )}
+
+      {/* Hero — contrarian analysis */}
+      {contrarian.sampleSize > 0 ? (
+        <section className="surface relative overflow-hidden rounded-[1.75rem] p-5 sm:p-7">
+          <div className="glass-gradient absolute inset-0 -z-10" />
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">Você contra a maré</p>
+              <h2 className="section-heading mt-2">Você e o consenso.</h2>
+            </div>
+            <div className="flex gap-3">
+              <Headline label="Distância do consenso" value={`${contrarian.contrarianScore.toFixed(2)}★`} />
+              <Headline
+                label={lean >= 0 ? "Tendência generosa" : "Tendência exigente"}
+                value={`${lean > 0 ? "+" : ""}${lean.toFixed(2)}★`}
+                accent
+              />
+            </div>
+          </div>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">{leanText}</p>
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1.45fr_1fr]">
+            <div className="rounded-2xl bg-black/20 p-3 sm:p-4">
+              <ContrarianScatter points={contrarian.points} />
+              <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 px-1 text-[11px] font-bold text-slate-500">
+                <Legend color="#f5c518" label="Você gosta mais que o público" />
+                <Legend color="#74b9ff" label="Você gosta menos" />
+                <Legend color="#6b655c" label="Vocês concordam" />
+                <span className="text-slate-600">— linha tracejada = acordo perfeito</span>
+              </div>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
+              <ContrarianList title="Amores contrarian" subtitle="Você ama, o público nem tanto" points={contrarian.loves} tone="love" />
+              <ContrarianList title="Rejeições contrarian" subtitle="O público ama, você nem tanto" points={contrarian.pans} tone="pan" />
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section className="empty-state">
+          <p className="text-sm text-slate-400">
+            Avalie filmes com dados do público (nota TMDb) para desbloquear a análise de consenso
+            e os mapas de gosto abaixo.
+          </p>
+        </section>
+      )}
+
+      {/* Pace & rating scale (merged from /stats) */}
+      <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
+        <Card eyebrow="Ao longo do tempo" heading="Ritmo de visualização.">
+          {stats.monthSeries.length ? (
+            <div className="flex h-64 items-end gap-2 border-b border-white/[0.08] pb-1">
+              {stats.monthSeries.map(({ key, count }) => (
+                <div key={key} className="group flex h-full flex-1 flex-col items-center justify-end gap-2">
+                  <span className="text-[9px] font-black text-slate-500 opacity-0 transition group-hover:opacity-100">{count}</span>
+                  <div className="w-full rounded-t-md bg-gradient-to-t from-amber-400/35 to-amber-300 transition group-hover:brightness-125" style={{ height: `${Math.max(3, (count / stats.maxMonth) * 190)}px` }} />
+                  <span className="-rotate-45 whitespace-nowrap text-[8px] font-bold text-slate-600 sm:rotate-0">{monthLabel(key)}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Insufficient />
+          )}
+        </Card>
+        <Card eyebrow="Sua escala" heading="Distribuição de notas.">
+          <div className="space-y-3">
+            {stats.distribution.map((item) => (
+              <div key={item.rating} className="grid grid-cols-[2.4rem_1fr_2rem] items-center gap-3">
+                <span className="text-xs font-black text-amber-200">{item.rating.toFixed(1)}</span>
+                <div className="h-2.5 overflow-hidden rounded-full bg-white/[0.05]">
+                  <div className="h-full rounded-full bg-amber-300/70" style={{ width: `${(item.count / stats.maxRating) * 100}%` }} />
+                </div>
+                <span className="text-right text-xs font-bold tabular-nums text-slate-600">{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </section>
+
+      {/* Taste maps */}
       <section className="grid gap-5 lg:grid-cols-2">
         <Card eyebrow="Linha do tempo" heading="Décadas que você percorre.">
           <DecadeHistogram data={decades} />
@@ -126,6 +205,24 @@ export default async function DashboardPage() {
         )}
       </Card>
     </main>
+  );
+}
+
+function Stat({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
+  return (
+    <div className="surface-subtle rounded-2xl p-4 sm:p-5">
+      <p className="text-[9px] font-black uppercase tracking-[.14em] text-slate-600">{label}</p>
+      <p className={`mt-2 text-3xl font-black tabular-nums ${accent ? "text-amber-200" : "text-white"}`}>{value}</p>
+    </div>
+  );
+}
+
+function Retro({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
+  return (
+    <div className="surface-subtle rounded-2xl p-4">
+      <p className="text-[9px] font-black uppercase tracking-[.14em] text-slate-600">{label}</p>
+      <p className={`mt-2 truncate text-lg font-black capitalize ${accent ? "text-amber-200" : "text-white"}`} title={String(value)}>{value}</p>
+    </div>
   );
 }
 

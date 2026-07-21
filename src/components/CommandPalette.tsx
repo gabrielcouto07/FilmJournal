@@ -46,7 +46,7 @@ export default function CommandPalette() {
   }, [query]);
 
   if (!open) return null;
-  const quickLinks = [{ href: "/diary", label: "Abrir diário" }, { href: "/search", label: "Descobrir um filme" }, { href: "/stats", label: "Ver estatísticas" }];
+  const quickLinks = [{ href: "/diary", label: "Abrir diário" }, { href: "/search", label: "Descobrir um filme" }, { href: "/dashboard", label: "Ver seu paladar" }];
   return <div className="fixed inset-0 z-[70] flex items-start justify-center bg-black/70 px-4 pt-[12vh] backdrop-blur-md" role="dialog" aria-modal="true" aria-label="Busca rápida" onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
     <section className="modal-enter surface-raised w-full max-w-2xl overflow-hidden rounded-[1.5rem]">
       <div className="flex items-center gap-3 border-b border-white/[0.08] px-5 py-4">

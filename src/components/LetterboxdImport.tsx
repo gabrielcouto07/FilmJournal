@@ -148,7 +148,7 @@ export default function LetterboxdImport() {
         )}
         <div className="mt-7 flex flex-wrap gap-3">
           <Link href="/diary" className="accent-button">Ver meu diário →</Link>
-          <Link href="/stats" className="quiet-button">Ver estatísticas</Link>
+          <Link href="/dashboard" className="quiet-button">Ver seu paladar</Link>
           <button type="button" onClick={reset} className="quiet-button">Importar outro arquivo</button>
         </div>
       </section>
