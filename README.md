@@ -2,18 +2,23 @@
 
 Uma ferramenta pessoal que transforma seu histórico de filmes num autorretrato do seu gosto.
 
-Você registra o que assiste e dá suas notas. O app faz o resto: mostra que tipo de espectador você é, como seu gosto mudou com o tempo e o que você ainda não descobriu no cinema.
+Você registra o que assiste e dá suas notas. O app faz o resto: abre com um **veredito** — uma frase que resume que tipo de espectador você é — e, ao rolar a página, mostra como seu gosto se comporta, como ele mudou com o tempo e o que você ainda não descobriu no cinema.
 
-Feito com **Next.js 15** · **TypeScript** · **Tailwind CSS** · **Prisma** · **PostgreSQL** · **NextAuth.js**
+Feito com **Next.js 15** · **React 19** · **TypeScript** · **Tailwind CSS** · **Prisma** · **PostgreSQL** · **NextAuth.js** · **Recharts**
+
+> 📐 Quer entender o código por dentro — estrutura, camadas, banco, decisões e armadilhas conhecidas? Veja **[ARCHITECTURE.md](ARCHITECTURE.md)**.
 
 ***
 
 ## O que ele faz
 
-O app tem quatro partes. Todas funcionam sozinhas, a partir dos filmes que você registra e avalia.
+Tudo parte dos filmes que você registra e avalia — nada de configuração manual.
+
+### 🪞 Veredito (página inicial)
+A porta de entrada. Em vez de uma lista de filmes, o app abre com uma frase sobre você: se seu paladar é generoso ou exigente diante do público, em que década ele mora, qual gênero domina e qual diretor você sempre revisita. É o resumo mais humano do seu gosto — e, logo abaixo, começam os gráficos.
 
 ### 👅 Paladar
-Mostra quem você é como espectador. Quais décadas, países e gêneros dominam seus filmes. Quais diretores você sempre revisita. E o mais divertido: a que distância suas notas ficam da opinião do público — os filmes que você ama e o mundo não, e vice-versa.
+O aprofundamento do veredito. Quais décadas, países e gêneros dominam seus filmes. Quais diretores você sempre revisita. E o mais divertido: a que distância suas notas ficam da opinião do público — os filmes que você ama e o mundo não, e vice-versa.
 
 ### 📈 Evolução
 Mostra como seu gosto mudou ano a ano. Se suas notas ficaram mais generosas ou mais exigentes. Se você mergulhou em filmes antigos ou ficou mais contemporâneo. Quais gêneros ganharam e perderam espaço. O app ainda escreve, em uma frase, a maior mudança de cada ano. E os seus filmes favoritos revelam temas que se repetem — os "motivos recorrentes" do seu gosto.
@@ -21,8 +26,8 @@ Mostra como seu gosto mudou ano a ano. Se suas notas ficaram mais generosas ou m
 ### 🧭 Descobrir + Roleta
 Mostra o que você está deixando de ver. O Descobrir compara seu histórico com o cinema em geral e aponta seus pontos cegos: décadas, países e gêneros que faltam no seu mapa — sempre explicando por que cada sugestão apareceu. E quando bater a indecisão, a Roleta sorteia o próximo filme por você.
 
-### 🎮 Jogar
-Um jogo rápido: adivinhe o filme pelo elenco. Os nomes aparecem aos poucos e você tenta acertar o título com o mínimo de dicas. Dá para jogar com os seus próprios filmes ou com filmes populares.
+### 🎮 Jogar — Cine-Detetive
+Um jogo de dedução no estilo *Wordle*/Spotle: você tem **10 palpites** para descobrir o filme secreto. A cada tentativa, três tipos de pista se combinam — o **elenco** aparece nome a nome (do coadjuvante ao protagonista), o **pôster** vai saindo do desfoque e **seis quadros comparativos** dizem, em cores, o que seu palpite acertou (🟩), chegou perto (🟨) ou errou (⬜) em ano, gêneros, direção, estúdio, nota e elenco. Dicas opcionais liberam no meio do jogo. Jogue com os seus filmes, com os populares do TMDB ou no **modo Filme do Dia** — o mesmo desafio para todo mundo, um por dia.
 
 ***
 
@@ -38,7 +43,7 @@ Sem segredo:
 
 ## Como rodar localmente
 
-Passos para ter o app funcionando no seu computador.
+Passos para ter o app funcionando no seu computador. Requer **Node.js 20+** e um banco **PostgreSQL**.
 
 ### 1. Baixar o código e instalar as dependências
 ```bash
@@ -46,6 +51,7 @@ git clone https://github.com/gabrielcouto07/FilmJournal
 cd FilmJournal
 npm install
 ```
+O `npm install` já roda `prisma generate` no final (via `postinstall`), então o cliente do banco fica pronto sozinho.
 
 ### 2. Configurar as variáveis de ambiente
 Copie o arquivo de exemplo e preencha com os seus valores:
@@ -55,15 +61,17 @@ cp .env.example .env.local
 
 O que cada variável significa:
 
-- `DATABASE_URL` — endereço do seu banco de dados PostgreSQL
-- `DIRECT_URL` — endereço direto (sem pool) do mesmo banco
-- `NEXTAUTH_URL` — endereço do app (localmente, `http://localhost:3000`)
-- `NEXTAUTH_SECRET` — chave secreta do login (gere com `openssl rand -base64 32`)
-- `TMDB_API_KEY` — chave gratuita do [TMDB](https://www.themoviedb.org/settings/api)
-- `APP_OWNER_USERNAME` — nome de usuário da conta principal
-- `APP_OWNER_PASSWORD` — senha da conta principal
+| Variável | Para que serve |
+|---|---|
+| `DATABASE_URL` | Endereço do PostgreSQL (use o *pooled* na Neon/serverless) |
+| `DIRECT_URL` | Endereço direto, sem pool — usado só pelas migrações |
+| `NEXTAUTH_URL` | Endereço do app (localmente, `http://localhost:3000`) |
+| `NEXTAUTH_SECRET` | Chave secreta do login — gere com `openssl rand -base64 32` |
+| `TMDB_API_KEY` | Chave gratuita do [TMDB](https://www.themoviedb.org/settings/api) |
+| `APP_OWNER_USERNAME` | Nome de usuário da conta principal |
+| `APP_OWNER_PASSWORD` | Senha da conta principal (só no primeiro login) |
 
-O Next.js lê o `.env.local`. Se o Prisma na sua máquina ler apenas `.env`, duplique os mesmos valores num `.env` local. Nunca envie esses arquivos para o git — os dois já são ignorados.
+> O Next.js lê o `.env.local`. Se o Prisma na sua máquina ler apenas `.env`, duplique os mesmos valores num `.env` local. Nunca envie esses arquivos para o git — os dois já são ignorados.
 
 **Sem banco de dados? Suba um com Docker:**
 ```bash
@@ -72,11 +80,13 @@ docker run -d --name filmjournal-db \
   -e POSTGRES_DB=filmjournal \
   -p 5432:5432 postgres:16
 ```
-E use `DATABASE_URL="postgresql://postgres:dev@localhost:5432/filmjournal"` no `.env.local`.
+E use `DATABASE_URL="postgresql://postgres:dev@localhost:5432/filmjournal"` no `.env.local` (sem os parâmetros de pool, que são só para a Neon).
 
 ### 3. Criar as tabelas no banco
 ```bash
-npm run db:push
+npm run db:push      # desenvolvimento: sincroniza o esquema direto
+# ou, se preferir o histórico versionado de migrações:
+npm run db:migrate   # produção: aplica as migrações da pasta prisma/migrations
 ```
 
 ### 4. Ligar o app
@@ -137,11 +147,15 @@ npm run validate:letterboxd
 |---|---|
 | `npm run dev` | Liga o app localmente |
 | `npm run build` | Gera a versão de produção |
+| `npm start` | Sobe a versão de produção já compilada |
 | `npm test` | Roda os testes automáticos |
 | `npm run typecheck` | Confere os tipos do TypeScript |
+| `npm run lint` | Roda o ESLint |
 | `npm run db:push` | Sincroniza o esquema com o banco (desenvolvimento) |
 | `npm run db:migrate` | Aplica as migrações (produção) |
 | `npm run db:studio` | Abre uma interface visual do banco |
+| `npm run import:letterboxd:dry` | Simula a importação do Letterboxd, sem gravar |
+| `npm run backfill:tmdb` | Preenche metadados que faltam a partir do TMDB |
 
 ***
 
@@ -150,7 +164,9 @@ npm run validate:letterboxd
 Três decisões guiam o código:
 
 - **Três camadas bem separadas.** Toda a matemática das análises vive em módulos "puros" — funções que só recebem dados e devolvem resultados, sem tocar em banco ou internet. Uma camada de dados fala com o banco (com cache). E as páginas só exibem o que recebem. Isso deixa cada parte simples de entender e de testar.
-- **Testes de verdade.** `npm test` roda 52 testes automáticos em 7 suítes: importação do Letterboxd, deduplicação do histórico, paladar, pontos cegos, pontuação do jogo, evolução no tempo e motivos recorrentes. Toda a lógica de análise é coberta.
+- **Testes de verdade.** `npm test` roda **71 testes em 8 suítes**: importação do Letterboxd, deduplicação do histórico, paladar, pontos cegos, evolução no tempo, motivos recorrentes, o veredito e o jogo Cine-Detetive. Toda a lógica de análise é coberta.
 - **O banco nunca anda para trás.** As migrações do banco de dados só *adicionam* — nunca apagam uma coluna com dados. Uma versão nova do app nunca destrói o histórico de ninguém.
 
 E sobre segurança, em resumo: senhas guardadas com hash `scrypt`, cadastro com limite de tentativas por IP, ações sensíveis exigem a senha atual, e as rotas que alteram dados rejeitam requisições de outros sites (proteção CSRF).
+
+> Todos os detalhes técnicos — árvore de pastas, o formato das migrações, o esquema do banco tabela a tabela, o fluxo do jogo, e as armadilhas conhecidas (compilação em `dev`, portas presas no Windows, colunas órfãs) — estão em **[ARCHITECTURE.md](ARCHITECTURE.md)**.
