@@ -54,7 +54,11 @@ export default function SiteHeader() {
             Mais <span aria-hidden="true" className="text-[9px]">▾</span>
           </button>
           {moreOpen && <>
-            <button type="button" aria-hidden="true" tabIndex={-1} onClick={() => setMoreOpen(false)} className="fixed inset-0 z-40 cursor-default" />
+            {/* Click-away backdrop. A plain presentation div (not a button):
+                a focusable element here would take focus on click, and pairing
+                that with aria-hidden is what triggered Chrome's blocked
+                aria-hidden warning on the game page. */}
+            <div role="presentation" onClick={() => setMoreOpen(false)} className="fixed inset-0 z-40 cursor-default" />
             <div role="menu" aria-label="Mais páginas" className="absolute right-0 top-full z-50 mt-2 w-44 rounded-2xl border border-white/[0.09] bg-[#111111] p-1.5 shadow-2xl">
               {secondaryNavigation.map((item) => (
                 <Link key={item.href} role="menuitem" href={item.href} onClick={() => setMoreOpen(false)} className={`block rounded-xl px-3 py-2 text-xs font-bold transition ${isActive(item.href) ? "bg-amber-300/15 text-amber-200" : "text-slate-300 hover:bg-white/[0.06] hover:text-white"}`}>{item.label}</Link>

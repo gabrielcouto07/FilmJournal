@@ -4,20 +4,31 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 import { getTmdbFeed, getTmdbMovie, TmdbError } from "@/lib/tmdb";
-import { MAX_REVEALS, ROUND_MS } from "@/lib/play/scoring";
-import { sealRound, type RoundPayload } from "@/lib/play/token";
+import {
+  actorsVisible,
+  dailyKey,
+  dailySeed,
+  MAX_GUESSES,
+  profileFromDetails,
+  revealOrder,
+  type MovieProfile,
+} from "@/lib/play/hybrid";
+import { sealRound, type HybridRoundPayload } from "@/lib/play/token";
 
 export const dynamic = "force-dynamic";
 
-const TOKEN_TTL_MS = 15 * 60_000;
+/** Untimed puzzle — generous TTL so a round survives a coffee break. */
+const TOKEN_TTL_MS = 60 * 60_000;
 /** Targets need a recognizable billed cast to be challenging-but-fair. */
 const MIN_CAST = 3;
 const MIN_VOTES_MINE = 100;
 const MIN_VOTES_POPULAR = 1000;
 const PICK_ATTEMPTS = 6;
+/** top_rated pages the daily seed can land on (getTmdbFeed clamps at 20). */
+const DAILY_PAGES = 20;
 
 const roundSchema = z.object({
-  source: z.enum(["mine", "popular"]),
+  source: z.enum(["mine", "popular", "daily"]),
   excludeIds: z.array(z.number().int().positive()).max(50).default([]),
 });
 
@@ -30,62 +41,42 @@ function shufflePick<T>(items: T[]): T[] {
   return copy;
 }
 
-/** Fetch credits from TMDB and cache them on the Movie row (backfill pattern). */
-async function fetchAndCacheCast(movieId: string, tmdbId: number): Promise<{ cast: string[]; originalTitle: string | null }> {
+/** Full grading profile via the shared getTmdbMovie fetch shape, or null when the cast is too thin. */
+async function profileFor(tmdbId: number): Promise<{ profile: MovieProfile; posterPath: string | null; keywords: string[]; tagline: string | null } | null> {
   const details = await getTmdbMovie(tmdbId);
-  const cast = (details.credits?.cast ?? [])
-    .slice()
-    .sort((left, right) => left.order - right.order)
-    .slice(0, 8)
-    .map((person) => person.name);
-  const directors = details.credits?.crew.filter((person) => person.job === "Director").map((person) => person.name) ?? [];
-  if (cast.length) {
-    await prisma.movie.update({
-      where: { id: movieId },
-      data: { cast: cast.join(", "), directors: directors.length ? directors.join(", ") : undefined },
-    });
-  }
-  return { cast, originalTitle: details.original_title ?? null };
+  const profile = profileFromDetails(details);
+  if (profile.cast.length < MIN_CAST) return null;
+  return {
+    profile,
+    posterPath: details.poster_path ?? null,
+    keywords: (details.keywords?.keywords ?? []).slice(0, 3).map((keyword) => keyword.name),
+    tagline: details.tagline?.trim() || null,
+  };
 }
 
-async function buildMineRound(userId: string, excludeIds: number[]): Promise<RoundPayload | null> {
+async function buildMineRound(userId: string, excludeIds: number[]): Promise<HybridRoundPayload | null> {
   const candidates = await prisma.movie.findMany({
     where: {
       tmdbId: { not: null, notIn: excludeIds.length ? excludeIds : undefined },
       tmdbVoteCount: { gte: MIN_VOTES_MINE },
       userMovies: { some: { userId, OR: [{ watched: true }, { rating: { not: null } }] } },
     },
-    select: { id: true, tmdbId: true, title: true, year: true, posterPath: true, preferredPosterPath: true, cast: true },
+    select: { tmdbId: true },
   });
 
   for (const movie of shufflePick(candidates).slice(0, PICK_ATTEMPTS)) {
-    let cast = (movie.cast ?? "").split(",").map((name) => name.trim()).filter(Boolean);
-    let originalTitle: string | null = null;
-    if (cast.length < MIN_CAST) {
-      try {
-        const fetched = await fetchAndCacheCast(movie.id, movie.tmdbId!);
-        cast = fetched.cast;
-        originalTitle = fetched.originalTitle;
-      } catch {
-        continue; // TMDB hiccup on this candidate — try the next one
-      }
+    try {
+      const found = await profileFor(movie.tmdbId!);
+      if (!found) continue;
+      return { target: found.profile, posterPath: found.posterPath, keywords: found.keywords, tagline: found.tagline, source: "mine", exp: Date.now() + TOKEN_TTL_MS };
+    } catch {
+      continue; // TMDB hiccup on this candidate — try the next one
     }
-    if (cast.length < MIN_CAST) continue;
-    return {
-      tmdbId: movie.tmdbId!,
-      title: movie.title,
-      originalTitle,
-      year: movie.year,
-      posterPath: movie.preferredPosterPath ?? movie.posterPath,
-      cast: cast.slice(0, MAX_REVEALS),
-      source: "mine",
-      exp: Date.now() + TOKEN_TTL_MS,
-    };
   }
   return null;
 }
 
-async function buildPopularRound(excludeIds: number[]): Promise<RoundPayload | null> {
+async function buildPopularRound(excludeIds: number[]): Promise<HybridRoundPayload | null> {
   const page = 1 + Math.floor(Math.random() * 5);
   const feed = await getTmdbFeed("popular", page);
   const excluded = new Set(excludeIds);
@@ -93,23 +84,35 @@ async function buildPopularRound(excludeIds: number[]): Promise<RoundPayload | n
 
   for (const candidate of shufflePick(candidates).slice(0, PICK_ATTEMPTS)) {
     try {
-      const details = await getTmdbMovie(candidate.id);
-      const cast = (details.credits?.cast ?? [])
-        .slice()
-        .sort((left, right) => left.order - right.order)
-        .slice(0, MAX_REVEALS)
-        .map((person) => person.name);
-      if (cast.length < MIN_CAST) continue;
-      return {
-        tmdbId: details.id,
-        title: details.title,
-        originalTitle: details.original_title ?? null,
-        year: details.release_date ? Number(details.release_date.slice(0, 4)) || null : null,
-        posterPath: details.poster_path ?? null,
-        cast,
-        source: "popular",
-        exp: Date.now() + TOKEN_TTL_MS,
-      };
+      const found = await profileFor(candidate.id);
+      if (!found) continue;
+      return { target: found.profile, posterPath: found.posterPath, keywords: found.keywords, tagline: found.tagline, source: "popular", exp: Date.now() + TOKEN_TTL_MS };
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+/**
+ * The movie of the day: a date-derived seed picks a stable page + index in
+ * TMDB's top_rated feed, so every round built today lands on the same film
+ * (as stable as the feed itself — top_rated barely moves day to day).
+ */
+async function buildDailyRound(): Promise<HybridRoundPayload | null> {
+  const seed = dailySeed(dailyKey(new Date()));
+  const page = 1 + (seed % DAILY_PAGES);
+  const feed = await getTmdbFeed("top-rated", page);
+  const candidates = feed.results.filter((movie) => (movie.vote_count ?? 0) >= MIN_VOTES_POPULAR);
+  if (!candidates.length) return null;
+
+  // Walk deterministically from the seeded index until a candidate qualifies.
+  for (let step = 0; step < Math.min(candidates.length, PICK_ATTEMPTS); step += 1) {
+    const candidate = candidates[((seed >>> 5) + step) % candidates.length];
+    try {
+      const found = await profileFor(candidate.id);
+      if (!found) continue;
+      return { target: found.profile, posterPath: found.posterPath, keywords: found.keywords, tagline: found.tagline, source: "daily", exp: Date.now() + TOKEN_TTL_MS };
     } catch {
       continue;
     }
@@ -130,7 +133,9 @@ export async function POST(request: Request) {
   try {
     const payload = parsed.data.source === "mine"
       ? await buildMineRound(user.id, parsed.data.excludeIds)
-      : await buildPopularRound(parsed.data.excludeIds);
+      : parsed.data.source === "popular"
+        ? await buildPopularRound(parsed.data.excludeIds)
+        : await buildDailyRound();
 
     if (!payload) {
       return NextResponse.json(
@@ -141,11 +146,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // Only the clues due at guess 1 leave the server: the first (least-billed)
+    // reveal actor. Everything else arrives guess by guess.
+    const reveals = revealOrder(payload.target.cast);
+    const visible = actorsVisible(1, reveals.length);
     return NextResponse.json({
       token: sealRound(payload),
-      firstCast: payload.cast[0],
-      totalCast: payload.cast.length,
-      roundMs: ROUND_MS,
+      maxGuesses: MAX_GUESSES,
+      castTotal: reveals.length,
+      actors: reveals.slice(0, visible).map((member) => ({ name: member.name, profilePath: member.profilePath })),
+      source: payload.source,
+      dayKey: payload.source === "daily" ? dailyKey(new Date()) : null,
     });
   } catch (error) {
     if (error instanceof TmdbError) return NextResponse.json({ error: error.message }, { status: error.status });

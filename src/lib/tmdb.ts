@@ -23,12 +23,13 @@ export type TmdbMovieDetails = TmdbMovieSearchResult & {
   original_language?: string;
   genres?: Array<{ id: number; name: string }>;
   production_countries?: Array<{ iso_3166_1: string; name: string }>;
+  production_companies?: Array<{ id: number; name: string }>;
   keywords?: { keywords: Array<{ id: number; name: string }> };
   external_ids?: { imdb_id?: string | null };
   images?: { posters: TmdbPoster[]; backdrops: TmdbPoster[] };
   credits?: {
     crew: Array<{ id: number; name: string; job: string; department: string }>;
-    cast: Array<{ id: number; name: string; character?: string; order: number }>;
+    cast: Array<{ id: number; name: string; character?: string; order: number; profile_path?: string | null }>;
   };
 };
 
