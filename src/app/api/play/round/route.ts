@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { crossOriginResponse, isSameOrigin } from "@/lib/security";
-import { getTmdbFeed, getTmdbMovie, TmdbError } from "@/lib/tmdb";
+import { discoverTmdbMovies, getTmdbFeed, getTmdbMovie, TmdbError } from "@/lib/tmdb";
 import {
   actorsVisible,
   dailyKey,
@@ -26,6 +26,15 @@ const MIN_VOTES_POPULAR = 1000;
 const PICK_ATTEMPTS = 6;
 /** Páginas de `top_rated` disponíveis para o sorteio diário. */
 const DAILY_PAGES = 20;
+/**
+ * Quantas páginas de "mais votados" o modo Populares amostra. Ordenando por
+ * número de votos, ~15 páginas ≈ os 300 filmes mais assistidos do mundo: mistura
+ * épocas (clássicos entram porque acumulam votos) e cults de grande público,
+ * enquanto o piso de votos/nota corta o que quase ninguém conhece.
+ */
+const POPULAR_PAGES = 15;
+/** Nota mínima no modo Populares — evita "famoso porém ruim", mantém os cults. */
+const MIN_RATING_POPULAR = 6;
 
 const roundSchema = z.object({
   source: z.enum(["mine", "popular", "daily"]),
@@ -77,8 +86,17 @@ async function buildMineRound(userId: string, excludeIds: number[]): Promise<Hyb
 }
 
 async function buildPopularRound(excludeIds: number[]): Promise<HybridRoundPayload | null> {
-  const page = 1 + Math.floor(Math.random() * 5);
-  const feed = await getTmdbFeed("popular", page);
+  // "Popular" = amplamente assistido em qualquer época, não só o hype do momento.
+  // `/movie/popular` do TMDB pondera lançamentos recentes; ordenar o Discover por
+  // `vote_count.desc` traz os títulos que mais gente viu no mundo (inclui antigos
+  // e cults consagrados). O piso de votos + nota mantém tudo reconhecível.
+  const page = 1 + Math.floor(Math.random() * POPULAR_PAGES);
+  const feed = await discoverTmdbMovies({
+    sort_by: "vote_count.desc",
+    "vote_count.gte": String(MIN_VOTES_POPULAR),
+    "vote_average.gte": String(MIN_RATING_POPULAR),
+    page: String(page),
+  });
   const excluded = new Set(excludeIds);
   const candidates = feed.results.filter((movie) => (movie.vote_count ?? 0) >= MIN_VOTES_POPULAR && !excluded.has(movie.id));
 

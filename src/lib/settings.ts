@@ -16,7 +16,6 @@ export type AppSettings = {
   defaultRatingScale: 5 | 10;
   allowHalfStars: boolean;
   showAdultContent: boolean;
-  defaultLandingPage: string;
   emailNotifications: boolean;
 };
 
@@ -29,7 +28,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   defaultRatingScale: 5,
   allowHalfStars: true,
   showAdultContent: false,
-  defaultLandingPage: "/",
   emailNotifications: false,
 };
 
@@ -43,8 +41,6 @@ function coerce(row: UserSettings): AppSettings {
     defaultRatingScale: row.defaultRatingScale === 10 ? 10 : 5,
     allowHalfStars: row.allowHalfStars,
     showAdultContent: row.showAdultContent,
-    // Converte preferências antigas para as rotas atuais.
-    defaultLandingPage: migrateLanding(row.defaultLandingPage),
     emailNotifications: row.emailNotifications,
   };
 }
@@ -61,21 +57,6 @@ export async function getUserSettings(userId: string | null | undefined): Promis
   }
 }
 
-const LANDING_PAGES = ["/", "/diary", "/collection", "/play", "/search"] as const;
-
-/** Converte a preferência salva em uma rota válida. */
-function migrateLanding(stored: string): string {
-  const moved: Record<string, string> = {
-    "/stats": "/",
-    "/dashboard": "/",
-    "/watchlist": "/collection",
-    "/favorites": "/collection",
-    "/roulette": "/play",
-  };
-  const target = moved[stored] ?? stored ?? "/";
-  return (LANDING_PAGES as readonly string[]).includes(target) ? target : "/";
-}
-
 export const settingsUpdateSchema = z.object({
   theme: z.enum(["system", "dark", "light"]).optional(),
   accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Cor inválida").optional(),
@@ -85,7 +66,6 @@ export const settingsUpdateSchema = z.object({
   defaultRatingScale: z.union([z.literal(5), z.literal(10)]).optional(),
   allowHalfStars: z.boolean().optional(),
   showAdultContent: z.boolean().optional(),
-  defaultLandingPage: z.enum(LANDING_PAGES).optional(),
   emailNotifications: z.boolean().optional(),
 });
 

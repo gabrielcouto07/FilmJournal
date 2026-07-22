@@ -96,6 +96,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 type Notify = (message: string, tone?: "success" | "error" | "info") => void;
 
 function ProfileTab({ user, notify }: { user: ProfileUser; notify: Notify }) {
+  const router = useRouter();
   const [displayName, setDisplayName] = useState(user.displayName ?? "");
   const [bio, setBio] = useState(user.bio ?? "");
   const [avatar, setAvatar] = useState<string | null>(user.avatarUrl);
@@ -119,6 +120,9 @@ function ProfileTab({ user, notify }: { user: ProfileUser; notify: Notify }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Falha ao salvar.");
       notify("Perfil atualizado.", "success");
+      // Re-renderiza os Server Components (o layout relê o usuário e repassa a
+      // nova foto ao SiteHeader), então a 'bolinha' do cabeçalho atualiza na hora.
+      router.refresh();
     } catch (err) {
       notify(err instanceof Error ? err.message : "Falha ao salvar.", "error");
     } finally { setSaving(false); }
@@ -167,7 +171,7 @@ function PreferencesTab({ initial, notify, applyLive }: { initial: AppSettings; 
         body: JSON.stringify({
           theme: form.theme, accentColor: form.accentColor, language: form.language, region: form.region,
           dateFormat: form.dateFormat, defaultRatingScale: form.defaultRatingScale, allowHalfStars: form.allowHalfStars,
-          showAdultContent: form.showAdultContent, defaultLandingPage: form.defaultLandingPage, emailNotifications: form.emailNotifications,
+          showAdultContent: form.showAdultContent, emailNotifications: form.emailNotifications,
         }),
       });
       const data = await res.json();
@@ -220,15 +224,6 @@ function PreferencesTab({ initial, notify, applyLive }: { initial: AppSettings; 
           </select>
         </Field>
         <Field label="Região (TMDB)"><input className="field" value={form.region} maxLength={8} onChange={(e) => set("region", e.target.value.toUpperCase())} /></Field>
-        <Field label="Página inicial padrão">
-          <select className="field" value={form.defaultLandingPage} onChange={(e) => set("defaultLandingPage", e.target.value)}>
-            <option value="/">Paladar (início)</option>
-            <option value="/diary">Diário</option>
-            <option value="/collection">Minha lista</option>
-            <option value="/play">Jogos</option>
-            <option value="/search">Buscar</option>
-          </select>
-        </Field>
       </div>
       <Toggle label="Permitir meia-estrela nas notas" checked={form.allowHalfStars} onChange={(v) => set("allowHalfStars", v)} />
       <Toggle label="Mostrar conteúdo adulto (TMDB)" checked={form.showAdultContent} onChange={(v) => set("showAdultContent", v)} />

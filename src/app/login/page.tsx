@@ -39,13 +39,7 @@ export default function LoginPage() {
     try {
       await login(username, password);
       notify("Bem-vindo de volta! 👋", "success");
-      // Respeita a página inicial escolhida pelo usuário.
-      let landing = "/";
-      try {
-        const res = await fetch("/api/settings");
-        if (res.ok) landing = (await res.json()).settings?.defaultLandingPage || "/";
-      } catch { /* keep default landing */ }
-      router.push(landing); router.refresh();
+      router.push("/"); router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Credenciais inválidas.");
       notify("Credenciais inválidas.", "error");
