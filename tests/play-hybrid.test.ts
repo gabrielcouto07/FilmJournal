@@ -171,7 +171,11 @@ test("cast tile: >=3 shared exact, 1-2 close with target names, 0 miss", () => {
   assert.deepEqual(close.shared, ["Ator Cinco"]);
 
   const none = profile({ tmdbId: 1, cast: [{ id: 77, name: "Ninguém", profilePath: null }] });
-  assert.equal(gradeGuess(none, target).tiles.cast.grade, "miss");
+  const missTile = gradeGuess(none, target).tiles.cast;
+  assert.equal(missTile.grade, "miss");
+  // The guessed movie's top-billed name rides along so the board can show it.
+  assert.equal(missTile.guessPrincipal, "Ninguém");
+  assert.equal(gradeGuess(profile({ tmdbId: 1, cast: [] }), target).tiles.cast.guessPrincipal, null);
 });
 
 // ---------------------------------------------------------- reveal schedule

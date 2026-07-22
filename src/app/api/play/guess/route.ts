@@ -82,18 +82,20 @@ export async function POST(request: Request) {
     const hint = parsed.data.hint;
     if (!hint) return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
     if (!hintUnlocked(hint, parsed.data.guessNumber)) {
-      return NextResponse.json({ error: "Essa dica ainda não desbloqueou." }, { status: 403 });
+      return NextResponse.json({ error: "Essa dica ainda não foi liberada." }, { status: 403 });
     }
     return NextResponse.json(hint === 1 ? { keywords: round.keywords } : { tagline: round.tagline });
   }
 
-  if (!parsed.data.tmdbId) return NextResponse.json({ error: "Escolha um filme das sugestões." }, { status: 400 });
+  if (!parsed.data.tmdbId) return NextResponse.json({ error: "Escolha um filme na lista de sugestões." }, { status: 400 });
 
   try {
     const guessedDetails = await getTmdbMovie(parsed.data.tmdbId);
     const guessProfile = profileFromDetails(guessedDetails);
     const grade = gradeGuess(guessProfile, round.target);
-    const guessCard = { title: guessProfile.title, year: guessProfile.year };
+    // The guessed movie's own card: the board shows its poster and data,
+    // color-graded against the secret film.
+    const guessCard = { title: guessProfile.title, year: guessProfile.year, posterPath: guessedDetails.poster_path ?? null };
 
     if (grade.correct) {
       return NextResponse.json({ correct: true, tiles: grade.tiles, guess: guessCard, answer: answerFrom(round) });

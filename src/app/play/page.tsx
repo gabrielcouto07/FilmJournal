@@ -18,9 +18,10 @@ export default async function PlayPage() {
         <p className="eyebrow">Jogar · Cine-Detetive</p>
         <h1 className="display-title mt-3 text-5xl sm:text-7xl">Descubra o filme.</h1>
         <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-          Dez palpites para desmascarar o filme misterioso. O elenco aparece nome a nome, o pôster
-          emerge do desfoque — e cada chute compara ano, gêneros, direção, estúdio, nota e elenco
-          com o alvo. Menos palpites, mais pontos.
+          Você tem dez palpites para descobrir o filme secreto. O elenco aparece nome a nome, o
+          pôster vai ganhando nitidez — e cada palpite mostra, em cores, o que bateu, o que chegou
+          perto e o que passou longe: ano, gêneros, direção, estúdio, nota e elenco. Quanto menos
+          palpites, mais pontos.
         </p>
       </header>
 

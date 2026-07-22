@@ -28,7 +28,7 @@ type Answer = {
   cast: string[];
   tagline: string | null;
 };
-type Row = { tmdbId: number; title: string; year: number | null; tiles: GuessTiles };
+type Row = { tmdbId: number; title: string; year: number | null; posterPath: string | null; tiles: GuessTiles };
 type NextClues = {
   actor: Actor | null;
   poster: { path: string | null; stage: PosterStage } | null;
@@ -37,9 +37,9 @@ type NextClues = {
 type Outcome = { solved: boolean; answer: Answer; guessesUsed: number; score: number; improved: boolean | null };
 
 const SOURCES: Array<{ id: Source; label: string; hint: string }> = [
-  { id: "mine", label: "Meus filmes", hint: "só títulos do seu arquivo" },
-  { id: "popular", label: "Populares (TMDB)", hint: "o catálogo global" },
-  { id: "daily", label: "Filme do dia", hint: "o mesmo desafio para todo mundo, um por dia" },
+  { id: "mine", label: "Meus filmes", hint: "só títulos do seu acervo" },
+  { id: "popular", label: "Populares (TMDB)", hint: "o catálogo mundial" },
+  { id: "daily", label: "Filme do dia", hint: "um desafio novo por dia, igual para todo mundo" },
 ];
 
 const TILE_META = {
@@ -92,12 +92,17 @@ function Tile({ label, grade, text, detail }: { label: string; grade: keyof type
 
 function tileTexts(tiles: GuessTiles) {
   return {
-    year: { text: `${tiles.year.guessYear ?? "—"}${arrowFor(tiles.year.direction)}`, detail: tiles.year.direction ? (tiles.year.direction === "target-higher" ? "o alvo é mais recente" : "o alvo é mais antigo") : undefined },
-    genres: { text: tiles.genres.shared.length ? tiles.genres.shared.join(", ") : tiles.genres.guessGenres.slice(0, 2).join(", ") || "—", detail: tiles.genres.shared.length ? `${tiles.genres.shared.length} em comum` : "nenhum em comum" },
-    director: { text: tiles.director.guessDirector ?? "—" },
-    studio: { text: tiles.studio.shared[0] ?? tiles.studio.guessStudio ?? "—", detail: tiles.studio.shared.length ? "estúdio em comum" : undefined },
-    rating: { text: `${tiles.rating.guessRating != null ? tiles.rating.guessRating.toFixed(1) : "—"}${arrowFor(tiles.rating.direction)}`, detail: tiles.rating.direction ? (tiles.rating.direction === "target-higher" ? "a nota do alvo é maior" : "a nota do alvo é menor") : undefined },
-    cast: { text: tiles.cast.shared.length ? tiles.cast.shared.join(", ") : "0 em comum", detail: `${tiles.cast.shared.length} ator(es) em comum` },
+    year: { text: `${tiles.year.guessYear ?? "—"}${arrowFor(tiles.year.direction)}`, detail: tiles.year.direction ? (tiles.year.direction === "target-higher" ? "o filme secreto é mais recente" : "o filme secreto é mais antigo") : undefined },
+    genres: { text: tiles.genres.shared.length ? tiles.genres.shared.join(", ") : tiles.genres.guessGenres.slice(0, 2).join(", ") || "—", detail: tiles.genres.shared.length ? `${tiles.genres.shared.length} gênero(s) em comum` : "nenhum gênero em comum" },
+    director: { text: tiles.director.guessDirector ?? "—", detail: tiles.director.grade === "exact" ? "mesma direção!" : "direção diferente" },
+    studio: { text: tiles.studio.shared[0] ?? tiles.studio.guessStudio ?? "—", detail: tiles.studio.shared.length ? "estúdio em comum" : "nenhum estúdio em comum" },
+    rating: { text: `${tiles.rating.guessRating != null ? tiles.rating.guessRating.toFixed(1) : "—"}${arrowFor(tiles.rating.direction)}`, detail: tiles.rating.direction ? (tiles.rating.direction === "target-higher" ? "a nota do filme secreto é maior" : "a nota do filme secreto é menor") : undefined },
+    cast: {
+      text: tiles.cast.shared.length ? tiles.cast.shared.join(", ") : tiles.cast.guessPrincipal ?? "—",
+      detail: tiles.cast.shared.length
+        ? `${tiles.cast.shared.length} ator(es) em comum`
+        : "nenhum ator em comum com o filme secreto",
+    },
   };
 }
 
@@ -219,7 +224,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Falha ao validar o palpite.");
 
-      const row: Row = { tmdbId: pick.tmdbId, title: data.guess.title, year: data.guess.year, tiles: data.tiles };
+      const row: Row = { tmdbId: pick.tmdbId, title: data.guess.title, year: data.guess.year, posterPath: data.guess.posterPath ?? null, tiles: data.tiles };
       setRows((current) => [...current, row]);
 
       if (data.correct) {
@@ -299,7 +304,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
             onClick={() => start(option.id)}
             className="surface group rounded-[2rem] p-7 text-left transition hover:border-amber-300/40"
           >
-            <p className="eyebrow">{option.id === "daily" ? "Desafio diário" : "Fonte"}</p>
+            <p className="eyebrow">{option.id === "daily" ? "Desafio diário" : "Modo"}</p>
             <h2 className="section-heading mt-2 group-hover:text-amber-100">{option.label}</h2>
             <p className="mt-2 text-sm text-slate-400">{option.hint}</p>
             <p className="mt-6 text-xs font-black uppercase tracking-wider text-slate-600">
@@ -370,7 +375,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
                 ) : (
                   <button type="button" onClick={() => start(source)} className="accent-button px-5 py-2.5 text-sm">Jogar de novo</button>
                 )}
-                <button type="button" onClick={() => setPhase("menu")} className="quiet-button px-5 py-2.5 text-sm">Trocar fonte</button>
+                <button type="button" onClick={() => setPhase("menu")} className="quiet-button px-5 py-2.5 text-sm">Trocar modo</button>
               </div>
             </div>
           </div>
@@ -434,8 +439,8 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
                   <>
                     <ArtworkImage
                       src={image(poster.path, "w342")}
-                      alt="Pôster desfocado do filme misterioso"
-                      title="Pôster do filme misterioso"
+                      alt="Pôster desfocado do filme secreto"
+                      title="Pôster do filme secreto"
                       className={`h-full w-full object-cover transition-all duration-700 ${POSTER_BLUR[poster.stage]}`}
                       sizes="160px"
                     />
@@ -445,24 +450,24 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
                   <div className="grid h-full w-full place-items-center text-4xl font-black text-slate-700">?</div>
                 )}
               </div>
-              {!poster?.path && <p className="mt-2 text-center text-[10px] font-bold text-slate-600">revela no palpite 7</p>}
+              {!poster?.path && <p className="mt-2 text-center text-[10px] font-bold text-slate-600">aparece no palpite 7</p>}
             </div>
 
             {/* Optional hints (5 and 8); using one costs score bonus. */}
             <div className="space-y-2">
-              <p className="text-xs font-black uppercase tracking-wider text-slate-500">Dicas opcionais <span className="normal-case text-slate-600">— custam bônus</span></p>
+              <p className="text-xs font-black uppercase tracking-wider text-slate-500">Dicas opcionais <span className="normal-case text-slate-600">— cada uma custa 50 pontos</span></p>
               {keywords ? (
-                <p className="rounded-xl border border-amber-300/25 bg-amber-300/[0.07] px-3 py-2 text-xs font-bold text-amber-100">💡 Temas: {keywords.length ? keywords.join(", ") : "sem palavras-chave no TMDB"}</p>
+                <p className="rounded-xl border border-amber-300/25 bg-amber-300/[0.07] px-3 py-2 text-xs font-bold text-amber-100">💡 Temas: {keywords.length ? keywords.join(", ") : "o TMDB não tem palavras-chave para este filme"}</p>
               ) : (
                 <button type="button" onClick={() => askHint(1)} disabled={busy || !hintGates.keywords} className="quiet-button w-full justify-center px-3 py-2 text-xs disabled:opacity-40">
-                  💡 Palavras-chave {hintGates.keywords ? "" : `(palpite ${HINT_KEYWORDS_AT})`}
+                  💡 Palavras-chave {hintGates.keywords ? "" : `— libera no palpite ${HINT_KEYWORDS_AT}`}
                 </button>
               )}
               {tagline !== null ? (
-                <p className="rounded-xl border border-amber-300/25 bg-amber-300/[0.07] px-3 py-2 text-xs font-bold text-amber-100">💡 Tagline: {tagline || "sem tagline no TMDB"}</p>
+                <p className="rounded-xl border border-amber-300/25 bg-amber-300/[0.07] px-3 py-2 text-xs font-bold text-amber-100">💡 Tagline: {tagline || "o TMDB não tem tagline para este filme"}</p>
               ) : (
                 <button type="button" onClick={() => askHint(2)} disabled={busy || !hintGates.tagline} className="quiet-button w-full justify-center px-3 py-2 text-xs disabled:opacity-40">
-                  💡 Tagline {hintGates.tagline ? "" : `(palpite ${HINT_TAGLINE_AT})`}
+                  💡 Tagline {hintGates.tagline ? "" : `— libera no palpite ${HINT_TAGLINE_AT}`}
                 </button>
               )}
             </div>
@@ -481,7 +486,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
                 <input
                   value={guess}
                   onChange={(event) => setGuess(event.target.value)}
-                  placeholder="Que filme é esse? Escolha das sugestões…"
+                  placeholder="Qual é o filme? Escolha uma das sugestões…"
                   className="field flex-1"
                   autoComplete="off"
                   autoFocus
@@ -511,9 +516,10 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
               <GuessBoard rows={rows} />
             ) : (
               <div className="empty-state !py-10">
-                <p className="text-sm font-bold text-white">Um ator já está na mesa — chute um filme.</p>
+                <p className="text-sm font-bold text-white">O primeiro ator já está em cena — arrisque um palpite.</p>
                 <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-slate-500">
-                  Cada palpite compara ano, gêneros, direção, estúdio, nota e elenco com o filme misterioso — e revela mais uma pista.
+                  A cada palpite, comparamos ano, gêneros, direção, estúdio, nota e elenco com o
+                  filme secreto — e uma nova pista entra em cena.
                 </p>
               </div>
             )}
@@ -530,11 +536,16 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
   );
 }
 
-/** The Spotle-style board: one row per guess, six graded tiles. */
+/**
+ * The comparison board: one card per guess — the guessed movie's poster and
+ * data, each attribute colored by how close it landed to the secret film.
+ * Newest guess first, so the feedback is always at the top.
+ */
 function GuessBoard({ rows }: { rows: Row[] }) {
   return (
     <ol className="space-y-2">
-      {rows.map((row, index) => {
+      {[...rows].reverse().map((row, reversedIndex) => {
+        const index = rows.length - 1 - reversedIndex;
         const texts = tileTexts(row.tiles);
         return (
           <motion.li
@@ -544,19 +555,26 @@ function GuessBoard({ rows }: { rows: Row[] }) {
             transition={{ type: "spring", stiffness: 240, damping: 24 }}
             className="surface-subtle rounded-2xl p-3"
           >
-            <p className="truncate px-1 text-xs font-black text-white">
-              {index + 1}. {row.title} {row.year ? <span className="text-slate-500">({row.year})</span> : null}
-            </p>
-            <div className="mt-2 grid grid-cols-3 gap-1.5 sm:grid-cols-6">
-              {(Object.keys(TILE_META) as Array<keyof typeof TILE_META>).map((tileKey) => (
-                <Tile
-                  key={tileKey}
-                  label={TILE_META[tileKey].label}
-                  grade={row.tiles[tileKey].grade}
-                  text={texts[tileKey].text}
-                  detail={"detail" in texts[tileKey] ? (texts[tileKey] as { detail?: string }).detail : undefined}
-                />
-              ))}
+            <div className="flex gap-3">
+              <div className="artwork-frame aspect-[2/3] w-14 shrink-0 self-start overflow-hidden rounded-lg bg-[#18181b]">
+                <ArtworkImage src={image(row.posterPath, "w185")} alt={row.title} title={row.title} className="h-full w-full object-cover" sizes="56px" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-black text-white">
+                  <span className="text-slate-600">{index + 1}.</span> {row.title} {row.year ? <span className="text-slate-500">({row.year})</span> : null}
+                </p>
+                <div className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-6">
+                  {(Object.keys(TILE_META) as Array<keyof typeof TILE_META>).map((tileKey) => (
+                    <Tile
+                      key={tileKey}
+                      label={TILE_META[tileKey].label}
+                      grade={row.tiles[tileKey].grade}
+                      text={texts[tileKey].text}
+                      detail={"detail" in texts[tileKey] ? (texts[tileKey] as { detail?: string }).detail : undefined}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </motion.li>
         );

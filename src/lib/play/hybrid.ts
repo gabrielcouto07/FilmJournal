@@ -86,7 +86,7 @@ export type GuessTiles = {
   director: { grade: TileGrade; guessDirector: string | null };
   studio: { grade: TileGrade; guessStudio: string | null; shared: string[] };
   rating: { grade: TileGrade; guessRating: number | null; direction: Direction };
-  cast: { grade: TileGrade; shared: string[] };
+  cast: { grade: TileGrade; guessPrincipal: string | null; shared: string[] };
 };
 
 export type GuessGrade = { correct: boolean; tiles: GuessTiles };
@@ -160,6 +160,7 @@ export function gradeGuess(guess: MovieProfile, target: MovieProfile): GuessGrad
     .filter((member) => guessCastIds.has(member.id));
   const cast = {
     grade: (sharedCast.length >= CAST_EXACT_MIN ? "exact" : sharedCast.length > 0 ? "close" : "miss") as TileGrade,
+    guessPrincipal: guess.cast[0]?.name ?? null,
     shared: sharedCast.map((member) => member.name),
   };
 

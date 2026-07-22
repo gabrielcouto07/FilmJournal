@@ -27,9 +27,9 @@ type PoolMovie = {
 type Source = "popular" | "watchlist" | "blindspots";
 
 const SOURCES: Array<{ id: Source; label: string; hint: string }> = [
-  { id: "popular", label: "Populares (TMDB)", hint: "o catálogo global" },
-  { id: "watchlist", label: "Minha watchlist", hint: "o que você já guardou" },
-  { id: "blindspots", label: "Pontos cegos", hint: "lacunas do seu mapa" },
+  { id: "popular", label: "Populares (TMDB)", hint: "o catálogo mundial" },
+  { id: "watchlist", label: "Para assistir", hint: "o que você guardou para ver" },
+  { id: "blindspots", label: "Pontos cegos", hint: "as lacunas do seu mapa" },
 ];
 type WinnerDetail = {
   id: number;
@@ -399,8 +399,9 @@ export default function RoulettePage() {
         <p className="eyebrow">Assistente de Seleção</p>
         <h1 className="display-title mt-3 text-5xl sm:text-7xl">Roleta de Filmes.</h1>
         <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-          Não sabe o que assistir? Escolha a fonte — o catálogo global, sua watchlist ou seus pontos
-          cegos —, ajuste os filtros e deixe o acaso escolher a sessão de hoje.
+          Não sabe o que assistir? Escolha de onde sortear — do catálogo mundial, da sua lista
+          para assistir ou dos seus pontos cegos —, ajuste os filtros e deixe o acaso escolher a
+          sessão de hoje.
         </p>
       </header>
 
@@ -417,7 +418,7 @@ export default function RoulettePage() {
           <div className="space-y-6">
             {/* Source — where the pool comes from */}
             <div className="space-y-2">
-              <span className="block text-xs font-black uppercase tracking-wider text-slate-500">Fonte da roleta</span>
+              <span className="block text-xs font-black uppercase tracking-wider text-slate-500">De onde sortear</span>
               <div className="space-y-1.5">
                 {SOURCES.map((option) => (
                   <button
