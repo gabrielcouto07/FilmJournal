@@ -2,18 +2,64 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
 import { crossOriginResponse, isSameOrigin } from "@/lib/security";
-import { isCorrectGuess, MAX_REVEALS } from "@/lib/play/scoring";
-import { openRound } from "@/lib/play/token";
+import { getTmdbMovie, TmdbError } from "@/lib/tmdb";
+import {
+  actorsVisible,
+  CAST_REVEALS,
+  gradeGuess,
+  hintUnlocked,
+  MAX_GUESSES,
+  posterStage,
+  profileFromDetails,
+  revealOrder,
+} from "@/lib/play/hybrid";
+import { openRound, type HybridRoundPayload } from "@/lib/play/token";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * One endpoint for the three in-round actions. `guessNumber` is the guess the
+ * player is currently making (1-based) and is client-asserted — the same
+ * best-effort trust model as the sealed token: it keeps answers out of the
+ * network inspector, it does not fight a determined API caller.
+ */
 const guessSchema = z.object({
   token: z.string().min(1),
   action: z.enum(["guess", "hint", "giveup"]),
-  guess: z.string().trim().max(200).optional(),
-  /** How many cast members the client currently shows. */
-  revealed: z.number().int().min(1).max(MAX_REVEALS),
+  /** TMDB id of the guessed movie (required for action=guess). */
+  tmdbId: z.number().int().positive().optional(),
+  guessNumber: z.number().int().min(1).max(MAX_GUESSES),
+  /** 1 = keywords, 2 = tagline (required for action=hint). */
+  hint: z.union([z.literal(1), z.literal(2)]).optional(),
 });
+
+/** The full answer, sent only at win, loss, or give-up. */
+function answerFrom(round: HybridRoundPayload) {
+  return {
+    tmdbId: round.target.tmdbId,
+    title: round.target.title,
+    year: round.target.year,
+    posterPath: round.posterPath,
+    directorName: round.target.directorName,
+    genres: round.target.genres.map((genre) => genre.name),
+    cast: round.target.cast.slice(0, CAST_REVEALS).map((member) => member.name),
+    tagline: round.tagline,
+  };
+}
+
+/** The clues the NEXT guess is entitled to (new actor, poster stage, hint gates). */
+function cluesFor(round: HybridRoundPayload, nextGuessNumber: number) {
+  const reveals = revealOrder(round.target.cast);
+  const previouslyVisible = actorsVisible(nextGuessNumber - 1, reveals.length);
+  const nowVisible = actorsVisible(nextGuessNumber, reveals.length);
+  const newActor = nowVisible > previouslyVisible ? reveals[nowVisible - 1] : null;
+  const stage = posterStage(nextGuessNumber);
+  return {
+    actor: newActor ? { name: newActor.name, profilePath: newActor.profilePath } : null,
+    poster: stage === "hidden" ? null : { path: round.posterPath, stage },
+    hints: { keywords: hintUnlocked(1, nextGuessNumber), tagline: hintUnlocked(2, nextGuessNumber) },
+  };
+}
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return crossOriginResponse();
@@ -28,23 +74,45 @@ export async function POST(request: Request) {
   const round = openRound(parsed.data.token);
   if (!round) return NextResponse.json({ error: "Rodada expirada — comece outra." }, { status: 410 });
 
-  const answer = {
-    tmdbId: round.tmdbId,
-    title: round.title,
-    year: round.year,
-    posterPath: round.posterPath,
-    cast: round.cast,
-  };
-  const nextCast = round.cast[parsed.data.revealed] ?? null;
-
   if (parsed.data.action === "giveup") {
-    return NextResponse.json({ correct: false, answer });
-  }
-  if (parsed.data.action === "hint") {
-    return NextResponse.json({ nextCast });
+    return NextResponse.json({ answer: answerFrom(round) });
   }
 
-  const correct = isCorrectGuess(parsed.data.guess ?? "", [round.title, round.originalTitle]);
-  // A wrong guess auto-reveals the next name (when one remains) — same cost as a hint.
-  return NextResponse.json(correct ? { correct: true, answer } : { correct: false, nextCast });
+  if (parsed.data.action === "hint") {
+    const hint = parsed.data.hint;
+    if (!hint) return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
+    if (!hintUnlocked(hint, parsed.data.guessNumber)) {
+      return NextResponse.json({ error: "Essa dica ainda não foi liberada." }, { status: 403 });
+    }
+    return NextResponse.json(hint === 1 ? { keywords: round.keywords } : { tagline: round.tagline });
+  }
+
+  if (!parsed.data.tmdbId) return NextResponse.json({ error: "Escolha um filme na lista de sugestões." }, { status: 400 });
+
+  try {
+    const guessedDetails = await getTmdbMovie(parsed.data.tmdbId);
+    const guessProfile = profileFromDetails(guessedDetails);
+    const grade = gradeGuess(guessProfile, round.target);
+    // The guessed movie's own card: the board shows its poster and data,
+    // color-graded against the secret film.
+    const guessCard = { title: guessProfile.title, year: guessProfile.year, posterPath: guessedDetails.poster_path ?? null };
+
+    if (grade.correct) {
+      return NextResponse.json({ correct: true, tiles: grade.tiles, guess: guessCard, answer: answerFrom(round) });
+    }
+
+    const gameOver = parsed.data.guessNumber >= MAX_GUESSES;
+    return NextResponse.json({
+      correct: false,
+      tiles: grade.tiles,
+      guess: guessCard,
+      gameOver,
+      ...(gameOver
+        ? { answer: answerFrom(round) }
+        : { next: cluesFor(round, parsed.data.guessNumber + 1) }),
+    });
+  } catch (error) {
+    if (error instanceof TmdbError) return NextResponse.json({ error: error.message }, { status: error.status });
+    return NextResponse.json({ error: "Falha ao validar o palpite." }, { status: 502 });
+  }
 }

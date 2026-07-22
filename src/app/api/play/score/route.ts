@@ -6,11 +6,12 @@ import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
-const GAME = "cast";
+const GAME = "hybrid";
 
 const scoreSchema = z.object({
-  source: z.enum(["mine", "popular"]),
+  source: z.enum(["mine", "popular", "daily"]),
   score: z.number().int().min(0).max(100_000),
+  /** For the hybrid game this is the number of guesses used. */
   rounds: z.number().int().min(1).max(20),
 });
 

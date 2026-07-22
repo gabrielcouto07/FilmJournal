@@ -19,12 +19,12 @@ export default async function DiscoverPage() {
           <p className="eyebrow">Descobrir · Pontos cegos</p>
           <h1 className="display-title mt-3 text-5xl sm:text-7xl">Expanda seu mapa.</h1>
           <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-            O motor compara seu arquivo com o cinema que existe — por década, país, idioma e gênero —
-            e sugere filmes aclamados exatamente onde seu mapa está em branco. Cada sugestão explica
-            por que ela apareceu.
+            Comparamos seu acervo com o cinema mundial — por década, país, idioma e gênero — e
+            sugerimos filmes aclamados exatamente onde o seu mapa ainda está em branco. Cada
+            sugestão explica por que apareceu.
           </p>
         </div>
-        <p className="self-end text-xs font-bold text-slate-600">{initial.totalFilms} filmes no seu arquivo</p>
+        <p className="self-end text-xs font-bold text-slate-600">{initial.totalFilms} filmes no seu acervo</p>
       </header>
 
       <DiscoverExplorer initial={initial} />

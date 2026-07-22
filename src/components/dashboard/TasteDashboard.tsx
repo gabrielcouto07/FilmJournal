@@ -106,8 +106,8 @@ export default function TasteDashboard({
               </div>
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-              <ContrarianList title="Amores contrarian" subtitle="Você ama, o público nem tanto" points={contrarian.loves} tone="love" />
-              <ContrarianList title="Rejeições contrarian" subtitle="O público ama, você nem tanto" points={contrarian.pans} tone="pan" />
+              <ContrarianList title="Amores na contramão" subtitle="Você ama, o público nem tanto" points={contrarian.loves} tone="love" />
+              <ContrarianList title="Rejeições na contramão" subtitle="O público ama, você nem tanto" points={contrarian.pans} tone="pan" />
             </div>
           </div>
         </section>
@@ -340,7 +340,7 @@ function ContrarianList({ title, subtitle, points, tone }: { title: string; subt
           ))}
         </ol>
       ) : (
-        <p className="mt-3 text-xs text-slate-600">Nada marcante nesta ponta.</p>
+        <p className="mt-3 text-xs text-slate-600">Nenhum destaque por aqui.</p>
       )}
     </div>
   );

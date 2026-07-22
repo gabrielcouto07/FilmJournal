@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import CastQuizGame from "@/components/play/CastQuizGame";
+import HybridGame from "@/components/play/HybridGame";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Jogar · FilmJournal" };
@@ -8,22 +8,24 @@ export const metadata = { title: "Jogar · FilmJournal" };
 export default async function PlayPage() {
   const viewer = await getCurrentUser();
   const rows = viewer
-    ? await prisma.gameScore.findMany({ where: { userId: viewer.id, game: "cast" } })
+    ? await prisma.gameScore.findMany({ where: { userId: viewer.id, game: "hybrid" } })
     : [];
-  const bestScores = Object.fromEntries(rows.map((row) => [row.source, row.bestScore])) as Partial<Record<"mine" | "popular", number>>;
+  const bestScores = Object.fromEntries(rows.map((row) => [row.source, row.bestScore])) as Partial<Record<"mine" | "popular" | "daily", number>>;
 
   return (
-    <main className="page-shell max-w-5xl space-y-10">
+    <main className="page-shell max-w-6xl space-y-10">
       <header>
-        <p className="eyebrow">Jogar · Quem está no elenco?</p>
-        <h1 className="display-title mt-3 text-5xl sm:text-7xl">Adivinhe pelo elenco.</h1>
+        <p className="eyebrow">Jogar · Cine-Detetive</p>
+        <h1 className="display-title mt-3 text-5xl sm:text-7xl">Descubra o filme.</h1>
         <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-          Um filme, um elenco revelado nome a nome. Quanto menos atores você precisar — e mais rápido
-          responder —, mais pontos. Cinco rodadas por partida.
+          Você tem dez palpites para descobrir o filme secreto. O elenco aparece nome a nome, o
+          pôster vai ganhando nitidez — e cada palpite mostra, em cores, o que bateu, o que chegou
+          perto e o que passou longe: ano, gêneros, direção, estúdio, nota e elenco. Quanto menos
+          palpites, mais pontos.
         </p>
       </header>
 
-      <CastQuizGame initialBest={bestScores} />
+      <HybridGame initialBest={bestScores} />
     </main>
   );
 }
