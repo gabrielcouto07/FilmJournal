@@ -1,10 +1,7 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import BackgroundEnrich from "@/components/BackgroundEnrich";
-import { getCurrentUser } from "@/lib/auth";
-import { needsOnboarding } from "@/lib/onboarding";
-import { getMotifsData, getPalateData, getStatsData, getTimelineData } from "@/lib/data";
-import type { ContrarianPoint, DirectorLoyalty } from "@/lib/analytics/palate";
+import type { ContrarianPoint, DirectorLoyalty, Palate } from "@/lib/analytics/palate";
+import type { Timeline } from "@/lib/analytics/timeline";
+import type { MotifSummary } from "@/lib/analytics/motifs";
+import type { StatsData } from "@/lib/data";
 import {
   ContrarianScatter,
   CountrySpread,
@@ -14,38 +11,24 @@ import {
 } from "@/components/palate/PalateCharts";
 import { EraDrift, GenreShareDrift, RatingLeanTrend } from "@/components/palate/EvolutionCharts";
 
-export const metadata = { title: "Paladar cinematográfico · FilmJournal" };
-
-export default async function DashboardPage() {
-  const viewer = await getCurrentUser();
-  // First-run accounts get the guided welcome instead of an empty dashboard.
-  if (viewer && (await needsOnboarding(viewer.id))) redirect("/welcome");
-  const userId = viewer?.id ?? "";
-  const [palate, stats, timeline, motifs] = await Promise.all([
-    getPalateData(userId),
-    getStatsData(userId),
-    getTimelineData(userId),
-    getMotifsData(userId),
-  ]);
-  const { contrarian, decades, countries, genres, runtimes, directors, totalFilms } = palate;
-
-  if (stats.sessions === 0 && contrarian.sampleSize === 0) {
-    return (
-      <main className="page-shell">
-        <header>
-          <p className="eyebrow">Paladar cinematográfico</p>
-          <h1 className="display-title mt-3 text-5xl sm:text-6xl">Seu mapa de gosto.</h1>
-        </header>
-        <div className="empty-state mt-10">
-          <p className="text-sm text-slate-400">
-            Ainda não há registros suficientes para montar seu mapa. Registre e avalie alguns
-            filmes no diário e volte aqui.
-          </p>
-          <Link href="/diary" className="accent-button mt-6">Abrir diário</Link>
-        </div>
-      </main>
-    );
-  }
+/**
+ * The Paladar dashboard sections — extracted unchanged from the old /dashboard
+ * page so the taste-first landing can render them below the hero verdict.
+ * Server component: everything here is precomputed data; only the chart leaves
+ * are client islands.
+ */
+export default function TasteDashboard({
+  palate,
+  stats,
+  timeline,
+  motifs,
+}: {
+  palate: Palate;
+  stats: StatsData;
+  timeline: Timeline;
+  motifs: MotifSummary;
+}) {
+  const { contrarian, decades, countries, genres, runtimes, directors } = palate;
 
   const lean = contrarian.tasteLean;
   const leanText =
@@ -59,22 +42,7 @@ export default async function DashboardPage() {
     new Intl.DateTimeFormat("pt-BR", { month: "short", year: "2-digit", timeZone: "UTC" }).format(new Date(`${key}-01T12:00:00Z`));
 
   return (
-    <main className="page-shell space-y-10">
-      <BackgroundEnrich />
-      <header className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-        <div>
-          <p className="eyebrow">Paladar cinematográfico</p>
-          <h1 className="display-title mt-3 text-5xl sm:text-7xl">Seu mapa de gosto.</h1>
-          <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-            O arquivo em números e onde seu gosto pousa por década, geografia e gênero — e a que
-            distância você fica do consenso da crítica e do público.
-          </p>
-        </div>
-        <p className="self-end text-xs font-bold text-slate-600">
-          {stats.sessions} sessões · {totalFilms} filmes avaliados · {contrarian.sampleSize} com dados do público
-        </p>
-      </header>
-
+    <div className="space-y-10">
       {/* Archive at a glance (merged from /stats) */}
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Stat label="Total de sessões" value={stats.sessions} />
@@ -107,7 +75,7 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      {/* Hero — contrarian analysis */}
+      {/* Contrarian analysis */}
       {contrarian.sampleSize > 0 ? (
         <section className="surface relative overflow-hidden rounded-[1.75rem] p-5 sm:p-7">
           <div className="glass-gradient absolute inset-0 -z-10" />
@@ -293,7 +261,7 @@ export default async function DashboardPage() {
           <Insufficient message="Avalie 3+ filmes de um mesmo diretor para revelar sua fidelidade." />
         )}
       </Card>
-    </main>
+    </div>
   );
 }
 

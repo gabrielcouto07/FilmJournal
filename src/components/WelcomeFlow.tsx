@@ -97,7 +97,7 @@ export default function WelcomeFlow({ displayName }: { displayName: string }) {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "Não foi possível concluir agora.");
       notify(seeds.length ? "Tudo pronto! Suas análises já têm por onde começar. 🎬" : "Tudo pronto! Bom cinema. 🎬", "success");
-      router.push("/dashboard");
+      router.push("/");
       router.refresh();
     } catch (error) {
       notify(error instanceof Error ? error.message : "Não foi possível concluir agora.", "error");

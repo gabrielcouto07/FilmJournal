@@ -225,10 +225,9 @@ function PreferencesTab({ initial, notify, applyLive }: { initial: AppSettings; 
         <Field label="Região (TMDB)"><input className="field" value={form.region} maxLength={8} onChange={(e) => set("region", e.target.value.toUpperCase())} /></Field>
         <Field label="Página inicial padrão">
           <select className="field" value={form.defaultLandingPage} onChange={(e) => set("defaultLandingPage", e.target.value)}>
-            <option value="/">Visão Geral</option>
+            <option value="/">Paladar (início)</option>
             <option value="/diary">Diário</option>
             <option value="/watchlist">Para assistir</option>
-            <option value="/dashboard">Paladar (análises)</option>
             <option value="/roulette">Roleta</option>
           </select>
         </Field>

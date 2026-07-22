@@ -1,8 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async redirects() {
-    // /stats was merged into /dashboard (Paladar); keep old bookmarks working.
-    return [{ source: "/stats", destination: "/dashboard", permanent: true }];
+    // The Paladar became the home page; /dashboard (and the older /stats)
+    // redirect there so old bookmarks keep working.
+    return [
+      { source: "/dashboard", destination: "/", permanent: true },
+      { source: "/stats", destination: "/", permanent: true },
+    ];
   },
   images: {
     remotePatterns: [

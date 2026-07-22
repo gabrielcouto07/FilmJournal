@@ -5,13 +5,13 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "./AuthProvider";
 
-// IA: Diário (journal) · Paladar (analytics home) · Descobrir (blind spots +
+// IA: Paladar (taste-first home) · Diário (journal) · Descobrir (blind spots +
 // curation) · Jogar (games) · Roleta. Secondary destinations (watchlist,
 // favorites, TMDB search) live under the "Mais" menu so they stay one click
-// away without crowding the primary rail. /stats redirects to /dashboard.
+// away without crowding the primary rail. /stats and /dashboard redirect to /.
 const navigation = [
+  { href: "/", label: "Paladar" },
   { href: "/diary", label: "Diário" },
-  { href: "/dashboard", label: "Paladar" },
   { href: "/discover", label: "Descobrir" },
   { href: "/play", label: "Jogar" },
   { href: "/roulette", label: "Roleta" },
