@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { DEFAULT_SETTINGS, type AppSettings } from "@/lib/settings";
+import { applyAccent } from "@/lib/accent";
 
 type SettingsContextValue = {
   settings: AppSettings;
@@ -30,7 +31,9 @@ function apply(settings: AppSettings) {
   const theme = resolveTheme(settings.theme);
   root.setAttribute("data-theme", theme);
   root.style.colorScheme = theme;
-  root.style.setProperty("--accent", settings.accentColor);
+  // Sets --accent plus the derived --accent-50…900 shade ramp that every
+  // amber-* utility resolves against, so the accent recolors the whole UI.
+  applyAccent(root, settings.accentColor);
 }
 
 export function SettingsProvider({ initialSettings, children }: { initialSettings: AppSettings; children: ReactNode }) {

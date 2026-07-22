@@ -227,8 +227,9 @@ function PreferencesTab({ initial, notify, applyLive }: { initial: AppSettings; 
           <select className="field" value={form.defaultLandingPage} onChange={(e) => set("defaultLandingPage", e.target.value)}>
             <option value="/">Paladar (início)</option>
             <option value="/diary">Diário</option>
-            <option value="/watchlist">Para assistir</option>
-            <option value="/roulette">Roleta</option>
+            <option value="/collection">Minha lista</option>
+            <option value="/play">Jogos</option>
+            <option value="/search">Buscar</option>
           </select>
         </Field>
       </div>

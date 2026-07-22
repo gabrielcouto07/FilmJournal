@@ -43,9 +43,10 @@ function coerce(row: UserSettings): AppSettings {
     defaultRatingScale: row.defaultRatingScale === 10 ? 10 : 5,
     allowHalfStars: row.allowHalfStars,
     showAdultContent: row.showAdultContent,
-    // "/stats" and "/dashboard" were merged into the taste-first home;
-    // migrate stored preferences on read.
-    defaultLandingPage: ["/stats", "/dashboard"].includes(row.defaultLandingPage) ? "/" : row.defaultLandingPage || "/",
+    // Pages that were merged/moved are migrated on read so old stored prefs
+    // still resolve to a live route: /stats & /dashboard → taste-first home;
+    // /watchlist & /favorites → Minha lista hub; /roulette → Jogos hub.
+    defaultLandingPage: migrateLanding(row.defaultLandingPage),
     emailNotifications: row.emailNotifications,
   };
 }
@@ -66,7 +67,20 @@ export async function getUserSettings(userId: string | null | undefined): Promis
   }
 }
 
-const LANDING_PAGES = ["/", "/diary", "/watchlist", "/favorites", "/roulette"] as const;
+const LANDING_PAGES = ["/", "/diary", "/collection", "/play", "/search"] as const;
+
+/** Map a stored landing-page pref to a currently-valid route (see coerce). */
+function migrateLanding(stored: string): string {
+  const moved: Record<string, string> = {
+    "/stats": "/",
+    "/dashboard": "/",
+    "/watchlist": "/collection",
+    "/favorites": "/collection",
+    "/roulette": "/play",
+  };
+  const target = moved[stored] ?? stored ?? "/";
+  return (LANDING_PAGES as readonly string[]).includes(target) ? target : "/";
+}
 
 export const settingsUpdateSchema = z.object({
   theme: z.enum(["system", "dark", "light"]).optional(),

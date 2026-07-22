@@ -90,7 +90,7 @@ export default function LoginPage() {
           {/* Logo mark */}
           <div className="flex justify-center mb-6">
             <span className="grid h-12 w-12 place-items-center rounded-full border border-amber-300/30 bg-amber-300/10">
-              <span className="h-3.5 w-3.5 rounded-full bg-amber-300 shadow-[0_0_15px_rgba(245,197,24,.95)]" />
+              <span className="h-3.5 w-3.5 rounded-full bg-amber-300 shadow-[0_0_15px_rgb(var(--accent-300)/0.95)]" />
             </span>
           </div>
 
@@ -101,7 +101,7 @@ export default function LoginPage() {
                 key={t}
                 type="button"
                 onClick={() => { setTab(t); setError(null); }}
-                className={`flex-1 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition duration-200 ${tab === t ? "bg-amber-300 text-[#1a1400] shadow-[0_4px_16px_rgba(245,197,24,.2)]" : "text-slate-500 hover:text-white"}`}
+                className={`flex-1 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition duration-200 ${tab === t ? "bg-amber-300 text-[#1a1400] shadow-[0_4px_16px_rgb(var(--accent-300)/0.2)]" : "text-slate-500 hover:text-white"}`}
               >
                 {t === "login" ? "Entrar" : "Criar conta"}
               </button>

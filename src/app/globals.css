@@ -17,6 +17,19 @@
   --accent: #f5c518;
   --accent-strong: #ffd60a;
   --amber: #f8c970;
+  /* Default accent ramp (derived from #f5c518). SettingsProvider overrides
+     these at runtime from the user's chosen accent; keeping defaults here means
+     correct colors on first paint / for logged-out visitors. See lib/accent.ts. */
+  --accent-50: 254 246 220;
+  --accent-100: 252 239 190;
+  --accent-200: 249 221 121;
+  --accent-300: 245 197 24;
+  --accent-400: 216 173 21;
+  --accent-500: 181 146 18;
+  --accent-600: 147 118 14;
+  --accent-700: 115 93 11;
+  --accent-800: 86 69 8;
+  --accent-900: 59 47 6;
   --blue: #74b9ff;
   --violet: #b79cff;
   --danger: #ff7c86;
@@ -39,8 +52,8 @@ body {
   margin: 0;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 82% -8%, rgba(245,197,24, .16), transparent 30rem),
-    radial-gradient(circle at -5% 48%, rgba(120,85,20, .12), transparent 28rem),
+    radial-gradient(circle at 82% -8%, rgb(var(--accent-300) / .16), transparent 30rem),
+    radial-gradient(circle at -5% 48%, rgb(var(--accent-700) / .18), transparent 28rem),
     linear-gradient(180deg, #0b0a08 0%, var(--canvas) 42%, #090807 100%);
   color: var(--text);
   font-family: var(--font-sans), Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -59,7 +72,7 @@ a { color: inherit; text-decoration: none; }
 button, input, textarea, select { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-::selection { background: rgba(245,197,24,.28); color: #0a0a0a; }
+::selection { background: rgb(var(--accent-300) / .28); color: #0a0a0a; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: #0a0a0a; }
 ::-webkit-scrollbar-thumb { border: 3px solid #0a0a0a; border-radius: 999px; background: #3a352a; }
@@ -72,8 +85,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .surface-raised { @apply border border-white/[0.12] bg-[#1a1a1a]/90 shadow-[0_26px_90px_rgba(0,0,0,.38)] backdrop-blur-xl; }
   .surface-subtle { @apply border border-white/[0.07] bg-white/[0.028]; }
   .icon-button { @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-slate-300 transition duration-200 hover:border-amber-300/40 hover:bg-amber-300/10 hover:text-amber-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50; }
-  .accent-button { @apply inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-extrabold text-[#1a1400] shadow-[0_8px_28px_rgba(245,197,24,.15)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(245,197,24,.28)] active:translate-y-0 active:scale-[.97] disabled:cursor-not-allowed disabled:opacity-60; will-change: transform; background: var(--accent); }
-  .accent-button:hover { filter: brightness(1.06); }
+  .accent-button { @apply inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-extrabold text-[#1a1400] transition duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[.97] disabled:cursor-not-allowed disabled:opacity-60; will-change: transform; background: var(--accent); box-shadow: 0 8px 28px rgb(var(--accent-300) / .15); }
+  .accent-button:hover { filter: brightness(1.06); box-shadow: 0 12px 40px rgb(var(--accent-300) / .28); }
   .quiet-button { @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-bold text-slate-200 transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.09] active:translate-y-0 active:scale-[.97] disabled:cursor-not-allowed disabled:opacity-60; }
   .field { @apply w-full rounded-xl border border-white/10 bg-black/25 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-amber-300/45 focus:ring-4 focus:ring-amber-300/[0.07]; }
   .chip { @apply inline-flex items-center rounded-full border border-white/[0.09] bg-white/[0.035] px-3 py-1.5 text-xs font-bold text-slate-400 transition hover:border-white/20 hover:text-white; }
@@ -85,11 +98,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .page-transition { animation: page-in var(--duration-slow) var(--ease-out) both; }
 .poster-card { transform: translateZ(0); transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base); }
 .artwork-frame { position: relative; display: block; overflow: hidden; isolation: isolate; background: #141414; }
-.poster-fallback { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .45rem; padding: 1rem; overflow: hidden; text-align: center; background: radial-gradient(circle at 50% 34%, rgba(245,197,24,.1), transparent 34%), linear-gradient(145deg, #1f1a12, #0d0d0d 72%); }
+.poster-fallback { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .45rem; padding: 1rem; overflow: hidden; text-align: center; background: radial-gradient(circle at 50% 34%, rgb(var(--accent-300) / .1), transparent 34%), linear-gradient(145deg, #1f1a12, #0d0d0d 72%); }
 .poster-fallback::before, .poster-fallback::after { position: absolute; inset-inline: .65rem; height: .32rem; border-block: 1px solid rgba(255,255,255,.08); content: ""; background: repeating-linear-gradient(90deg, rgba(255,255,255,.1) 0 .28rem, transparent .28rem .55rem); }
 .poster-fallback::before { top: .65rem; }
 .poster-fallback::after { bottom: .65rem; }
-.poster-fallback-mark { display: grid; width: 3rem; height: 3rem; place-items: center; border: 1px solid rgba(245,197,24,.22); border-radius: 999px; color: rgba(255,235,170,.78); background: rgba(245,197,24,.06); font-size: .78rem; font-weight: 900; letter-spacing: .08em; }
+.poster-fallback-mark { display: grid; width: 3rem; height: 3rem; place-items: center; border: 1px solid rgb(var(--accent-300) / .22); border-radius: 999px; color: rgb(var(--accent-100) / .95); background: rgb(var(--accent-300) / .06); font-size: .78rem; font-weight: 900; letter-spacing: .08em; }
 .poster-fallback-title { display: -webkit-box; max-width: 10rem; overflow: hidden; color: rgba(243,247,244,.82); font-size: .72rem; font-weight: 800; line-height: 1.25; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .poster-fallback-note { color: rgba(148,163,154,.55); font-size: .55rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .poster-image { z-index: 1; opacity: 0; transform: scale(1.025); transition: opacity .42s ease, transform .65s var(--ease-out); }
@@ -103,7 +116,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .rail > * { scroll-snap-align: start; }
 .glass-gradient { background: linear-gradient(115deg, rgba(10,14,11,.98) 2%, rgba(12,17,14,.9) 46%, rgba(8,10,9,.46) 100%); }
 .balance { text-wrap: balance; }
-.film-poster-showcase::before { position: absolute; z-index: -1; inset: -18%; border-radius: 35%; background: radial-gradient(circle, rgba(245,197,24,.12), transparent 66%); filter: blur(24px); content: ""; }
+.film-poster-showcase::before { position: absolute; z-index: -1; inset: -18%; border-radius: 35%; background: radial-gradient(circle, rgb(var(--accent-300) / .12), transparent 66%); filter: blur(24px); content: ""; }
 
 @keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @keyframes shimmer { to { transform: translateX(100%); } }
@@ -117,8 +130,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 /* Pulse glow for accent elements */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245,197,24,0); }
-  50%       { box-shadow: 0 0 22px 6px rgba(245,197,24,.18); }
+  0%, 100% { box-shadow: 0 0 0 0 rgb(var(--accent-300) / 0); }
+  50%       { box-shadow: 0 0 22px 6px rgb(var(--accent-300) / .18); }
 }
 /* Skeleton loading shimmer (faster, more visible) */
 @keyframes skeleton { to { background-position: -200% center; } }
@@ -140,7 +153,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .modal-enter { animation: modal-in .32s var(--ease-out) both; }
 
 @media (hover: hover) and (pointer: fine) {
-  .poster-card:hover { transform: perspective(1000px) rotateX(1.4deg) rotateY(-1.8deg) translateY(-7px); box-shadow: 0 30px 75px rgba(0,0,0,.48), 0 0 42px rgba(245,197,24,.07); }
+  .poster-card:hover { transform: perspective(1000px) rotateX(1.4deg) rotateY(-1.8deg) translateY(-7px); box-shadow: 0 30px 75px rgba(0,0,0,.48), 0 0 42px rgb(var(--accent-300) / .07); }
   .film-poster-showcase:hover { transform: perspective(1200px) rotateX(.5deg) rotateY(-1deg) translateY(-4px); }
 }
 
@@ -163,7 +176,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 :root[data-theme="light"] body {
   background:
-    radial-gradient(circle at 82% -8%, rgba(245,197,24,.16), transparent 30rem),
+    radial-gradient(circle at 82% -8%, rgb(var(--accent-300) / .16), transparent 30rem),
     linear-gradient(180deg, #faf7ef 0%, var(--canvas) 45%, #f1ebdd 100%);
   color: var(--text);
 }

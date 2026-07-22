@@ -36,7 +36,7 @@ export default async function AdminPage() {
     { href: "/admin/database", title: "Revisão do banco", desc: "Estado técnico completo do banco de dados." },
     { href: "/search", title: "Adicionar filmes", desc: "Busque no TMDB e traga novos títulos para o catálogo." },
     { href: "/diary", title: "Gerenciar diário", desc: "Registre, edite e revise seu histórico de sessões." },
-    { href: "/favorites", title: "Curar Top 10", desc: "Reordene seus favoritos ranqueados." },
+    { href: "/collection?tab=favoritos", title: "Curar Top 10", desc: "Reordene seus favoritos ranqueados." },
     { href: "/profile#importar", title: "Importar do Letterboxd", desc: "Abra as configurações do perfil para importar ou atualizar seu acervo." },
   ];
 

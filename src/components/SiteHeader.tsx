@@ -2,70 +2,37 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useAuth } from "./AuthProvider";
 
 // IA: Paladar (taste-first home) · Diário (journal) · Descobrir (blind spots +
-// curation) · Jogar (games) · Roleta. Secondary destinations (watchlist,
-// favorites, TMDB search) live under the "Mais" menu so they stay one click
-// away without crowding the primary rail. /stats and /dashboard redirect to /.
+// curation) · Jogos (Cine-Detetive + Roleta, one hub) · Minha lista (favoritos +
+// para assistir, one hub) · Buscar (TMDB search, out in the open). /stats and
+// /dashboard redirect to /; /roulette → /play; /favorites & /watchlist → /collection.
 const navigation = [
   { href: "/", label: "Paladar" },
   { href: "/diary", label: "Diário" },
   { href: "/discover", label: "Descobrir" },
-  { href: "/play", label: "Jogar" },
-  { href: "/roulette", label: "Roleta" },
-];
-
-const secondaryNavigation = [
-  { href: "/watchlist", label: "Para assistir" },
-  { href: "/favorites", label: "Favoritos" },
-  { href: "/search", label: "Buscar filmes" },
+  { href: "/play", label: "Jogos" },
+  { href: "/collection", label: "Minha lista" },
+  { href: "/search", label: "Buscar" },
 ];
 
 export default function SiteHeader() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const [moreOpen, setMoreOpen] = useState(false);
-
-  useEffect(() => setMoreOpen(false), [pathname]);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
-  const moreActive = secondaryNavigation.some((item) => isActive(item.href));
 
   return <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-[#0a0a0a]/82 backdrop-blur-2xl">
     <div className="mx-auto flex h-16 max-w-[1480px] items-center gap-4 px-4 sm:px-7 lg:px-10">
       <Link href="/" className="mr-auto flex shrink-0 items-center gap-2.5" aria-label="FilmJournal home">
-        <span className="grid h-7 w-7 place-items-center rounded-full border border-amber-300/30 bg-amber-300/10"><span className="h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_15px_rgba(245,197,24,.95)]" /></span>
+        <span className="grid h-7 w-7 place-items-center rounded-full border border-amber-300/30 bg-amber-300/10"><span className="h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_15px_rgb(var(--accent-300)/0.95)]" /></span>
         <span className="hidden text-sm font-black tracking-[0.16em] text-white sm:block">FILMJOURNAL</span>
       </Link>
       <nav className="hidden items-center gap-0.5 rounded-full border border-white/[0.07] bg-white/[0.025] p-1 lg:flex" aria-label="Primary navigation">
         {navigation.map((item) => (
           <Link key={item.href} href={item.href} className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${isActive(item.href) ? "bg-amber-300 text-[#1a1400]" : "text-slate-400 hover:bg-white/[0.05] hover:text-white"}`}>{item.label}</Link>
         ))}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setMoreOpen((value) => !value)}
-            aria-expanded={moreOpen}
-            aria-haspopup="menu"
-            className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${moreActive ? "bg-amber-300 text-[#1a1400]" : "text-slate-400 hover:bg-white/[0.05] hover:text-white"}`}
-          >
-            Mais <span aria-hidden="true" className="text-[9px]">▾</span>
-          </button>
-          {moreOpen && <>
-            {/* Click-away backdrop. A plain presentation div (not a button):
-                a focusable element here would take focus on click, and pairing
-                that with aria-hidden is what triggered Chrome's blocked
-                aria-hidden warning on the game page. */}
-            <div role="presentation" onClick={() => setMoreOpen(false)} className="fixed inset-0 z-40 cursor-default" />
-            <div role="menu" aria-label="Mais páginas" className="absolute right-0 top-full z-50 mt-2 w-44 rounded-2xl border border-white/[0.09] bg-[#111111] p-1.5 shadow-2xl">
-              {secondaryNavigation.map((item) => (
-                <Link key={item.href} role="menuitem" href={item.href} onClick={() => setMoreOpen(false)} className={`block rounded-xl px-3 py-2 text-xs font-bold transition ${isActive(item.href) ? "bg-amber-300/15 text-amber-200" : "text-slate-300 hover:bg-white/[0.06] hover:text-white"}`}>{item.label}</Link>
-              ))}
-            </div>
-          </>}
-        </div>
       </nav>
       <div className="flex items-center gap-2">
         <button type="button" onClick={() => window.dispatchEvent(new Event("open-command-palette"))} className="quiet-button gap-2 !px-3 !py-2" aria-label="Abrir busca rápida"><span aria-hidden="true">⌕</span><span className="hidden sm:inline">Busca rápida</span><kbd className="hidden rounded border border-white/10 px-1.5 py-0.5 text-[9px] text-slate-500 md:inline">⌘K</kbd></button>
@@ -82,7 +49,7 @@ export default function SiteHeader() {
     </div>
     <nav className="rail flex gap-1 items-center justify-between border-t border-white/[0.05] px-3 py-2 lg:hidden" aria-label="Mobile navigation">
       <div className="flex gap-1 overflow-x-auto">
-        {[...navigation, ...secondaryNavigation].map((item) => (
+        {navigation.map((item) => (
           <Link key={item.href} href={item.href} className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${isActive(item.href) ? "bg-amber-300 text-black" : "text-slate-400"}`}>{item.label}</Link>
         ))}
       </div>
