@@ -75,7 +75,7 @@ function arrowFor(direction: "target-higher" | "target-lower" | null): string {
   return direction === "target-higher" ? " ↑" : direction === "target-lower" ? " ↓" : "";
 }
 
-/** One comparison tile: color carries the grade, text carries it too (a11y). */
+/** Bloco de comparação com resultado visível por cor e texto. */
 function Tile({ label, grade, text, detail }: { label: string; grade: keyof typeof GRADE_WORD; text: string; detail?: string }) {
   const description = `${label}: ${text} — ${GRADE_WORD[grade]}${detail ? `; ${detail}` : ""}`;
   return (
@@ -114,7 +114,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
   const [best, setBest] = useState(initialBest);
   const [playedIds, setPlayedIds] = useState<number[]>([]);
 
-  // Round state — everything the server has revealed so far.
+  // Estado da rodada e pistas liberadas até aqui.
   const [token, setToken] = useState("");
   const [castTotal, setCastTotal] = useState(0);
   const [actors, setActors] = useState<Actor[]>([]);
@@ -134,7 +134,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
 
   const hintsUsed = (keywords ? 1 : 0) + (tagline !== null ? 1 : 0);
 
-  // Debounced autocomplete for the guess box.
+  // Autocomplete com atraso para evitar buscas a cada tecla.
   useEffect(() => {
     const query = guess.trim();
     if (phase !== "playing" || outcome || query.length < 2) {
@@ -147,7 +147,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
         const data = await res.json();
         if (res.ok) setSuggestions(data.suggestions ?? []);
       } catch {
-        /* best-effort */
+        /* falha não bloqueia o jogo */
       }
     }, 300);
     return () => window.clearTimeout(handle);
@@ -170,7 +170,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
         setBest((current) => ({ ...current, [currentSource]: data.bestScore }));
       }
     } catch {
-      /* score persistence is best-effort */
+      /* falha ao salvar a pontuação não bloqueia o jogo */
     }
   }, []);
 
@@ -292,7 +292,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
 
   const sourceLabel = useMemo(() => SOURCES.find((option) => option.id === source)?.label, [source]);
 
-  // ------------------------------------------------------------------ menu
+  // Menu
 
   if (phase === "menu") {
     return (
@@ -317,7 +317,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
     );
   }
 
-  // ------------------------------------------------------------------ over
+  // Fim da rodada
 
   if (phase === "over" && outcome) {
     return (
@@ -386,7 +386,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
     );
   }
 
-  // --------------------------------------------------------------- playing
+  // Rodada em andamento
 
   return (
     <section className="space-y-5">
@@ -404,7 +404,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
         <div className="surface skeleton-bg h-96 rounded-[2rem]" />
       ) : (
         <div className="grid gap-5 lg:grid-cols-[19rem_1fr]">
-          {/* Identity clues: actors one by one, poster from guess 7. */}
+          {/* Pistas de elenco e pôster */}
           <aside className="surface h-fit space-y-5 rounded-[2rem] p-5 sm:p-6">
             <div>
               <p className="text-xs font-black uppercase tracking-wider text-slate-500">
@@ -431,7 +431,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
               </ul>
             </div>
 
-            {/* Poster: hidden → heavy → medium → light blur (schedule-driven). */}
+            {/* O desfoque do pôster diminui conforme a rodada avança. */}
             <div>
               <p className="text-xs font-black uppercase tracking-wider text-slate-500">Pôster</p>
               <div className="artwork-frame relative mx-auto mt-3 aspect-[2/3] w-40 overflow-hidden rounded-xl bg-[#18181b]">
@@ -453,7 +453,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
               {!poster?.path && <p className="mt-2 text-center text-[10px] font-bold text-slate-600">aparece no palpite 7</p>}
             </div>
 
-            {/* Optional hints (5 and 8); using one costs score bonus. */}
+            {/* Dicas opcionais reduzem o bônus da pontuação. */}
             <div className="space-y-2">
               <p className="text-xs font-black uppercase tracking-wider text-slate-500">Dicas opcionais <span className="normal-case text-slate-600">— cada uma custa 50 pontos</span></p>
               {keywords ? (
@@ -473,7 +473,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
             </div>
           </aside>
 
-          {/* Guess input + comparison board. */}
+          {/* Palpite e comparações */}
           <div className="space-y-4">
             <motion.div key={shake} animate={shake ? { x: [0, -10, 10, -6, 6, 0] } : undefined} transition={{ duration: 0.4 }} className="relative">
               <form
@@ -536,11 +536,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
   );
 }
 
-/**
- * The comparison board: one card per guess — the guessed movie's poster and
- * data, each attribute colored by how close it landed to the secret film.
- * Newest guess first, so the feedback is always at the top.
- */
+/** Lista os palpites do mais recente ao mais antigo e compara cada atributo. */
 function GuessBoard({ rows }: { rows: Row[] }) {
   return (
     <ol className="space-y-2">

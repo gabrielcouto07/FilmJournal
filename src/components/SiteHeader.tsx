@@ -4,10 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 
-// IA: Paladar (taste-first home) · Diário (journal) · Descobrir (blind spots +
-// curation) · Jogos (Cine-Detetive + Roleta, one hub) · Minha lista (favoritos +
-// para assistir, one hub) · Buscar (TMDB search, out in the open). /stats and
-// /dashboard redirect to /; /roulette → /play; /favorites & /watchlist → /collection.
+// Navegação principal; rotas antigas apenas redirecionam para estas áreas.
 const navigation = [
   { href: "/", label: "Paladar" },
   { href: "/diary", label: "Diário" },
@@ -17,7 +14,26 @@ const navigation = [
   { href: "/search", label: "Buscar" },
 ];
 
-export default function SiteHeader() {
+function initialsOf(name: string) {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "FJ";
+}
+
+// Foto de perfil redonda; cai nas iniciais do usuário quando não há imagem.
+function ProfileAvatar({ avatarUrl, name, active }: { avatarUrl: string | null; name: string; active: boolean }) {
+  return (
+    <span
+      className={`grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full border bg-amber-300/10 text-[11px] font-black transition ${active ? "border-amber-300" : "border-white/15 hover:border-amber-300/60"}`}
+      style={{ color: "var(--accent)" }}
+    >
+      {avatarUrl
+        // eslint-disable-next-line @next/next/no-img-element -- avatar é data URL / URL arbitrária que o next/image não otimiza
+        ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+        : initialsOf(name)}
+    </span>
+  );
+}
+
+export default function SiteHeader({ avatarUrl }: { avatarUrl: string | null }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
@@ -38,9 +54,9 @@ export default function SiteHeader() {
         <button type="button" onClick={() => window.dispatchEvent(new Event("open-command-palette"))} className="quiet-button gap-2 !px-3 !py-2" aria-label="Abrir busca rápida"><span aria-hidden="true">⌕</span><span className="hidden sm:inline">Busca rápida</span><kbd className="hidden rounded border border-white/10 px-1.5 py-0.5 text-[9px] text-slate-500 md:inline">⌘K</kbd></button>
         {user ? (
           <div className="hidden lg:flex items-center gap-3">
-            <Link href="/profile" className={`text-xs font-bold transition ${pathname.startsWith("/profile") ? "text-amber-300" : "text-slate-500 hover:text-white"}`}>{user.displayName || user.username}</Link>
             {user.role === "OWNER" && <Link href="/admin" className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${pathname.startsWith("/admin") ? "bg-amber-300 text-[#1a1400]" : "text-amber-300 hover:bg-amber-300/10"}`}>Admin</Link>}
             <button onClick={() => logout()} className="rounded-full px-3.5 py-1.5 text-xs font-bold border border-white/[0.07] bg-white/[0.025] text-slate-400 hover:bg-white/[0.05] hover:text-white transition">Sair</button>
+            <Link href="/profile" aria-label="Seu perfil e configurações" title={`${user.displayName || user.username} · Perfil e configurações`} className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"><ProfileAvatar avatarUrl={avatarUrl} name={user.displayName || user.username} active={pathname.startsWith("/profile")} /></Link>
           </div>
         ) : (
           <Link href="/login" className="hidden lg:block rounded-full px-3.5 py-1.5 text-xs font-bold bg-amber-300/10 border border-amber-300/30 text-amber-300 hover:bg-amber-300/20 transition">Entrar</Link>
@@ -55,7 +71,7 @@ export default function SiteHeader() {
       </div>
       <div className="shrink-0 border-l border-white/10 pl-2">
         {user ? (
-          <div className="flex items-center gap-1"><Link href="/profile" className={`rounded-full px-3 py-1.5 text-xs font-bold ${pathname.startsWith("/profile") ? "bg-amber-300 text-black" : "text-amber-300"}`}>Perfil</Link><button onClick={() => logout()} className="rounded-full px-3 py-1.5 text-xs font-bold text-slate-400">Sair</button></div>
+          <div className="flex items-center gap-2"><button onClick={() => logout()} className="rounded-full px-3 py-1.5 text-xs font-bold text-slate-400">Sair</button><Link href="/profile" aria-label="Seu perfil e configurações"><ProfileAvatar avatarUrl={avatarUrl} name={user.displayName || user.username} active={pathname.startsWith("/profile")} /></Link></div>
         ) : (
           <Link href="/login" className="rounded-full px-3 py-1.5 text-xs font-bold text-amber-300">Entrar</Link>
         )}

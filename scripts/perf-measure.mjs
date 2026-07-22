@@ -1,7 +1,5 @@
-// Perf harness: logs in as the owner via the NextAuth credentials callback and
-// times the document response of each main route, N passes, so dev vs prod and
-// cold vs warm cache can be compared. Pair with the [data] HIT/MISS server logs.
-// Usage: node scripts/perf-measure.mjs [baseUrl] [passes]
+// Mede as principais rotas após entrar com a conta principal e compara o cache.
+// Uso: node scripts/perf-measure.mjs [baseUrl] [passes]
 import "dotenv/config";
 
 const BASE = process.argv[2] || "http://localhost:3000";

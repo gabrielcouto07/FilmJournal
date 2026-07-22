@@ -31,18 +31,17 @@ function apply(settings: AppSettings) {
   const theme = resolveTheme(settings.theme);
   root.setAttribute("data-theme", theme);
   root.style.colorScheme = theme;
-  // Sets --accent plus the derived --accent-50…900 shade ramp that every
-  // amber-* utility resolves against, so the accent recolors the whole UI.
+  // Aplica a cor de destaque e suas variações em toda a interface.
   applyAccent(root, settings.accentColor);
 }
 
 export function SettingsProvider({ initialSettings, children }: { initialSettings: AppSettings; children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(initialSettings);
 
-  // Re-apply on change (e.g. after saving preferences) so the UI updates live.
+  // Reaplica quando a preferência muda para atualizar a tela na hora.
   useEffect(() => { apply(settings); }, [settings]);
 
-  // Follow the OS when the user chose "system".
+  // Segue o sistema quando essa opção estiver ativa.
   useEffect(() => {
     if (settings.theme !== "system" || typeof window === "undefined" || !window.matchMedia) return;
     const media = window.matchMedia("(prefers-color-scheme: light)");

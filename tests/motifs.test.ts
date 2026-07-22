@@ -15,17 +15,17 @@ function film(userRating: number, keywords: string[]): MotifFilm {
   return { userRating, keywords };
 }
 
-/** N highly-rated films all sharing the given keywords. */
+/** Cria filmes bem avaliados com as mesmas palavras-chave. */
 function batch(count: number, keywords: string[], rating = 5): MotifFilm[] {
   return Array.from({ length: count }, () => film(rating, keywords));
 }
 
 test("highlyRatedThreshold uses the top quartile, capped at 4.5", () => {
-  // Generous rater: quartile lands at 5 → capped to 4.5.
+  // Notas altas: o quartil chega a 5, mas o corte para em 4,5.
   assert.equal(highlyRatedThreshold([5, 5, 5, 5]), 4.5);
-  // Strict rater whose top quartile is 4: threshold follows the quartile down.
+  // Notas rígidas: o corte acompanha o quartil em 4.
   assert.equal(highlyRatedThreshold([2, 2.5, 3, 3, 3.5, 3.5, 4, 4]), 4);
-  // Empty diary falls back to the 4.5 cap.
+  // Diário vazio usa o corte padrão de 4,5.
   assert.equal(highlyRatedThreshold([]), 4.5);
 });
 
@@ -71,7 +71,7 @@ test("computeMotifs counts a keyword once per film, ranks by recurrence and appl
 test("computeMotifs only looks at highly-rated films", () => {
   const films = [
     ...batch(MIN_HIGHLY_RATED, ["memory"], 5),
-    // Low-rated films full of a keyword must NOT create a motif.
+    // Filmes com nota baixa não podem criar um tema recorrente.
     ...batch(20, ["torture"], 1),
   ];
   const motifs = computeMotifs(films);
@@ -79,7 +79,7 @@ test("computeMotifs only looks at highly-rated films", () => {
 });
 
 test("computeMotifSummary builds the evocative pt-BR sentence", () => {
-  // Distinct counts (8/7/6/4) so the ranking is unambiguous.
+  // Contagens diferentes deixam a ordem sem ambiguidade.
   const films = [
     ...batch(4, ["memory", "isolation", "father son relationship", "kaiju"]),
     ...batch(2, ["memory", "isolation", "father son relationship"]),
@@ -92,24 +92,24 @@ test("computeMotifSummary builds the evocative pt-BR sentence", () => {
 });
 
 test("computeMotifSummary hides the section when data is too thin", () => {
-  // Too few highly-rated films.
+  // Poucos filmes bem avaliados.
   const fewFilms = computeMotifSummary(batch(MIN_HIGHLY_RATED - 1, ["memory", "isolation"]));
   assert.equal(fewFilms.sentence, null);
   assert.deepEqual(fewFilms.motifs, []);
 
-  // Enough films but keywords never recur enough.
+  // Há filmes, mas as palavras-chave não se repetem o bastante.
   const scattered = computeMotifSummary(
     Array.from({ length: 12 }, (_, index) => film(5, [`keyword-${index}`])),
   );
   assert.equal(scattered.sentence, null);
 
-  // Only one recurring motif is not evocative enough for a sentence.
+  // Um único tema não basta para montar a frase.
   const single = computeMotifSummary([
     ...batch(MIN_MOTIF_COUNT, ["memory"]),
     ...Array.from({ length: MIN_HIGHLY_RATED - MIN_MOTIF_COUNT }, (_, index) => film(5, [`unique-${index}`])),
   ]);
   assert.equal(single.sentence, null);
 
-  // No rated films at all.
+  // Nenhum filme avaliado.
   assert.equal(computeMotifSummary([]).sentence, null);
 });

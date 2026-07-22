@@ -27,12 +27,7 @@ const schema = z.object({
     .max(5),
 });
 
-/**
- * Finish the first-run welcome flow: seed the chosen favorites (UserMovie with
- * favorite + favoriteRank + rating, fully enriched via Chunk-1 helpers so the
- * first dashboard has real relational data) and persist onboardedAt. An empty
- * seeds array just marks the account onboarded ("pular").
- */
+/** Finaliza a introdução, salva os favoritos escolhidos e marca a conta como pronta. */
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return crossOriginResponse();
   const user = await getCurrentUser();
@@ -49,12 +44,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
   }
 
-  // Dedupe by tmdbId, preserving pick order (order = favoriteRank).
+  // Remove repetidos sem perder a ordem escolhida.
   const seeds = [...new Map(parsed.data.seeds.map((seed) => [seed.tmdbId, seed])).values()];
 
-  // Respect ranks that already exist (re-run after a partial failure, or an
-  // account that somehow gained favorites mid-flow) — (userId, favoriteRank)
-  // is unique.
+  // Pula posições já ocupadas caso o fluxo esteja sendo retomado.
   const occupied = await prisma.userMovie.findMany({
     where: { userId: user.id, favoriteRank: { not: null } },
     select: { favoriteRank: true },
@@ -87,8 +80,7 @@ export async function POST(request: Request) {
     }
   }
 
-  // If favorites were requested but none could be saved (e.g. TMDB down),
-  // keep the account un-onboarded so the flow can be retried.
+  // Se nenhum favorito for salvo, mantém a introdução pendente para tentar de novo.
   if (seeds.length > 0 && seeded === 0) {
     return NextResponse.json({ error: "Não foi possível salvar seus favoritos agora. Tente novamente." }, { status: 502 });
   }

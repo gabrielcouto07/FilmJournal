@@ -35,12 +35,7 @@ async function runWriteBatches(operations: Prisma.PrismaPromise<unknown>[]) {
   }
 }
 
-/**
- * Resolve every canonical film to a catalog Movie row (creating minimal rows for
- * unknown titles) using a handful of bulk queries instead of one lookup per film.
- * TMDB enrichment is intentionally skipped here — it happens lazily when a film
- * page is opened, so a large import never blocks on hundreds of network calls.
- */
+/** Resolve os filmes em lote e deixa o enriquecimento do TMDB para depois. */
 async function resolveMovies(films: LetterboxdFilm[]): Promise<Map<string, Movie>> {
   const uris = films.map((film) => film.letterboxdUri).filter((uri): uri is string => Boolean(uri));
   const titles = films.map((film) => film.name);
@@ -90,13 +85,7 @@ async function resolveMovies(films: LetterboxdFilm[]): Promise<Map<string, Movie
   return resolved;
 }
 
-/**
- * Persist a parsed Letterboxd export into one user's journal. Movie rows are a
- * shared catalog; the user's state lives in UserMovie + LogEntry scoped to
- * `userId`. Import identity keys are namespaced with the user id so two users
- * importing the same film never collide on the globally-unique sourceKey/dedupeKey.
- * Re-running is idempotent: existing rows are matched and updated, not duplicated.
- */
+/** Salva a exportação no diário sem duplicar dados em uma nova importação. */
 export async function importLetterboxdForUser(userId: string, files: LetterboxdFiles): Promise<ImportSummary> {
   const filesReceived = (Object.keys(files) as LetterboxdFile[]).filter((name) => (files[name] ?? "").trim().length > 0);
   const films = [...buildCanonicalLetterboxdImport(files).values()];
@@ -144,7 +133,7 @@ export async function importLetterboxdForUser(userId: string, files: LetterboxdF
     else summary.moviesCreated += 1;
   }
 
-  // --- UserMovie (per-user collection state) ---
+  // Estado da coleção do usuário
   const [existingUserMovies, occupiedFavoriteRanks] = await Promise.all([
     prisma.userMovie.findMany({ where: { userId, movieId: { in: movieIds } } }),
     prisma.userMovie.findMany({
@@ -197,7 +186,7 @@ export async function importLetterboxdForUser(userId: string, files: LetterboxdF
     summary.userMoviesCreated = result.count;
   }
 
-  // --- LogEntry (per-user watch events) ---
+  // Sessões registradas pelo usuário
   const existingLogs = await prisma.logEntry.findMany({ where: { userId, movieId: { in: movieIds } } });
   const logsByMovie = new Map<string, typeof existingLogs>();
   for (const log of existingLogs) logsByMovie.set(log.movieId, [...(logsByMovie.get(log.movieId) ?? []), log]);
@@ -221,8 +210,7 @@ export async function importLetterboxdForUser(userId: string, files: LetterboxdF
       const occurrence = (dayOccurrences.get(eventDay) ?? 0) + 1;
       dayOccurrences.set(eventDay, occurrence);
 
-      // User-namespaced keys keep the globally-unique constraints collision-free
-      // across accounts while staying deterministic for idempotent re-imports.
+      // Inclui o usuário nas chaves para evitar colisões entre contas.
       const sourceKey = `${userId}:${event.importKey}`;
       const dedupeKey = createDiaryDedupeKey({
         movieId: `${userId}:${movie.id}`,

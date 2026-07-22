@@ -1,10 +1,6 @@
 import type { Movie } from "@prisma/client";
 
-/**
- * Per-user collection state. Since the multi-user migration, this lives on
- * `UserMovie` (not on the shared catalog `Movie`). Server pages/routes layer it
- * onto a `Movie` before handing it to the UI.
- */
+/** Estado do filme para cada usuário, armazenado em `UserMovie`. */
 export type UserMovieState = {
   rating: number | null;
   watched: boolean;
@@ -14,16 +10,10 @@ export type UserMovieState = {
   favoriteRank: number | null;
 };
 
-/**
- * A shared catalog `Movie` enriched with the viewing user's per-movie state.
- * The state fields are optional so a bare catalog `Movie` is still assignable.
- */
+/** Filme do catálogo com o estado opcional do usuário atual. */
 export type EnrichedMovie = Movie & Partial<UserMovieState>;
 
-/**
- * Minimal, JSON-safe movie shape for poster cards. Both live Prisma objects and
- * cache-serialized view models satisfy it structurally, so cards render either.
- */
+/** Formato mínimo e serializável usado pelos cartões de filme. */
 export type CardMovie = {
   id: string;
   title: string;

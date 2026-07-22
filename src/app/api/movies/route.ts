@@ -51,7 +51,7 @@ export async function GET(request: Request) {
       favoriteRank: um.favoriteRank
     }));
   } else {
-    // Per-user state is folded into the same query — no trailing enrichment pass.
+    // O estado do usuário já vem na mesma consulta.
     const rawMovies = await prisma.movie.findMany({
       where: query ? { title: { contains: query } } : {},
       include: {
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return crossOriginResponse();
-  // Any signed-in user can add movies to their own collection.
+  // Cada usuário autenticado pode adicionar filmes à própria coleção.
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Faça login para adicionar filmes." }, { status: 401 });
@@ -105,10 +105,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Full metadata write (strings + relational taste-analytics fields).
+    // Salva os metadados e as relações usadas nas análises.
     const { movie, created } = await upsertEnrichedMovie(tmdbId);
 
-    // Create or update UserMovie record for the owner
+    // Cria ou atualiza o vínculo do filme com o usuário.
     const userMovie = await prisma.userMovie.upsert({
       where: {
         userId_movieId: {
@@ -139,8 +139,7 @@ export async function POST(request: Request) {
     };
 
     revalidateTag(userTag(user.id));
-    // Refreshed metadata lives on the shared catalog (same reasoning as the
-    // enrich route): drop every cached page that shows it.
+    // Como o catálogo é compartilhado, limpa as páginas que exibem o filme.
     revalidateTag(CATALOG_TAG);
     return NextResponse.json({
       movie: mergedMovie,
@@ -179,7 +178,7 @@ async function setFavoriteRank(userId: string, movieId: string, rank: number | n
 
     if (userMovie.favoriteRank === rank) return userMovie;
 
-    // Clear the moving movie's rank first so the (userId, favoriteRank) unique constraint is never violated.
+    // Libera a posição atual antes de reorganizar o ranking.
     await transaction.userMovie.update({
       where: { userId_movieId: { userId, movieId } },
       data: { favoriteRank: null }
@@ -208,8 +207,7 @@ type CollectionMutation = {
 
 export async function PATCH(request: Request) {
   if (!isSameOrigin(request)) return crossOriginResponse();
-  // Any signed-in user can modify their own collection state below. Actions that
-  // mutate the shared catalog (poster/backdrop art) are gated to the owner.
+  // O usuário mexe na própria coleção; só o dono altera artes do catálogo.
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Faça login para modificar filmes." }, { status: 401 });

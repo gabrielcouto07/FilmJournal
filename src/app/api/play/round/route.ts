@@ -17,14 +17,14 @@ import { sealRound, type HybridRoundPayload } from "@/lib/play/token";
 
 export const dynamic = "force-dynamic";
 
-/** Untimed puzzle — generous TTL so a round survives a coffee break. */
+/** A rodada não tem relógio e continua válida mesmo após uma pausa. */
 const TOKEN_TTL_MS = 60 * 60_000;
-/** Targets need a recognizable billed cast to be challenging-but-fair. */
+/** O filme precisa ter elenco suficiente para render pistas justas. */
 const MIN_CAST = 3;
 const MIN_VOTES_MINE = 100;
 const MIN_VOTES_POPULAR = 1000;
 const PICK_ATTEMPTS = 6;
-/** top_rated pages the daily seed can land on (getTmdbFeed clamps at 20). */
+/** Páginas de `top_rated` disponíveis para o sorteio diário. */
 const DAILY_PAGES = 20;
 
 const roundSchema = z.object({
@@ -41,7 +41,7 @@ function shufflePick<T>(items: T[]): T[] {
   return copy;
 }
 
-/** Full grading profile via the shared getTmdbMovie fetch shape, or null when the cast is too thin. */
+/** Monta o perfil do filme ou retorna `null` quando faltam pistas de elenco. */
 async function profileFor(tmdbId: number): Promise<{ profile: MovieProfile; posterPath: string | null; keywords: string[]; tagline: string | null } | null> {
   const details = await getTmdbMovie(tmdbId);
   const profile = profileFromDetails(details);
@@ -94,11 +94,7 @@ async function buildPopularRound(excludeIds: number[]): Promise<HybridRoundPaylo
   return null;
 }
 
-/**
- * The movie of the day: a date-derived seed picks a stable page + index in
- * TMDB's top_rated feed, so every round built today lands on the same film
- * (as stable as the feed itself — top_rated barely moves day to day).
- */
+/** Escolhe o filme do dia de forma estável a partir da data e do `top_rated`. */
 async function buildDailyRound(): Promise<HybridRoundPayload | null> {
   const seed = dailySeed(dailyKey(new Date()));
   const page = 1 + (seed % DAILY_PAGES);
@@ -106,7 +102,7 @@ async function buildDailyRound(): Promise<HybridRoundPayload | null> {
   const candidates = feed.results.filter((movie) => (movie.vote_count ?? 0) >= MIN_VOTES_POPULAR);
   if (!candidates.length) return null;
 
-  // Walk deterministically from the seeded index until a candidate qualifies.
+  // Avança de forma previsível até encontrar um candidato válido.
   for (let step = 0; step < Math.min(candidates.length, PICK_ATTEMPTS); step += 1) {
     const candidate = candidates[((seed >>> 5) + step) % candidates.length];
     try {
@@ -146,8 +142,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Only the clues due at guess 1 leave the server: the first (least-billed)
-    // reveal actor. Everything else arrives guess by guess.
+    // Envia só a primeira pista; as demais chegam conforme os palpites.
     const reveals = revealOrder(payload.target.cast);
     const visible = actorsVisible(1, reveals.length);
     return NextResponse.json({

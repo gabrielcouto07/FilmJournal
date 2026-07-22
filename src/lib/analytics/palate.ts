@@ -1,95 +1,79 @@
-/**
- * Palate analytics — pure, Prisma-free aggregation over a viewer's rated films.
- *
- * Every function here takes plain data (a `PalateFilm[]`) and returns plain
- * data, so the whole module is unit-testable without a database. The Prisma
- * read that produces `PalateFilm[]` lives in the data layer
- * (`getPalateFilms` in src/lib/data.ts); components render the results but never
- * compute them.
- *
- * Rating scales: the viewer rates on 0–5 (half stars). TMDB's crowd rating
- * (`vote_average`) is 0–10. The contrarian analysis puts both on the 0–5 scale
- * so "you vs the crowd" is an apples-to-apples comparison.
- */
+/** Calcula o Paladar com dados prontos, sem acessar o Prisma. */
 
-/** The viewer's 0–5 star scale. */
+/** Escala de notas do usuário. */
 export const USER_SCALE_MAX = 5;
-/** TMDB `vote_average` scale. */
+/** Escala usada pelo TMDB. */
 export const CROWD_SCALE_MAX = 10;
-/** Films need at least this many TMDB votes to count as "the crowd". */
+/** Mínimo de votos para a nota do público ser confiável. */
 export const MIN_CROWD_VOTES = 50;
-/** A director must reach this many rated films to count as "loyalty". */
+/** Mínimo de filmes para indicar fidelidade a um diretor. */
 export const DIRECTOR_LOYALTY_MIN = 3;
 
-/** One rated film, already flattened from Prisma into analytics-ready fields. */
+/** Filme avaliado no formato usado pelas análises. */
 export type PalateFilm = {
   id: string;
   title: string;
   year: number | null;
-  /** Viewer rating on the 0–5 scale (guaranteed present — callers filter nulls). */
+  /** Nota do usuário entre 0 e 5. */
   userRating: number;
-  /** TMDB vote_average on the raw 0–10 scale, or null when unknown. */
+  /** Nota do TMDB entre 0 e 10. */
   crowdRating: number | null;
-  /** TMDB vote_count, used to gate low-confidence crowd ratings. */
+  /** Quantidade de votos no TMDB. */
   crowdVotes: number | null;
   runtime: number | null;
-  /** ISO 3166-1 country codes. */
+  /** Códigos ISO dos países. */
   countries: string[];
-  /** TMDB genre names. */
+  /** Gêneros do TMDB. */
   genres: string[];
   directorId: number | null;
   directorName: string | null;
 };
 
-/** Put a 0–10 crowd rating on the viewer's 0–5 scale. */
+/** Converte a nota do público para a escala de 0 a 5. */
 export function normalizeCrowdRating(crowd: number): number {
   return crowd * (USER_SCALE_MAX / CROWD_SCALE_MAX);
 }
 
-/** Arithmetic mean (0 for an empty list). Shared with timeline.ts. */
+/** Média aritmética; retorna 0 para uma lista vazia. */
 export function mean(values: number[]): number {
   if (values.length === 0) return 0;
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
-/** Round to `places` decimals. Shared with timeline.ts. */
+/** Arredonda para a quantidade de casas pedida. */
 export function round(value: number, places = 2): number {
   const factor = 10 ** places;
   return Math.round(value * factor) / factor;
 }
 
-// ------------------------------------------------------------ contrarian
+// Comparação com o público
 
 export type ContrarianPoint = {
   id: string;
   title: string;
   year: number | null;
-  /** Viewer rating, 0–5. */
+  /** Nota do usuário. */
   userRating: number;
-  /** Crowd rating normalized to 0–5. */
+  /** Nota do público convertida para 0–5. */
   crowdRating: number;
-  /** userRating − crowdRating. Positive = you liked it more than the crowd. */
+  /** Diferença positiva quando o usuário gostou mais que o público. */
   delta: number;
 };
 
 export type Contrarian = {
   points: ContrarianPoint[];
-  /** Mean absolute disagreement with the crowd (0 = you always agree). */
+  /** Distância média absoluta para a nota do público. */
   contrarianScore: number;
-  /** Mean signed gap. Positive = you rate more generously than the crowd. */
+  /** Diferença média; positiva indica notas mais generosas. */
   tasteLean: number;
-  /** Films you rate far ABOVE the crowd, most contrarian first. */
+  /** Filmes avaliados bem acima do público. */
   loves: ContrarianPoint[];
-  /** Films you rate far BELOW the crowd, most contrarian first. */
+  /** Filmes avaliados bem abaixo do público. */
   pans: ContrarianPoint[];
   sampleSize: number;
 };
 
-/**
- * Compare each film's viewer rating against the crowd. Only films with a crowd
- * rating backed by at least MIN_CROWD_VOTES votes qualify, so a single stray
- * vote can't masquerade as consensus.
- */
+/** Compara as notas usando apenas filmes com votos suficientes no TMDB. */
 export function computeContrarian(films: PalateFilm[], listSize = 5): Contrarian {
   const points: ContrarianPoint[] = films
     .filter((film) => film.crowdRating != null && (film.crowdVotes ?? 0) >= MIN_CROWD_VOTES)
@@ -125,11 +109,11 @@ export function computeContrarian(films: PalateFilm[], listSize = 5): Contrarian
   };
 }
 
-// --------------------------------------------------------------- decades
+// Décadas
 
 export type DecadeBucket = { decade: number; label: string; count: number };
 
-/** Count films per decade, oldest first. Films without a year are ignored. */
+/** Conta filmes por década e ignora os que não têm ano. */
 export function computeDecades(films: PalateFilm[]): DecadeBucket[] {
   const counts = new Map<number, number>();
   for (const film of films) {
@@ -142,14 +126,11 @@ export function computeDecades(films: PalateFilm[]): DecadeBucket[] {
     .map(([decade, count]) => ({ decade, label: `${decade}s`, count }));
 }
 
-// ------------------------------------------------------------- countries
+// Países
 
 export type CountryCount = { code: string; count: number };
 
-/**
- * Count films per production country, most-watched first. A co-production
- * counts once for each of its countries.
- */
+/** Conta filmes por país; coproduções entram uma vez em cada país. */
 export function computeCountries(films: PalateFilm[], limit?: number): CountryCount[] {
   const counts = new Map<string, number>();
   for (const film of films) {
@@ -164,11 +145,11 @@ export function computeCountries(films: PalateFilm[], limit?: number): CountryCo
   return limit ? ranked.slice(0, limit) : ranked;
 }
 
-// ---------------------------------------------------------------- genres
+// Gêneros
 
 export type GenreCount = { genre: string; count: number };
 
-/** Count films per genre, most-watched first. */
+/** Conta filmes por gênero, do mais visto para o menos visto. */
 export function computeGenres(films: PalateFilm[], limit?: number): GenreCount[] {
   const counts = new Map<string, number>();
   for (const film of films) {
@@ -183,16 +164,16 @@ export function computeGenres(films: PalateFilm[], limit?: number): GenreCount[]
   return limit ? ranked.slice(0, limit) : ranked;
 }
 
-// -------------------------------------------------------------- runtimes
+// Duração
 
 export type RuntimeBucket = {
   label: string;
-  /** Inclusive lower bound in minutes. */
+  /** Limite mínimo em minutos. */
   min: number;
-  /** Exclusive upper bound in minutes, or null for the open-ended top bucket. */
+  /** Limite máximo; `null` deixa a última faixa aberta. */
   max: number | null;
   count: number;
-  /** True for the single most-populated bucket (the viewer's sweet spot). */
+  /** Marca a faixa mais comum. */
   sweetSpot: boolean;
 };
 
@@ -205,10 +186,7 @@ const RUNTIME_BUCKETS: Array<{ label: string; min: number; max: number | null }>
   { label: "150+", min: 150, max: null },
 ];
 
-/**
- * Bucket films by runtime and flag the modal bucket as the sweet spot. Films
- * without a runtime are ignored.
- */
+/** Agrupa por duração e destaca a faixa mais comum. */
 export function computeRuntimes(films: PalateFilm[]): RuntimeBucket[] {
   const counts = RUNTIME_BUCKETS.map((bucket) => ({ ...bucket, count: 0, sweetSpot: false }));
   for (const film of films) {
@@ -224,20 +202,17 @@ export function computeRuntimes(films: PalateFilm[]): RuntimeBucket[] {
   return counts;
 }
 
-// ------------------------------------------------------------- directors
+// Diretores
 
 export type DirectorLoyalty = {
   directorId: number | null;
   name: string;
   count: number;
-  /** Mean viewer rating across this director's rated films, 0–5. */
+  /** Nota média dos filmes deste diretor. */
   averageRating: number;
 };
 
-/**
- * Directors the viewer keeps returning to (at least DIRECTOR_LOYALTY_MIN rated
- * films), ranked by film count then by how highly the viewer rates them.
- */
+/** Lista os diretores recorrentes por quantidade e nota média. */
 export function computeDirectorLoyalty(films: PalateFilm[]): DirectorLoyalty[] {
   const groups = new Map<string, { directorId: number | null; name: string; ratings: number[] }>();
   for (const film of films) {
@@ -258,7 +233,7 @@ export function computeDirectorLoyalty(films: PalateFilm[]): DirectorLoyalty[] {
     .sort((a, b) => b.count - a.count || b.averageRating - a.averageRating || a.name.localeCompare(b.name));
 }
 
-// ----------------------------------------------------------------- palate
+// Paladar completo
 
 export type Palate = {
   totalFilms: number;
@@ -270,7 +245,7 @@ export type Palate = {
   directors: DirectorLoyalty[];
 };
 
-/** Compute every palate aggregate in one pass-friendly call. */
+/** Calcula todas as partes do Paladar em uma chamada. */
 export function computePalate(films: PalateFilm[]): Palate {
   return {
     totalFilms: films.length,

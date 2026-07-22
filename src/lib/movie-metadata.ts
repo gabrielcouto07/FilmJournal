@@ -3,11 +3,7 @@ import { prisma } from "./prisma";
 import { getTmdbMovie, searchTmdbMovie, toMovieMetadata, type TmdbMovieDetails } from "./tmdb";
 
 function missingMetadata(movie: Movie) {
-  // originalLanguage doubles as the relational-enrichment sentinel (the same
-  // one scripts/backfill-tmdb.ts uses): TMDB returns original_language for
-  // every valid movie, so a film that has it also had its genreList/keywords/
-  // countries/director fields written. Films that are complete on every check
-  // are a no-op for enrichMovieMetadata.
+  // `originalLanguage` marca que as relações do TMDB já foram preenchidas.
   return !movie.posterPath || !movie.tmdbId || !movie.genres || !movie.directors || !movie.originalLanguage;
 }
 
@@ -18,12 +14,7 @@ function metadataWithoutIdentity(metadata: ReturnType<typeof toMovieMetadata>) {
   return shared;
 }
 
-/**
- * The relational taste-analytics fields derived from a TMDB details payload
- * (fetched via getTmdbMovie, which appends credits + keywords). Shared by the
- * on-demand enrichment below, POST /api/movies and scripts/backfill-tmdb.ts so
- * the paths cannot drift.
- */
+/** Monta os campos e relações de análise a partir dos detalhes do TMDB. */
 export function relationalEnrichmentData(details: TmdbMovieDetails) {
   const director = details.credits?.crew.find((person) => person.job === "Director") ?? null;
   const genres = details.genres ?? [];
@@ -33,7 +24,7 @@ export function relationalEnrichmentData(details: TmdbMovieDetails) {
     .filter((code): code is string => Boolean(code));
 
   return {
-    // `?? undefined` leaves an existing value untouched when TMDB omits it.
+    // `undefined` preserva o valor atual quando o TMDB omite o campo.
     runtime: details.runtime ?? undefined,
     originalLanguage: details.original_language ?? null,
     tmdbRating: details.vote_average ?? undefined,
@@ -41,19 +32,13 @@ export function relationalEnrichmentData(details: TmdbMovieDetails) {
     countries,
     directorId: director?.id ?? null,
     directorName: director?.name ?? null,
-    // `set` is declarative: it replaces the film's relations with the current
-    // TMDB truth, so re-running enrichment stays correct and idempotent.
+    // `set` substitui as relações pela versão atual do TMDB.
     genreList: { set: genres.map((genre) => ({ id: genre.id })) },
     keywords: { set: keywords.map((keyword) => ({ id: keyword.id })) },
   } satisfies Prisma.MovieUpdateInput;
 }
 
-/**
- * Create every Genre/Keyword row the given payloads reference in one atomic,
- * conflict-safe write per table, so the relation `set`s in
- * relationalEnrichmentData never race to insert the same taxonomy id (accepts
- * several films at once — the backfill batches them).
- */
+/** Cria gêneros e palavras-chave em lote antes de ligar as relações. */
 export async function ensureTaxonomyRows(detailsList: TmdbMovieDetails[]): Promise<void> {
   const genres = new Map<number, string>();
   const keywords = new Map<number, string>();
@@ -69,11 +54,7 @@ export async function ensureTaxonomyRows(detailsList: TmdbMovieDetails[]): Promi
   }
 }
 
-/**
- * Create or refresh the shared-catalog Movie for a TMDB id with FULL metadata:
- * the denormalized string fields plus the relational taste-analytics fields.
- * Used by POST /api/movies (film add) and the onboarding seed flow.
- */
+/** Cria ou atualiza um filme do catálogo com todos os dados do TMDB. */
 export async function upsertEnrichedMovie(tmdbId: number): Promise<{ movie: Movie; created: boolean }> {
   const details = await getTmdbMovie(tmdbId);
   const metadata = toMovieMetadata(details);
@@ -89,9 +70,7 @@ export async function upsertEnrichedMovie(tmdbId: number): Promise<{ movie: Movi
       })
     : await prisma.movie.create({ data: metadata });
 
-  // Full enrichment on add: the same relational fields the TMDB backfill
-  // writes (genre/keyword relations, countries, language, director), so films
-  // added through the app never drop out of the taste analytics.
+  // Já salva as relações usadas nas análises ao adicionar o filme.
   await ensureTaxonomyRows([details]);
   const movie = await prisma.movie.update({ where: { id: base.id }, data: relationalEnrichmentData(details) });
   return { movie, created: !existing };
@@ -136,5 +115,4 @@ export async function enrichMovieMetadata(movieId: string): Promise<Movie | null
   }
 }
 
-// (The old enrichStatsMoviesForUser render-path helper was removed: metadata is
-// now filled after paint via POST /api/movies/enrich + <BackgroundEnrich/>.)
+// O enriquecimento roda depois da tela abrir, pela rota de metadados.

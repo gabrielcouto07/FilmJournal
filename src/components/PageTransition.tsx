@@ -4,10 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
-/**
- * Wraps route content in a framer-motion enter animation, re-keyed on pathname
- * so each navigation fades/slides in. Honors prefers-reduced-motion.
- */
+/** Anima a troca de página e respeita a preferência por menos movimento. */
 export default function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const reduce = useReducedMotion();

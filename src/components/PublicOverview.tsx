@@ -2,8 +2,7 @@ import Link from "next/link";
 import { getBackdropUrl, getPosterUrl, getTmdbFeed, type TmdbMovieSearchResult } from "@/lib/tmdb";
 import ArtworkImage from "./ArtworkImage";
 
-// Server-rendered landing for unauthenticated visitors. TMDB is fetched on the
-// server (API key never reaches the client) and degrades gracefully if it fails.
+// Página pública renderizada no servidor, sem expor a chave do TMDB.
 
 const FEATURES = [
   { icon: "🗺️", title: "Mapa de gosto", body: "Veja onde seu gosto pousa por década, país, gênero e duração — o retrato real do que você assiste." },
@@ -21,7 +20,7 @@ async function getTrending(): Promise<TmdbMovieSearchResult[]> {
     const feed = await getTmdbFeed("trending");
     return feed.results.filter((movie) => movie.poster_path).slice(0, 12);
   } catch {
-    // TMDB unconfigured, rate-limited, or unreachable — the page still renders.
+    // A página continua funcionando mesmo se o TMDB falhar.
     return [];
   }
 }
@@ -31,7 +30,7 @@ export default async function PublicOverview() {
   const heroBackdrop = getBackdropUrl(trending.find((movie) => movie.backdrop_path)?.backdrop_path ?? null);
 
   return <main className="page-shell space-y-16">
-    {/* Hero */}
+    {/* Apresentação */}
     <section className="fade-up surface relative isolate min-h-[30rem] overflow-hidden rounded-[2rem] p-6 sm:p-12 lg:p-16">
       {heroBackdrop && <div className="absolute inset-0 -z-20 bg-cover bg-center opacity-40" style={{ backgroundImage: `url(${heroBackdrop})` }} />}
       <div className="glass-gradient absolute inset-0 -z-10" />
@@ -55,7 +54,7 @@ export default async function PublicOverview() {
       </div>
     </section>
 
-    {/* Trending this week */}
+    {/* Em alta na semana */}
     <section className="fade-up fade-up-1">
       <div className="mb-5 flex items-end justify-between gap-4">
         <div>
@@ -79,7 +78,7 @@ export default async function PublicOverview() {
       )}
     </section>
 
-    {/* What you get */}
+    {/* Recursos principais */}
     <section className="fade-up fade-up-2">
       <div className="mb-6">
         <p className="eyebrow">O que o FilmJournal revela</p>
@@ -96,7 +95,7 @@ export default async function PublicOverview() {
       </div>
     </section>
 
-    {/* Final CTA */}
+    {/* Chamada final */}
     <section className="fade-up fade-up-3 surface relative overflow-hidden rounded-[2rem] p-8 text-center sm:p-14">
       <div className="glass-gradient absolute inset-0 -z-10" />
       <h2 className="display-title balance mx-auto max-w-2xl text-4xl sm:text-5xl">Comece a mapear seu gosto hoje.</h2>

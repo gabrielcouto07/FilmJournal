@@ -173,8 +173,7 @@ function mergeEvent(target: LetterboxdEvent, incoming: LetterboxdEvent): void {
   target.tags = unionCommaValues(target.tags, incoming.tags);
   target.sourceUri ??= incoming.sourceUri;
   target.sourceTypes = [...new Set([...target.sourceTypes, ...incoming.sourceTypes])];
-  // A diary URI is the strongest watch-event identity. If a review companion
-  // supplies the only URI, use that stable URI instead of the content fallback.
+  // A URI do diário é a melhor identidade do evento; a da resenha serve como apoio.
   if (!target.importKey.includes("https://") && incoming.sourceUri) target.importKey = incoming.importKey;
 }
 
@@ -243,8 +242,7 @@ export function buildCanonicalLetterboxdImport(files: LetterboxdFiles): Map<stri
 
   for (const film of films.values()) {
     film.events.sort((left, right) => effectiveTime(left) - effectiveTime(right) || left.importKey.localeCompare(right.importKey));
-    // A catalog rating is current film state. It may fill the newest real event,
-    // but it never creates an event and never replaces a historical event rating.
+    // A nota do catálogo só completa o evento real mais recente; não cria histórico.
     const latest = film.events.at(-1);
     if (latest && latest.rating == null) latest.rating = film.rating;
   }

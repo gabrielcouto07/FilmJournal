@@ -11,18 +11,12 @@ import { computeVerdict, MIN_RATED_FOR_VERDICT } from "@/lib/analytics/verdict";
 
 export const metadata = { title: "Paladar cinematográfico · FilmJournal" };
 
-/**
- * Taste-first home: the app opens on who the viewer IS (the hero verdict),
- * not on what they logged. The full Paladar dashboards render below the fold
- * — progressive disclosure: punchy identity first, depth on scroll. The diary
- * keeps its own route (/diary) and its place in the nav.
- */
+/** A página começa pelo perfil de gosto e deixa os detalhes para a rolagem. */
 export default async function HomePage() {
   const session = await auth();
-  // Unauthenticated visitors get the public discovery experience, never the
-  // owner's private journal. Authenticated users get their taste profile.
+  // Visitantes veem a página pública; o diário continua privado.
   if (!session?.user) return <PublicOverview />;
-  // First-run accounts get the guided welcome instead of an empty verdict.
+  // Contas novas passam pela introdução antes de ver um perfil vazio.
   if (session.user.id && (await needsOnboarding(session.user.id))) redirect("/welcome");
   return <TasteFirstHome />;
 }
@@ -67,7 +61,7 @@ async function TasteFirstHome() {
     <main className="page-shell space-y-12">
       <BackgroundEnrich />
 
-      {/* Hero verdict — one bold identity claim; the charts wait below. */}
+      {/* Resumo principal do perfil */}
       <section className="fade-up surface relative overflow-hidden rounded-[2rem] p-7 sm:p-12 lg:p-16">
         <div className="glass-gradient absolute inset-0 -z-10" />
         <p className="eyebrow">Seu paladar · O veredito</p>
@@ -104,7 +98,7 @@ async function TasteFirstHome() {
         )}
       </section>
 
-      {/* Depth on demand — the full Paladar dashboards, unchanged in content. */}
+      {/* Detalhes do Paladar */}
       <div id="analises" className="fade-up fade-up-2 scroll-mt-24">
         <TasteDashboard palate={palate} stats={stats} timeline={timeline} motifs={motifs} />
       </div>

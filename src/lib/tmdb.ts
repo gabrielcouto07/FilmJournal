@@ -110,7 +110,7 @@ async function tmdbFetch<T>(path: string, params: Record<string, string>, refres
   return response.json() as Promise<T>;
 }
 
-export async function searchTmdbMovies(query: string, year?: number, page = 1, includeAdult = false): Promise<TmdbSearchResponse> {
+export async function searchTmdbMovies(query: string, year?: number, page = 1, includeAdult = false, language?: string): Promise<TmdbSearchResponse> {
   const normalizedQuery = query.trim();
   if (normalizedQuery.length < 2) {
     throw new TmdbError("Enter at least two characters to search.", 400);
@@ -122,6 +122,9 @@ export async function searchTmdbMovies(query: string, year?: number, page = 1, i
     page: String(Math.min(Math.max(page, 1), 500)),
   };
   if (year) params.year = String(year);
+  // TMDb matches titles across every language regardless of this param — it only
+  // changes which localized title comes back. pt-BR returns Brazilian titles.
+  if (language) params.language = language;
 
   const result = await tmdbFetch<TmdbSearchResponse>("/search/movie", params);
   return { ...result, results: result.results.slice(0, 12) };
@@ -141,13 +144,7 @@ export async function searchTmdbMovie(title: string, year?: number | null): Prom
   return choose((await searchTmdbMovies(title)).results);
 }
 
-/**
- * One fetch shape for every enrichment path (film add, on-demand enrichment,
- * scripts/backfill-tmdb.ts): credits (director + cast), keywords (motif
- * analysis) and external_ids, plus the top-level original_language and
- * production_countries fields — everything a full enrichment needs in a
- * single request.
- */
+/** Busca em uma chamada todos os dados usados no enriquecimento do filme. */
 export function getTmdbMovie(tmdbId: number): Promise<TmdbMovieDetails> {
   if (!Number.isInteger(tmdbId) || tmdbId <= 0) {
     throw new TmdbError("A valid TMDb movie id is required.", 400);
@@ -201,7 +198,7 @@ export async function getTmdbPersonDirectedMovies(personId: number, refresh = fa
     .sort((left, right) => (right.vote_average ?? 0) - (left.vote_average ?? 0));
 }
 
-// --- Roulette (TMDB-powered global discovery) helpers, localized to pt-BR ---
+// Funções da roleta com resultados do TMDB em PT-BR
 
 export async function getTmdbGenres(language = "pt-BR"): Promise<TmdbGenre[]> {
   const response = await tmdbFetch<{ genres: TmdbGenre[] }>("/genre/movie/list", { language });
@@ -220,7 +217,7 @@ export async function searchTmdbPeople(query: string, language = "pt-BR"): Promi
   return response.results.slice(0, 8);
 }
 
-/** Full movie details in a given language (runtime + genre names + backdrop + overview). */
+/** Detalhes completos do filme no idioma pedido. */
 export async function getTmdbMovieLocalized(tmdbId: number, language = "pt-BR"): Promise<TmdbMovieDetails> {
   if (!Number.isInteger(tmdbId) || tmdbId <= 0) throw new TmdbError("A valid TMDb movie id is required.", 400);
   return tmdbFetch<TmdbMovieDetails>(`/movie/${tmdbId}`, { language });

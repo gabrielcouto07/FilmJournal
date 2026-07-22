@@ -41,7 +41,7 @@ function profile(overrides: Partial<MovieProfile> = {}): MovieProfile {
   };
 }
 
-// ------------------------------------------------------------------ grading
+// Comparações
 
 test("a guess of the target itself is correct and all-green", () => {
   const target = profile();
@@ -92,7 +92,7 @@ test("genre tile: identical sets exact, any overlap close with shared names, non
     gradeGuess(profile({ tmdbId: 1, genres: [{ id: 35, name: "Comedy" }] }), target).tiles.genres.grade,
     "miss",
   );
-  // Subset is close, not exact: same ids shared but different set sizes.
+  // Um subconjunto fica próximo, mas não exato.
   assert.equal(
     gradeGuess(profile({ tmdbId: 1, genres: [{ id: 18, name: "Drama" }] }), target).tiles.genres.grade,
     "close",
@@ -106,7 +106,7 @@ test("director tile: person id wins, name is the fallback, otherwise miss", () =
     gradeGuess(profile({ tmdbId: 1, directorId: 999 }), target).tiles.director.grade,
     "miss",
   );
-  // Ids missing on one side → compare by normalized name.
+  // Sem ID em um dos lados, compara pelo nome normalizado.
   assert.equal(
     gradeGuess(
       profile({ tmdbId: 1, directorId: null, directorName: "  christopher nolan " }),
@@ -173,12 +173,12 @@ test("cast tile: >=3 shared exact, 1-2 close with target names, 0 miss", () => {
   const none = profile({ tmdbId: 1, cast: [{ id: 77, name: "Ninguém", profilePath: null }] });
   const missTile = gradeGuess(none, target).tiles.cast;
   assert.equal(missTile.grade, "miss");
-  // The guessed movie's top-billed name rides along so the board can show it.
+  // O elenco principal do palpite segue junto para aparecer no quadro.
   assert.equal(missTile.guessPrincipal, "Ninguém");
   assert.equal(gradeGuess(profile({ tmdbId: 1, cast: [] }), target).tiles.cast.guessPrincipal, null);
 });
 
-// ---------------------------------------------------------- reveal schedule
+// Liberação das pistas
 
 test("actorsVisible follows the signed-off schedule and caps at the cast size", () => {
   const table: Array<[number, number]> = [
@@ -187,7 +187,7 @@ test("actorsVisible follows the signed-off schedule and caps at the cast size", 
   for (const [guessNumber, expected] of table) {
     assert.equal(actorsVisible(guessNumber, 8), expected, `guess ${guessNumber}`);
   }
-  // A three-actor movie never shows more than it has.
+  // Um filme com três atores nunca mostra mais do que possui.
   assert.equal(actorsVisible(10, 3), 3);
   assert.equal(actorsVisible(2, 3), 2);
 });
@@ -214,7 +214,7 @@ test("revealOrder flips the top-5 billing so clues escalate", () => {
   assert.deepEqual(revealOrder(["a", "b"]), ["b", "a"]);
 });
 
-// ------------------------------------------------------------------ scoring
+// Pontuação
 
 test("computeHybridScore rewards fewer guesses and unused hints", () => {
   assert.equal(computeHybridScore({ solved: true, guessesUsed: 1, hintsUsed: 0 }), 1100);
@@ -222,17 +222,17 @@ test("computeHybridScore rewards fewer guesses and unused hints", () => {
   assert.equal(computeHybridScore({ solved: true, guessesUsed: 5, hintsUsed: 1 }), 650);
   assert.equal(computeHybridScore({ solved: true, guessesUsed: MAX_GUESSES, hintsUsed: 2 }), 100);
   assert.equal(computeHybridScore({ solved: false, guessesUsed: 10, hintsUsed: 2 }), 0);
-  // Out-of-range inputs are clamped, never negative.
+  // Valores fora do limite são ajustados e nunca ficam negativos.
   assert.equal(computeHybridScore({ solved: true, guessesUsed: 99, hintsUsed: 99 }), 100);
 });
 
-// --------------------------------------------------------------- daily seed
+// Sorteio diário
 
 test("dailySeed is deterministic per day key and varies across days", () => {
   const today = dailyKey(new Date("2026-07-22T15:30:00Z"));
   assert.equal(today, "2026-07-22");
   assert.equal(dailySeed(today), dailySeed("2026-07-22"));
   assert.notEqual(dailySeed("2026-07-22"), dailySeed("2026-07-23"));
-  // Stays within uint32 so page/index derivation is safe.
+  // Permanece em uint32 para gerar página e índice com segurança.
   assert.ok(dailySeed("2026-07-22") >= 0 && dailySeed("2026-07-22") <= 0xffffffff);
 });

@@ -20,7 +20,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Muitas tentativas. Aguarde alguns minutos." }, { status: 429 });
   }
 
-  // The owner account anchors public journal resolution; block its deletion.
+  // A conta principal sustenta o diário público e não pode ser excluída.
   if (user.role === "OWNER") {
     return NextResponse.json({ error: "A conta do proprietário não pode ser excluída." }, { status: 403 });
   }
@@ -37,8 +37,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "A senha atual está incorreta." }, { status: 403 });
   }
 
-  // Cascades to the user's UserMovie, LogEntry and UserSettings; the shared
-  // catalog and other users' data are untouched.
+  // A exclusão apaga apenas os dados ligados ao usuário; o catálogo é compartilhado.
   await prisma.user.delete({ where: { id: user.id } });
   return NextResponse.json({ message: "Conta excluída." });
 }

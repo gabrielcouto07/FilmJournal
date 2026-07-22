@@ -6,8 +6,7 @@ import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
-// Avatar is either a small embedded data URL (client-resized, no external infra
-// required) or an https image URL. Vercel Blob upload can replace this later.
+// O avatar pode ser uma imagem reduzida no navegador ou uma URL HTTPS.
 const avatarValue = z.string().max(300_000).refine(
   (value) => /^data:image\/(png|jpe?g|webp|gif);base64,/.test(value) || /^https:\/\/\S+$/.test(value),
   "Forneça um URL de imagem https ou um arquivo de imagem válido.",

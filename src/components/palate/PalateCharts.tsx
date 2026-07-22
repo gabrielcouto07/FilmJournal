@@ -25,16 +25,11 @@ import type {
   GenreCount,
   RuntimeBucket,
 } from "@/lib/analytics/palate";
+import { useSettings } from "@/components/SettingsProvider";
+import { accentPalette } from "@/lib/accent";
 
-/**
- * Shared chart theme. Sequential magnitude uses the app's gold accent; the
- * contrarian scatter is diverging — warm gold when you out-rate the crowd, cool
- * blue when you under-rate it, neutral when you agree. Axes, grid and tooltip
- * are themed to the surface tokens (never default Recharts).
- */
+/** Tema dos gráficos, com cores diferentes para notas acima e abaixo do público. */
 const C = {
-  gold: "#f5c518",
-  goldSoft: "#f8c970",
   blue: "#74b9ff",
   neutral: "#6b655c",
   grid: "rgba(255,245,221,0.08)",
@@ -44,7 +39,7 @@ const C = {
 const AXIS_TICK = { fill: C.axis, fontSize: 11, fontWeight: 700 } as const;
 const AXIS_LINE = { stroke: C.grid } as const;
 
-/** The film-country codes we can name; everything else shows its raw ISO code. */
+/** Países conhecidos; os demais aparecem pelo código ISO. */
 const COUNTRY_NAMES: Record<string, string> = {
   US: "Estados Unidos", GB: "Reino Unido", FR: "França", JP: "Japão", KR: "Coreia do Sul",
   BR: "Brasil", DE: "Alemanha", IT: "Itália", ES: "Espanha", CA: "Canadá", AU: "Austrália",
@@ -72,16 +67,17 @@ function ChartTooltip({ title, rows }: { title: string; rows: TooltipRow[] }) {
   );
 }
 
-// ------------------------------------------------------- contrarian scatter
+// Comparação com o público
 
-/** Diverging color by how far a film sits from the agreement line. */
-function contrarianColor(delta: number): string {
-  if (delta >= 0.5) return C.gold;
+/** A cor varia conforme a distância da linha de consenso. */
+function contrarianColor(delta: number, gold: string): string {
+  if (delta >= 0.5) return gold;
   if (delta <= -0.5) return C.blue;
   return C.neutral;
 }
 
 export function ContrarianScatter({ points }: { points: ContrarianPoint[] }) {
+  const accent = accentPalette(useSettings().settings.accentColor);
   return (
     <ResponsiveContainer width="100%" height={360}>
       <ScatterChart margin={{ top: 12, right: 16, bottom: 28, left: 4 }}>
@@ -133,7 +129,7 @@ export function ContrarianScatter({ points }: { points: ContrarianPoint[] }) {
         />
         <Scatter data={points} fillOpacity={0.82} isAnimationActive={false}>
           {points.map((point) => (
-            <Cell key={point.id} fill={contrarianColor(point.delta)} />
+            <Cell key={point.id} fill={contrarianColor(point.delta, accent.base)} />
           ))}
         </Scatter>
       </ScatterChart>
@@ -141,9 +137,10 @@ export function ContrarianScatter({ points }: { points: ContrarianPoint[] }) {
   );
 }
 
-// -------------------------------------------------------- decade histogram
+// Filmes por década
 
 export function DecadeHistogram({ data }: { data: DecadeBucket[] }) {
+  const accent = accentPalette(useSettings().settings.accentColor);
   return (
     <ResponsiveContainer width="100%" height={240}>
       <BarChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: 0 }}>
@@ -157,15 +154,16 @@ export function DecadeHistogram({ data }: { data: DecadeBucket[] }) {
             return <ChartTooltip title={bucket.label} rows={[{ label: "Filmes", value: String(bucket.count) }]} />;
           }}
         />
-        <Bar dataKey="count" fill={C.gold} radius={[4, 4, 0, 0]} maxBarSize={54} isAnimationActive={false} />
+        <Bar dataKey="count" fill={accent.base} radius={[4, 4, 0, 0]} maxBarSize={54} isAnimationActive={false} />
       </BarChart>
     </ResponsiveContainer>
   );
 }
 
-// ----------------------------------------------------------- country spread
+// Filmes por país
 
 export function CountrySpread({ data }: { data: CountryCount[] }) {
+  const accent = accentPalette(useSettings().settings.accentColor);
   const height = Math.max(200, data.length * 34);
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -188,15 +186,16 @@ export function CountrySpread({ data }: { data: CountryCount[] }) {
             return <ChartTooltip title={countryLabel(row.code)} rows={[{ label: "Filmes", value: String(row.count) }]} />;
           }}
         />
-        <Bar dataKey="count" fill={C.gold} radius={[0, 4, 4, 0]} maxBarSize={22} isAnimationActive={false} />
+        <Bar dataKey="count" fill={accent.base} radius={[0, 4, 4, 0]} maxBarSize={22} isAnimationActive={false} />
       </BarChart>
     </ResponsiveContainer>
   );
 }
 
-// ------------------------------------------------------------- genre radar
+// Gêneros
 
 export function GenreRadar({ data }: { data: GenreCount[] }) {
+  const accent = accentPalette(useSettings().settings.accentColor);
   return (
     <ResponsiveContainer width="100%" height={300}>
       <RadarChart data={data} margin={{ top: 8, right: 24, bottom: 8, left: 24 }} outerRadius="72%">
@@ -210,15 +209,16 @@ export function GenreRadar({ data }: { data: GenreCount[] }) {
             return <ChartTooltip title={row.genre} rows={[{ label: "Filmes", value: String(row.count) }]} />;
           }}
         />
-        <Radar dataKey="count" stroke={C.gold} fill={C.gold} fillOpacity={0.28} strokeWidth={2} isAnimationActive={false} />
+        <Radar dataKey="count" stroke={accent.base} fill={accent.base} fillOpacity={0.28} strokeWidth={2} isAnimationActive={false} />
       </RadarChart>
     </ResponsiveContainer>
   );
 }
 
-// ------------------------------------------------------ runtime distribution
+// Duração
 
 export function RuntimeDistribution({ data }: { data: RuntimeBucket[] }) {
+  const accent = accentPalette(useSettings().settings.accentColor);
   return (
     <ResponsiveContainer width="100%" height={240}>
       <BarChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: 0 }}>
@@ -240,10 +240,10 @@ export function RuntimeDistribution({ data }: { data: RuntimeBucket[] }) {
             );
           }}
         />
-        {/* The modal bucket keeps the gold accent; the rest recede to muted. */}
+        {/* A faixa mais comum recebe destaque. */}
         <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={54} isAnimationActive={false}>
           {data.map((bucket) => (
-            <Cell key={bucket.label} fill={bucket.sweetSpot ? C.gold : "rgba(248,201,112,0.28)"} />
+            <Cell key={bucket.label} fill={bucket.sweetSpot ? accent.base : accent.faint} />
           ))}
         </Bar>
       </BarChart>

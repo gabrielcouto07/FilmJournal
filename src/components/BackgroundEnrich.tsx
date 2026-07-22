@@ -3,11 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-/**
- * Fires TMDB metadata enrichment AFTER paint (never blocking render), then
- * refreshes the route only if something was actually filled in. Converges: once
- * movies have metadata the endpoint enriches nothing and no refresh happens.
- */
+/** Completa dados do TMDB após a tela abrir e atualiza só quando algo mudou. */
 export default function BackgroundEnrich({ movieIds, when = true }: { movieIds?: string[]; when?: boolean }) {
   const router = useRouter();
   const started = useRef(false);

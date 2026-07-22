@@ -11,12 +11,7 @@ import {
 } from "@/components/palate/PalateCharts";
 import { EraDrift, GenreShareDrift, RatingLeanTrend } from "@/components/palate/EvolutionCharts";
 
-/**
- * The Paladar dashboard sections — extracted unchanged from the old /dashboard
- * page so the taste-first landing can render them below the hero verdict.
- * Server component: everything here is precomputed data; only the chart leaves
- * are client islands.
- */
+/** Seções detalhadas do Paladar, renderizadas no servidor. */
 export default function TasteDashboard({
   palate,
   stats,
@@ -43,7 +38,7 @@ export default function TasteDashboard({
 
   return (
     <div className="space-y-10">
-      {/* Archive at a glance (merged from /stats) */}
+      {/* Resumo do acervo */}
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Stat label="Total de sessões" value={stats.sessions} />
         <Stat label="Filmes assistidos" value={stats.watchedCount} />
@@ -53,7 +48,7 @@ export default function TasteDashboard({
         <Stat label="Entradas avaliadas" value={stats.ratedCount} />
       </section>
 
-      {/* Year in review (merged from /stats) */}
+      {/* Retrospectiva do ano */}
       {stats.retro.sessions > 0 && (
         <section className="surface relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8">
           <div className="glass-gradient absolute inset-0 -z-10" />
@@ -75,7 +70,7 @@ export default function TasteDashboard({
         </section>
       )}
 
-      {/* Contrarian analysis */}
+      {/* Comparação com o público */}
       {contrarian.sampleSize > 0 ? (
         <section className="surface relative overflow-hidden rounded-[1.75rem] p-5 sm:p-7">
           <div className="glass-gradient absolute inset-0 -z-10" />
@@ -99,7 +94,7 @@ export default function TasteDashboard({
             <div className="rounded-2xl bg-black/20 p-3 sm:p-4">
               <ContrarianScatter points={contrarian.points} />
               <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 px-1 text-[11px] font-bold text-slate-500">
-                <Legend color="#f5c518" label="Você gosta mais que o público" />
+                <Legend color="var(--accent)" label="Você gosta mais que o público" />
                 <Legend color="#74b9ff" label="Você gosta menos" />
                 <Legend color="#6b655c" label="Vocês concordam" />
                 <span className="text-slate-600">— linha tracejada = acordo perfeito</span>
@@ -120,7 +115,7 @@ export default function TasteDashboard({
         </section>
       )}
 
-      {/* Pace & rating scale (merged from /stats) */}
+      {/* Ritmo e escala de notas */}
       <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
         <Card eyebrow="Ao longo do tempo" heading="Ritmo de visualização.">
           {stats.monthSeries.length ? (
@@ -152,7 +147,7 @@ export default function TasteDashboard({
         </Card>
       </section>
 
-      {/* Recurring motifs (Phase 5) — hidden entirely when the data is thin */}
+      {/* Motivos recorrentes; fica oculto quando faltam dados */}
       {motifs.sentence && (
         <section className="surface relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8">
           <div className="glass-gradient absolute inset-0 -z-10" />
@@ -164,7 +159,7 @@ export default function TasteDashboard({
         </section>
       )}
 
-      {/* Taste over time (Phase 4) */}
+      {/* Evolução do gosto */}
       {timeline.years.length > 0 && (
         <section className="surface relative overflow-hidden rounded-[1.75rem] p-5 sm:p-7">
           <div className="glass-gradient absolute inset-0 -z-10" />
@@ -187,7 +182,7 @@ export default function TasteDashboard({
                     <RatingLeanTrend years={timeline.years} />
                   </div>
                   <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 px-1 text-[11px] font-bold text-slate-500">
-                    <Legend color="#f5c518" label="Sua nota média" />
+                    <Legend color="var(--accent)" label="Sua nota média" />
                     <Legend color="#74b9ff" label="Distância do público (+ generoso / − exigente)" />
                   </div>
                 </div>
@@ -231,7 +226,7 @@ export default function TasteDashboard({
         </section>
       )}
 
-      {/* Taste maps */}
+      {/* Mapas de gosto */}
       <section className="grid gap-5 lg:grid-cols-2">
         <Card eyebrow="Linha do tempo" heading="Décadas que você percorre.">
           <DecadeHistogram data={decades} />

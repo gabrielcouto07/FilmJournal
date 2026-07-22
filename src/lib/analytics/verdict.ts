@@ -1,29 +1,18 @@
-/**
- * Taste verdict — pure, Prisma-free sentence assembly over the palate
- * aggregates. The hero of the landing page: one or two bold pt-BR sentences
- * that tell the viewer who they are, built from signals the palate module
- * already computes (contrarian lean, dominant decade and genre, the director
- * they keep returning to). No new analytics — only presentation of existing
- * numbers, so this module takes plain data and returns plain data, unit-
- * testable without a database (the Prisma read lives in getPalateData).
- *
- * Copy style follows motifs.ts / timeline.ts: human pt-BR, star values with
- * `toFixed` (dot decimals, matching every existing sentence in the app).
- */
+/** Monta o retrato de gosto em PT-BR com os sinais já calculados pelo Paladar. */
 
 import type { Contrarian, DecadeBucket, DirectorLoyalty, GenreCount } from "./palate";
 
-/** Need at least this many rated films for a verdict to mean anything. */
+/** Mínimo de filmes avaliados para formar um retrato. */
 export const MIN_RATED_FOR_VERDICT = 10;
-/** Need this many crowd-comparable films before claiming a lean identity. */
+/** Mínimo de filmes comparáveis para falar da relação com o público. */
 export const MIN_LEAN_SAMPLE = 10;
-/** |tasteLean| below this reads as agreeing with the crowd (same band as the consensus hero). */
+/** Abaixo deste limite, a leitura é de consenso com o público. */
 export const LEAN_NEUTRAL_BAND = 0.1;
-/** A decade/genre bucket needs at least this many films to define identity. */
+/** Mínimo de filmes para uma década ou gênero definir o perfil. */
 export const MIN_TRAIT_COUNT = 3;
 
 export type VerdictInput = {
-  /** Rated films in the palate universe (palate.totalFilms). */
+  /** Filmes avaliados usados pelo Paladar. */
   totalFilms: number;
   contrarian: Pick<Contrarian, "tasteLean" | "contrarianScore" | "sampleSize">;
   decades: DecadeBucket[];
@@ -31,24 +20,20 @@ export type VerdictInput = {
   directors: DirectorLoyalty[];
 };
 
-/**
- * The three copy voices offered when the feature shipped; DEFAULT_VOICE is the
- * one the owner picked. The alternatives stay so switching voice is a one-line
- * change (and so tests pin all three).
- */
+/** Tons disponíveis para o texto; o padrão pode ser trocado em uma linha. */
 export type VerdictVoice = "critico" | "retrato" | "manchete";
 export const DEFAULT_VOICE: VerdictVoice = "critico";
 
 export type Verdict = {
-  /** Short archetype line for the hero display title, or null when thin. */
+  /** Título curto do perfil ou `null` quando faltam dados. */
   headline: string | null;
-  /** The supporting sentence(s), or null when the data is too thin to show. */
+  /** Texto de apoio ou `null` quando faltam dados. */
   sentence: string | null;
-  /** True when the account has too little data for an identity claim. */
+  /** Indica que ainda há poucos dados para formar um perfil. */
   thin: boolean;
 };
 
-/** pt-BR labels for TMDB's canonical movie genres (metadata arrives in en-US). */
+/** Traduções dos gêneros recebidos do TMDB. */
 const GENRE_PT: Record<string, string> = {
   Action: "ação", Adventure: "aventura", Animation: "animação", Comedy: "comédia",
   Crime: "crime", Documentary: "documentário", Drama: "drama", Family: "família",
@@ -57,17 +42,17 @@ const GENRE_PT: Record<string, string> = {
   "TV Movie": "filmes de TV", Thriller: "suspense", War: "guerra", Western: "faroeste",
 };
 
-/** pt-BR display label for a TMDB genre (falls back to the raw name, lowercased). */
+/** Nome do gênero em PT-BR ou o original em minúsculas. */
 export function genreLabel(genre: string): string {
   return GENRE_PT[genre] ?? genre.toLowerCase();
 }
 
 type Lean = "exigente" | "generoso" | "consenso";
 
-/** The signals a verdict can mention; each is null when it fails its gate. */
+/** Sinais disponíveis para o texto; cada um pode ser `null`. */
 type Traits = {
   lean: Lean | null;
-  /** Signed tasteLean, present only when lean is. */
+  /** Diferença com sinal, presente quando há comparação válida. */
   leanValue: number | null;
   decade: DecadeBucket | null;
   genre: GenreCount | null;
@@ -93,16 +78,16 @@ function extractTraits(input: VerdictInput): Traits {
     leanValue,
     decade: decade && decade.count >= MIN_TRAIT_COUNT ? decade : null,
     genre: genre && genre.count >= MIN_TRAIT_COUNT ? genre : null,
-    // computeDirectorLoyalty already gates at DIRECTOR_LOYALTY_MIN films.
+    // A fidelidade ao diretor já exige o mínimo de filmes.
     director: input.directors[0] ?? null,
   };
 }
 
 const star = (value: number) => `${Math.abs(value).toFixed(2)}★`;
-/** "os anos 2000"; prefix with "n" for the contraction "nos anos 2000". */
+/** Formata a década como "os anos 2000". */
 const decadePhrase = (decade: DecadeBucket) => `os anos ${decade.decade}`;
 
-/** "a, b e c" — pt-BR list with a final "e" (same shape as motifs.ts). */
+/** Formata uma lista em PT-BR com "e" no último item. */
 function listPt(items: string[]): string {
   if (items.length <= 1) return items[0] ?? "";
   return `${items.slice(0, -1).join(", ")} e ${items[items.length - 1]}`;
@@ -117,7 +102,7 @@ function headlineFor(traits: Traits): string {
   return "Seu paladar, em uma frase.";
 }
 
-/** The lean claim as a standalone clause ("você avalia 0.24★ abaixo do público"). */
+/** Monta a frase sobre a diferença para o público. */
 function leanClause(traits: Traits): string | null {
   if (traits.lean == null || traits.leanValue == null) return null;
   if (traits.lean === "consenso") return "suas notas andam lado a lado com o consenso";
@@ -126,7 +111,7 @@ function leanClause(traits: Traits): string | null {
     : `você avalia ${star(traits.leanValue)} acima do público`;
 }
 
-/** Voice A — crítico: one flowing, opinionated sentence. */
+/** Tom crítico: uma frase mais opinativa. */
 function criticoSentence(traits: Traits): string {
   const identity: string[] = [];
   if (traits.decade) identity.push(`raízes fincadas n${decadePhrase(traits.decade)}`);
@@ -143,7 +128,7 @@ function criticoSentence(traits: Traits): string {
   return identity.length ? `${opening} — com ${listPt(identity)}.` : `${opening}.`;
 }
 
-/** Voice B — retrato: two shorter sentences, identity first, consenso second. */
+/** Tom de retrato: identidade primeiro, consenso depois. */
 function retratoSentence(traits: Traits): string {
   const home: string[] = [];
   if (traits.decade) home.push(`mora n${decadePhrase(traits.decade)}`);
@@ -162,7 +147,7 @@ function retratoSentence(traits: Traits): string {
   return second ? `${first} ${second}` : first;
 }
 
-/** Voice C — manchete: the headline carries the traits; the sentence explains. */
+/** Tom de manchete: título forte com uma explicação curta. */
 function mancheteSentence(traits: Traits): string {
   const lean = leanClause(traits);
   const parts: string[] = [];
@@ -193,12 +178,7 @@ function mancheteHeadline(traits: Traits): string {
   return chips.length ? `${chips.join(", ")}.` : headlineFor(traits);
 }
 
-/**
- * The landing-page verdict. `sentence`/`headline` are null (and `thin` true)
- * when the account can't sustain an identity claim yet — fewer rated films
- * than MIN_RATED_FOR_VERDICT, or no qualifying signal at all — mirroring how
- * motifs.ts returns a null sentence below its thresholds.
- */
+/** Retorna um retrato vazio quando ainda não há sinais suficientes. */
 export function computeVerdict(input: VerdictInput, voice: VerdictVoice = DEFAULT_VOICE): Verdict {
   const traits = extractTraits(input);
   const hasAnySignal = traits.lean != null || traits.decade != null || traits.genre != null || traits.director != null;

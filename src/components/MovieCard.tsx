@@ -4,8 +4,7 @@ import type { CardMovie } from "@/lib/types";
 import ArtworkImage from "./ArtworkImage";
 import StarRating from "./StarRating";
 
-// Accepts live Prisma objects and cache-serialized view models alike — the card
-// only reads the JSON-safe fields declared on CardMovie.
+// Aceita tanto objetos do Prisma quanto dados serializados do cache.
 type CardLogInfo = { rating: number | null; rewatch: boolean };
 type Props = { movie: CardMovie; log?: CardLogInfo | null; priority?: boolean; rank?: number };
 

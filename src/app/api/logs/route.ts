@@ -38,7 +38,7 @@ export async function GET(request: Request) {
   const viewer = await getCurrentUser();
   const ownerId = viewer?.id || "";
 
-  // Per-user state is folded into the same query — no trailing enrichment pass.
+  // O estado do usuário já vem na mesma consulta.
   const logs = await prisma.logEntry.findMany({
     where: { userId: ownerId },
     include: { movie: { include: { userMovies: { where: { userId: ownerId } } } } },
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
         },
       });
 
-      // Update UserMovie status
+      // Atualiza o estado do filme para o usuário.
       const updatedUserMovie = await transaction.userMovie.upsert({
         where: { userId_movieId: { userId: user.id, movieId: movie.id } },
         create: {
@@ -187,7 +187,7 @@ export async function PATCH(request: Request) {
       },
     });
 
-    // Update UserMovie status
+    // Atualiza o estado do filme para o usuário.
     const updateData: { favorite?: boolean; rating?: number | null } = {};
     if (typeof body.favorite === "boolean") updateData.favorite = body.favorite;
     if (body.rating !== undefined) updateData.rating = rating;

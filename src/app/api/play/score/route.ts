@@ -11,7 +11,7 @@ const GAME = "hybrid";
 const scoreSchema = z.object({
   source: z.enum(["mine", "popular", "daily"]),
   score: z.number().int().min(0).max(100_000),
-  /** For the hybrid game this is the number of guesses used. */
+  /** No Cine-Detetive, indica quantos palpites foram usados. */
   rounds: z.number().int().min(1).max(20),
 });
 

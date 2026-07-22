@@ -17,23 +17,18 @@ import { openRound, type HybridRoundPayload } from "@/lib/play/token";
 
 export const dynamic = "force-dynamic";
 
-/**
- * One endpoint for the three in-round actions. `guessNumber` is the guess the
- * player is currently making (1-based) and is client-asserted — the same
- * best-effort trust model as the sealed token: it keeps answers out of the
- * network inspector, it does not fight a determined API caller.
- */
+/** Reúne palpite, dica e desistência sem expor a resposta no tráfego comum. */
 const guessSchema = z.object({
   token: z.string().min(1),
   action: z.enum(["guess", "hint", "giveup"]),
-  /** TMDB id of the guessed movie (required for action=guess). */
+  /** ID do filme no TMDB, obrigatório em um palpite. */
   tmdbId: z.number().int().positive().optional(),
   guessNumber: z.number().int().min(1).max(MAX_GUESSES),
-  /** 1 = keywords, 2 = tagline (required for action=hint). */
+  /** 1 = palavras-chave; 2 = tagline. */
   hint: z.union([z.literal(1), z.literal(2)]).optional(),
 });
 
-/** The full answer, sent only at win, loss, or give-up. */
+/** Resposta completa, enviada apenas no fim da rodada. */
 function answerFrom(round: HybridRoundPayload) {
   return {
     tmdbId: round.target.tmdbId,
@@ -47,7 +42,7 @@ function answerFrom(round: HybridRoundPayload) {
   };
 }
 
-/** The clues the NEXT guess is entitled to (new actor, poster stage, hint gates). */
+/** Pistas liberadas para o próximo palpite. */
 function cluesFor(round: HybridRoundPayload, nextGuessNumber: number) {
   const reveals = revealOrder(round.target.cast);
   const previouslyVisible = actorsVisible(nextGuessNumber - 1, reveals.length);
@@ -93,8 +88,7 @@ export async function POST(request: Request) {
     const guessedDetails = await getTmdbMovie(parsed.data.tmdbId);
     const guessProfile = profileFromDetails(guessedDetails);
     const grade = gradeGuess(guessProfile, round.target);
-    // The guessed movie's own card: the board shows its poster and data,
-    // color-graded against the secret film.
+    // Compara o cartão do palpite com o filme secreto.
     const guessCard = { title: guessProfile.title, year: guessProfile.year, posterPath: guessedDetails.poster_path ?? null };
 
     if (grade.correct) {

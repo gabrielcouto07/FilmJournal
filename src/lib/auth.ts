@@ -22,10 +22,7 @@ async function findAndPromoteOwner(username: string) {
   });
 }
 
-/**
- * Resolve the configured owner for public, read-only pages. Missing bootstrap
- * configuration is treated as an empty journal instead of a runtime failure.
- */
+/** Busca a conta principal; sem configuração, páginas públicas mostram um diário vazio. */
 export async function getOwnerUser() {
   const ownerUsername = getConfiguredOwnerUsername();
   if (!ownerUsername) return null;
@@ -33,10 +30,7 @@ export async function getOwnerUser() {
   return findAndPromoteOwner(ownerUsername);
 }
 
-/**
- * Resolve or create the configured owner for explicit bootstrap operations.
- * The password is only read and required when no matching user exists.
- */
+/** Busca ou cria a conta principal durante a configuração inicial. */
 export async function ensureOwnerUser() {
   const ownerUsername = getConfiguredOwnerUsername();
   if (!ownerUsername) return null;
@@ -51,9 +45,7 @@ export async function ensureOwnerUser() {
 
   const emailKey = createHash("sha256").update(ownerUsername).digest("hex").slice(0, 16);
 
-  // Upsert keeps simultaneous cold-start requests deterministic. If another
-  // request creates this username first, that account is promoted without
-  // replacing its password hash.
+  // O upsert evita conflito entre inicializações simultâneas sem trocar a senha existente.
   return prisma.user.upsert({
     where: { username: ownerUsername },
     update: { role: "OWNER" },
@@ -67,15 +59,10 @@ export async function ensureOwnerUser() {
   });
 }
 
-/**
- * The currently authenticated user (via the NextAuth session), or null.
- * API route handlers use this to gate owner-only writes.
- */
+/** Retorna o usuário da sessão atual ou `null`. */
 export const getCurrentUser = cache(async () => {
-  // Imported lazily so CLI scripts that only need `getOwnerUser` don't pull
-  // the NextAuth runtime (and the `@/auth` alias) into a bare tsx process.
-  // `cache()` dedupes the auth() + DB lookup across a single request/render,
-  // even though it's called from many pages and route handlers.
+  // O import tardio evita carregar o Auth.js nos scripts de linha de comando.
+  // O cache reaproveita a consulta dentro da mesma renderização.
   const { auth } = await import("@/auth");
   const session = await auth();
   const userId = session?.user?.id;

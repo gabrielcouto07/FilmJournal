@@ -10,8 +10,7 @@ const rootDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
 config({ path: path.join(rootDirectory, ".env.local") });
 config({ path: path.join(rootDirectory, ".env") });
 
-// TMDB's public limit is generous (~50 req/s), so a small concurrent batch with
-// a short breather between batches keeps us comfortably under it.
+// Lotes pequenos com uma pausa mantêm as chamadas abaixo do limite do TMDB.
 const BATCH_SIZE = 6;
 const BATCH_PAUSE_MS = 200;
 const RETRY_DELAYS_MS = [1000, 2000, 4000, 8000];
@@ -20,9 +19,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// A film counts as enriched once originalLanguage is set. TMDB returns
-// original_language for every valid movie, so a successful backfill always
-// populates it — making it a reliable "skip me on re-run" sentinel.
+// `originalLanguage` indica que o filme já passou pelo enriquecimento completo.
 const ENRICHED_WHERE = { tmdbId: { not: null }, originalLanguage: { not: null } } as const;
 const PENDING_WHERE = { tmdbId: { not: null }, originalLanguage: null } as const;
 
@@ -30,7 +27,7 @@ type BackfillOptions = { dryRun: boolean; force: boolean; yes: boolean };
 
 type Summary = { processed: number; updated: number; skipped: number; failed: number };
 
-/** Retry TMDB reads on transient failures (rate limiting / upstream hiccups). */
+/** Repete consultas ao TMDB após falhas passageiras. */
 async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
   for (let attempt = 0; ; attempt += 1) {
     try {
@@ -49,7 +46,7 @@ async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
 type MovieRef = { id: string; tmdbId: number; title: string };
 type Fetched = { movie: MovieRef; details: TmdbMovieDetails } | { movie: MovieRef; error: unknown };
 
-/** Fetch one film's TMDB details (with retry). Errors are captured, not thrown. */
+/** Busca os detalhes de um filme e devolve o erro sem interromper o lote. */
 async function fetchDetails(movie: MovieRef): Promise<Fetched> {
   try {
     const details = await withRetry(() => getTmdbMovie(movie.tmdbId), movie.title);
@@ -59,13 +56,7 @@ async function fetchDetails(movie: MovieRef): Promise<Fetched> {
   }
 }
 
-/**
- * Write one film's enriched fields. Genre/Keyword rows are created up front by
- * the caller (see runBackfill), so we only `set` relations here — avoiding the
- * connectOrCreate race where concurrent siblings insert the same taxonomy id.
- * The field shape is shared with the on-demand enrichment path
- * (src/lib/movie-metadata.ts) so the two cannot drift.
- */
+/** Salva um filme depois que gêneros e palavras-chave do lote já foram criados. */
 async function writeMovie(movie: MovieRef, details: TmdbMovieDetails): Promise<void> {
   await prisma.movie.update({ where: { id: movie.id }, data: relationalEnrichmentData(details) });
 }
@@ -87,16 +78,13 @@ async function runBackfill(options: BackfillOptions): Promise<Summary> {
       title: movie.title,
     }));
 
-    // 1. Fetch all details in the batch concurrently (network-bound).
+    // 1. Busca os detalhes do lote em paralelo.
     const fetched = await Promise.all(batch.map(fetchDetails));
 
-    // 2. Create every genre/keyword the batch references in one atomic,
-    //    conflict-safe write, so the per-movie updates below never race to
-    //    insert the same taxonomy id.
+    // 2. Cria gêneros e palavras-chave do lote sem conflito.
     await ensureTaxonomyRows(fetched.flatMap((item) => ("details" in item ? [item.details] : [])));
 
-    // 3. Write each film. A distinct movieId per row means concurrent relation
-    //    `set`s cannot collide.
+    // 3. Salva cada filme e suas relações em paralelo.
     await Promise.all(fetched.map(async (item) => {
       summary.processed += 1;
       if (!("details" in item)) {
@@ -248,7 +236,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
 
     const plan = await planBackfill(options.force);
     const summary = await runBackfill(options);
-    // Films not in scope this run were already enriched (unless --force).
+    // Fora do escopo ficam os filmes já enriquecidos, salvo com `--force`.
     summary.skipped = options.force ? 0 : plan.alreadyEnriched;
     printSummary(summary);
   })()

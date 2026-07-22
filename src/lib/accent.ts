@@ -1,19 +1,8 @@
-// Accent color system.
-//
-// The whole UI is styled with Tailwind `amber-*` utilities (and a handful of
-// CSS-variable-driven components). To make the single "cor de destaque" setting
-// recolor EVERYTHING — not just the few elements wired to `var(--accent)` — we
-// derive a full 50–900 shade ramp from the chosen base color and expose each
-// shade as space-separated RGB channels in a CSS variable (`--accent-<level>`).
-// tailwind.config maps `amber.<level>` to `rgb(var(--accent-<level>) / <alpha>)`,
-// so every existing `amber-300`, `bg-amber-300/10`, `text-amber-100`, … follows
-// the accent automatically, opacity modifiers included.
+// Gera a escala de tons usada pelas classes `amber-*` a partir da cor escolhida.
 
 export type AccentShades = Record<number, string>;
 
-// Where each shade sits relative to the base (which is level 300): lighter
-// shades mix toward white, darker shades toward black. Amounts are tuned to
-// echo Tailwind's amber lightness steps so the design keeps its depth.
+// Tons claros misturam branco; tons escuros misturam preto.
 const STOPS: Array<[level: number, toward: "white" | "black", amount: number]> = [
   [50, "white", 0.85],
   [100, "white", 0.72],
@@ -38,10 +27,7 @@ function mixChannel(base: number, toward: number, amount: number): number {
   return Math.round(base * (1 - amount) + toward * amount);
 }
 
-/**
- * Derive the full accent ramp from a base hex color. Returns a map of Tailwind
- * shade level → "r g b" channel string, ready for a CSS custom property.
- */
+/** Gera a escala de destaque no formato RGB usado pelas variáveis CSS. */
 export function accentShades(baseHex: string): AccentShades {
   const [r, g, b] = parseHex(baseHex);
   const shades: AccentShades = {};
@@ -52,7 +38,18 @@ export function accentShades(baseHex: string): AccentShades {
   return shades;
 }
 
-/** Apply the accent (base hex + derived shade channels) to a root element. */
+/** Concrete color strings (usable as SVG fill/stroke) derived from the accent. */
+export function accentPalette(baseHex: string) {
+  const s = accentShades(baseHex);
+  return {
+    base: baseHex,                 // the chosen accent (≈ level 300)
+    soft: `rgb(${s[200]})`,        // lighter tint
+    deep: `rgb(${s[500]})`,        // darker shade
+    faint: `rgb(${s[200]} / 0.28)` // translucent tint for muted marks
+  };
+}
+
+/** Aplica a cor e seus tons ao elemento raiz. */
 export function applyAccent(root: HTMLElement, baseHex: string): void {
   root.style.setProperty("--accent", baseHex);
   const shades = accentShades(baseHex);

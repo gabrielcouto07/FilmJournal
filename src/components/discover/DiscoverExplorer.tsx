@@ -155,7 +155,7 @@ function PickCard({ pick, index, added, onAdd, onDismiss }: {
           {pick.movie.title}
           {pick.movie.year ? <span className="font-bold text-slate-500"> · {pick.movie.year}</span> : null}
         </h3>
-        {/* The rationale is the card's centerpiece — the pick must explain itself. */}
+        {/* O motivo da indicação é a parte principal do cartão. */}
         <p className="mt-2 text-sm leading-6 text-slate-300">{pick.rationale}</p>
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
           <button type="button" onClick={onAdd} disabled={added} className="accent-button !px-4 !py-2 text-xs disabled:opacity-60">

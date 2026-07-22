@@ -57,9 +57,7 @@ export default function MovieSearch() {
   }, [activeFeed, feedCache, notify, query]);
 
   async function act(result: SearchResult, action: "open"|"watchlist"|"favorite"|"log") {
-    // Cards already in the archive open instantly via a real <Link>; this path
-    // only creates-then-opens titles that aren't in the archive yet.
-    // "open" and "log" both go to the film page; "log" opens the rating/review editor there.
+    // Filmes novos entram no catálogo antes de abrir a página de detalhes.
     if ((action === "open" || action === "log") && result.existing) { router.push(`/film/${result.existing.id}${action === "log" ? "?log=1" : ""}`); return; }
     const token = `${result.id}:${action}`; setPending(token);
     try {
@@ -103,10 +101,7 @@ function ResultCard({ result, pending, act }: { result: SearchResult; pending: s
   const onWatchlist = Boolean(result.existing?.watchlist);
   const isFavorite = Boolean(result.existing?.favorite);
   const openLabel = `Abrir detalhes de ${result.title}`;
-  // The poster + title is the primary affordance: it opens the film's detail
-  // page. Archived titles use a real <Link> (keyboard, middle-click, new-tab);
-  // new titles create-then-open via a <button>. The action buttons below are
-  // siblings — never nested inside the link — so there is no double navigation.
+  // Filmes já salvos usam Link; os novos usam botão para criar e abrir.
   const media = <div className="relative aspect-[2/3] bg-white/[0.04]">
     <ArtworkImage src={poster} alt={`Pôster de ${result.title}`} title={result.title} className="h-full w-full" sizes="(max-width: 768px) 45vw, 280px" />
     <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black via-black/60 p-3 pt-16"><h3 className="line-clamp-2 text-sm font-black text-white">{result.title}</h3><p className="mt-1 text-[10px] font-bold text-slate-400">{result.release_date?.slice(0,4) ?? "—"} · {result.vote_average ? `★ ${result.vote_average.toFixed(1)}` : "Sem nota"}</p></div>

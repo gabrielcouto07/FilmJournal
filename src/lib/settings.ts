@@ -43,19 +43,13 @@ function coerce(row: UserSettings): AppSettings {
     defaultRatingScale: row.defaultRatingScale === 10 ? 10 : 5,
     allowHalfStars: row.allowHalfStars,
     showAdultContent: row.showAdultContent,
-    // Pages that were merged/moved are migrated on read so old stored prefs
-    // still resolve to a live route: /stats & /dashboard → taste-first home;
-    // /watchlist & /favorites → Minha lista hub; /roulette → Jogos hub.
+    // Converte preferências antigas para as rotas atuais.
     defaultLandingPage: migrateLanding(row.defaultLandingPage),
     emailNotifications: row.emailNotifications,
   };
 }
 
-/**
- * Read a user's settings, returning defaults when no row exists. Read-only (no
- * write-on-read). Also degrades to defaults when the UserSettings table has not
- * been migrated yet (P2021/P2022), so the app keeps rendering pre-migration.
- */
+/** Lê as preferências e usa os padrões quando ainda não há dados ou migração. */
 export async function getUserSettings(userId: string | null | undefined): Promise<AppSettings> {
   if (!userId) return DEFAULT_SETTINGS;
   try {
@@ -69,7 +63,7 @@ export async function getUserSettings(userId: string | null | undefined): Promis
 
 const LANDING_PAGES = ["/", "/diary", "/collection", "/play", "/search"] as const;
 
-/** Map a stored landing-page pref to a currently-valid route (see coerce). */
+/** Converte a preferência salva em uma rota válida. */
 function migrateLanding(stored: string): string {
   const moved: Record<string, string> = {
     "/stats": "/",

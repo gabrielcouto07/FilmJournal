@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 
-/**
- * CSRF hardening for cookie-authenticated, state-changing routes: browsers
- * always send an Origin header on cross-site requests that attach cookies, so a
- * mismatched Origin means a foreign page is driving the request. Requests
- * without an Origin (same-origin GET-initiated, curl, native clients) pass —
- * those cannot silently reuse a victim's session cookie.
- */
+/** Bloqueia alterações com cookie quando a origem da requisição é diferente. */
 export function isSameOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (!origin) return true;

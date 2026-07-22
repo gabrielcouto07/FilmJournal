@@ -1,5 +1,5 @@
 "use client";
-/* eslint-disable @next/next/no-img-element -- avatars are user-provided data URLs or arbitrary external URLs, which next/image cannot optimize/whitelist. */
+/* eslint-disable @next/next/no-img-element -- avatares podem vir de URLs que o next/image não conhece */
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -132,15 +132,12 @@ function ProfileTab({ user, notify }: { user: ProfileUser; notify: Notify }) {
           : <span className="grid h-24 w-24 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10 text-3xl font-black" style={{ color: "var(--accent)" }}>{initialsOf(displayName || user.username)}</span>}
         <div className="flex flex-wrap gap-3">
           <label className="quiet-button cursor-pointer">
-            Enviar imagem
+            Escolher imagem
             <input type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
           </label>
           {avatar && <button type="button" className="text-xs font-bold text-slate-500 hover:text-white" onClick={() => setAvatar(null)}>Remover</button>}
         </div>
       </div>
-      <Field label="URL de imagem (opcional)">
-        <input className="field" placeholder="https://…" value={avatar && avatar.startsWith("http") ? avatar : ""} onChange={(e) => setAvatar(e.target.value || null)} />
-      </Field>
       <Field label="Nome de exibição">
         <input className="field" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={60} />
       </Field>
@@ -243,6 +240,9 @@ function PreferencesTab({ initial, notify, applyLive }: { initial: AppSettings; 
 
 function AccountTab({ user, notify, onDeleted }: { user: ProfileUser; notify: Notify; onDeleted: () => void }) {
   const [pw, setPw] = useState({ current: "", next: "" });
+  const [pwStep, setPwStep] = useState<"form" | "code">("form");
+  const [pwCode, setPwCode] = useState("");
+  const [pwMask, setPwMask] = useState("");
   const [emailForm, setEmailForm] = useState({ email: user.email, password: "" });
   const [del, setDel] = useState({ confirm: "", password: "" });
   const [busy, setBusy] = useState<string | null>(null);
@@ -256,14 +256,45 @@ function AccountTab({ user, notify, onDeleted }: { user: ProfileUser; notify: No
 
   return (
     <div className="space-y-6">
-      <Section title="Alterar senha">
-        <Field label="Senha atual"><input type="password" className="field" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} /></Field>
-        <Field label="Nova senha (mín. 8)"><input type="password" className="field" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} /></Field>
-        <button type="button" disabled={busy !== null} className="accent-button disabled:opacity-50" onClick={async () => {
-          setBusy("pw");
-          try { await post("/api/account/password", { currentPassword: pw.current, newPassword: pw.next }); notify("Senha atualizada.", "success"); setPw({ current: "", next: "" }); }
-          catch (err) { notify(err instanceof Error ? err.message : "Falha.", "error"); } finally { setBusy(null); }
-        }}>{busy === "pw" ? "Salvando…" : "Atualizar senha"}</button>
+      <Section title="Alterar senha" description="Por segurança, enviamos um código de confirmação para o seu e-mail antes de concluir a troca.">
+        {pwStep === "form" ? (
+          <>
+            <Field label="Senha atual"><input type="password" autoComplete="current-password" className="field" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} /></Field>
+            <Field label="Nova senha (mín. 8)"><input type="password" autoComplete="new-password" className="field" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} /></Field>
+            <button type="button" disabled={busy !== null} className="accent-button disabled:opacity-50" onClick={async () => {
+              setBusy("pw");
+              try {
+                const data = await post("/api/account/password", { currentPassword: pw.current, newPassword: pw.next });
+                setPwMask(data.email ?? user.email);
+                setPwCode("");
+                setPwStep("code");
+                notify(data.message ?? "Código enviado por e-mail.", "success");
+              }
+              catch (err) { notify(err instanceof Error ? err.message : "Falha.", "error"); } finally { setBusy(null); }
+            }}>{busy === "pw" ? "Enviando…" : "Enviar código de confirmação"}</button>
+          </>
+        ) : (
+          <>
+            <p className="text-sm leading-6 text-slate-400">Enviamos um código de 6 dígitos para <span className="font-bold text-white">{pwMask}</span>. Digite-o abaixo para concluir a troca (expira em 10 minutos).</p>
+            <Field label="Código de confirmação">
+              <input inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="000000" className="field text-center text-lg font-black tracking-[0.6em]" value={pwCode} onChange={(e) => setPwCode(e.target.value.replace(/\D/g, "").slice(0, 6))} />
+            </Field>
+            <div className="flex flex-wrap gap-3">
+              <button type="button" disabled={busy !== null || pwCode.length !== 6} className="accent-button disabled:opacity-50" onClick={async () => {
+                setBusy("pwc");
+                try {
+                  await post("/api/account/password/confirm", { code: pwCode });
+                  notify("Senha atualizada.", "success");
+                  setPw({ current: "", next: "" });
+                  setPwCode("");
+                  setPwStep("form");
+                }
+                catch (err) { notify(err instanceof Error ? err.message : "Falha.", "error"); } finally { setBusy(null); }
+              }}>{busy === "pwc" ? "Confirmando…" : "Confirmar troca de senha"}</button>
+              <button type="button" disabled={busy !== null} className="quiet-button" onClick={() => { setPwStep("form"); setPwCode(""); }}>Voltar</button>
+            </div>
+          </>
+        )}
       </Section>
 
       <Section title="Alterar e-mail">

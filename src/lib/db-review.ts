@@ -1,7 +1,6 @@
 import { prisma } from "./prisma";
 
-// Shared logic for the admin database-review surface. Used both by the
-// /admin/database page (direct call) and the /api/admin/db-review route (JSON).
+// Lógica compartilhada pela página e pela API de revisão do banco.
 
 export type ReviewSample = { id: string; label: string };
 

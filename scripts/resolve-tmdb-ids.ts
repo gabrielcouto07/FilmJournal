@@ -18,7 +18,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Fold accents, drop punctuation, collapse whitespace, lowercase. */
+/** Remove acentos e pontuação, junta espaços e converte para minúsculas. */
 function normalize(value: string): string {
   return value
     .normalize("NFKD")
@@ -46,14 +46,7 @@ async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
 type MovieRef = { id: string; title: string; year: number | null };
 type Match = { result: TmdbMovieSearchResult; strong: boolean };
 
-/**
- * Choose a confident match only. A candidate qualifies when its title (or
- * original title) equals the query after normalization AND the release year is
- * within one year of ours. We never fall back to "first result" â€” a wrong id
- * would attribute another film's crowd rating to this one. When several strong
- * candidates exist (e.g. remakes), the highest vote_count wins, since that is
- * almost always the canonical entry.
- */
+/** Aceita apenas título normalizado e ano próximo; em empate, usa o mais votado. */
 function chooseMatch(movie: MovieRef, results: TmdbMovieSearchResult[]): Match | null {
   const target = normalize(movie.title);
   if (!target) return null;
@@ -79,7 +72,7 @@ type Outcome =
   | { kind: "no-match"; movie: MovieRef }
   | { kind: "error"; movie: MovieRef; error: unknown };
 
-/** Search TMDB for one film and classify the outcome. No DB writes here. */
+/** Busca um filme no TMDB e classifica o resultado sem escrever no banco. */
 async function resolveOne(movie: MovieRef): Promise<Outcome> {
   const query = movie.title.trim();
   if (query.length < 2) return { kind: "no-match", movie };
@@ -114,17 +107,16 @@ async function run(options: { dryRun: boolean }): Promise<{ summary: Summary; sa
 
   const summary: Summary = { processed: 0, resolved: 0, noMatch: 0, conflict: 0, failed: 0 };
   const samples: SampleRow[] = [];
-  // tmdbIds assigned so far this run â€” guards against two local duplicates of
-  // the same film both claiming one id (the column is unique).
+  // Impede que dois filmes locais recebam o mesmo ID nesta execução.
   const claimed = new Set<number>();
 
   for (let index = 0; index < movies.length; index += BATCH_SIZE) {
     const batch = movies.slice(index, index + BATCH_SIZE);
 
-    // Searches are read-only and safe to run concurrently.
+    // As buscas são somente leitura e podem rodar em paralelo.
     const outcomes = await Promise.all(batch.map(resolveOne));
 
-    // Writes are sequential so the `claimed` guard and uniqueness check hold.
+    // As gravações são sequenciais para preservar a unicidade.
     for (const outcome of outcomes) {
       summary.processed += 1;
       if (outcome.kind === "error") {

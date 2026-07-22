@@ -12,9 +12,7 @@ const TABS: Array<{ id: CollectionTab; label: string }> = [
   { id: "assistir", label: "▸ Para assistir" },
 ];
 
-// "Minha lista" merges the personal canon (favoritos) and the queue (para
-// assistir) behind tabs, so both live under one primary-nav slot. /favorites and
-// /watchlist deep-link here via ?tab=.
+// Reúne favoritos e a fila para assistir em uma única página com abas.
 export default function CollectionHub({
   favorites,
   watchlist,

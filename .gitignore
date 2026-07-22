@@ -1,11 +1,11 @@
-# ── Dependencies ─────────────────────────────────────────────────────
+# ── Dependências ─────────────────────────────────────────────────────
 node_modules/
 
-# ── Next.js build ────────────────────────────────────────────────────
+# ── Build do Next.js ─────────────────────────────────────────────────
 .next/
 out/
 
-# ── Environment / secrets (NEVER commit these) ───────────────────────
+# ── Ambiente e segredos (nunca versionar) ────────────────────────────
 .env
 .env.local
 .env.*.local
@@ -14,34 +14,40 @@ out/
 .env.staging
 !.env.example
 
-# ── Prisma local database ────────────────────────────────────────────
+# ── Banco local do Prisma ────────────────────────────────────────────
 prisma/*.db
 prisma/*.db-journal
 
-# ── Logs & temp ──────────────────────────────────────────────────────
+# ── Logs e temporários ───────────────────────────────────────────────
 *.log
 *.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# ── OS / Editor ──────────────────────────────────────────────────────
+# ── Sistema e editor ─────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 *.swp
 *.swo
 .vscode/
 
-# ── CSV data exports (personal data, not for version control) ────────
+# ── Exportações CSV com dados pessoais ───────────────────────────────
 *.csv
 
 # ── Vercel ───────────────────────────────────────────────────────────
 .vercel
 
-# Graphify generated output (regenerate with `graphify update .`)
+# Saída do Graphify; gere novamente com `graphify update .`
 graphify-out/
 
-# Generated assistant tooling (.codex is installed by graphify) and
-# machine-specific assistant hook configuration
+# Ferramentas geradas pelo assistente e configurações locais dos hooks
 .codex/
 .claude/settings.json
+
+# Arquivos locais de assistentes e documentação técnica
+ARCHITECTURE.md
+AGENTS.md
+CLAUDE.md
+.claude/
+.agents/

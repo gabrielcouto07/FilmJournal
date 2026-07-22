@@ -9,9 +9,7 @@ export const metadata = {
   title: "Admin — FilmJournal",
 };
 
-// `middleware.ts` already gates /admin/* via the NextAuth session. This
-// server-side check is defense-in-depth so the page never renders for a
-// non-owner even if the matcher config changes.
+// Confere a permissão também no servidor, além do bloqueio do middleware.
 export default async function AdminPage() {
   const user = await getCurrentUser();
   if (!user || user.role !== "OWNER") {

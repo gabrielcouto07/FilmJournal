@@ -23,11 +23,7 @@ export function createFilmIdentity(title: string, year: number | null | undefine
   return `${normalizeTitle(title)}:${year ?? "unknown"}`;
 }
 
-/**
- * v2 identifies the watch event, not its mutable content. Ratings, reviews and
- * tags can therefore enrich an event without changing its identity. An ordinal
- * keeps two legitimate watches of the same film on the same day distinct.
- */
+/** Identifica a sessão sem depender de nota, resenha ou tags que podem mudar. */
 export function createDiaryDedupeKey({
   movieId,
   watchedAt,

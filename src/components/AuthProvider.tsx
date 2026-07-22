@@ -21,10 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <SessionProvider>{children}</SessionProvider>;
 }
 
-/**
- * Thin adapter over NextAuth's `useSession` that preserves the pre-existing
- * `{ user, loading, login, logout }` API so consumer components are unchanged.
- */
+/** Mantém uma API simples de autenticação sobre o Auth.js. */
 export function useAuth(): AuthContextType {
   const { data: session, status } = useSession();
 
@@ -45,9 +42,7 @@ export function useAuth(): AuthContextType {
   };
 
   const logout = async () => {
-    // Auth.js returns an absolute redirect URL, which can point at a stale or
-    // misconfigured deployment origin. Clear the session first, then navigate
-    // relative to the origin that is actually open in the browser.
+    // Ignora a URL devolvida pelo servidor para não sair do domínio atual.
     await signOut({ redirect: false });
     window.location.assign("/");
   };

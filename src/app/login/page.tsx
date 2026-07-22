@@ -11,17 +11,16 @@ type Tab = "login" | "register";
 export default function LoginPage() {
   const [tab, setTab] = useState<Tab>("login");
 
-  // Open the register tab when linked from the public overview (/login?tab=register).
-  // Read from window instead of useSearchParams() to avoid a Suspense boundary.
+  // Abre o cadastro quando a página pública envia `?tab=register`.
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("tab") === "register") setTab("register");
   }, []);
 
-  // Login state
+  // Dados do login
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Register state
+  // Dados do cadastro
   const [regUsername, setRegUsername] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
@@ -40,7 +39,7 @@ export default function LoginPage() {
     try {
       await login(username, password);
       notify("Bem-vindo de volta! 👋", "success");
-      // Honor the user's configured landing page; fall back to the overview.
+      // Respeita a página inicial escolhida pelo usuário.
       let landing = "/";
       try {
         const res = await fetch("/api/settings");
@@ -87,14 +86,14 @@ export default function LoginPage() {
         <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-amber-500/10 blur-[50px]" />
 
         <div className="relative">
-          {/* Logo mark */}
+          {/* Marca */}
           <div className="flex justify-center mb-6">
             <span className="grid h-12 w-12 place-items-center rounded-full border border-amber-300/30 bg-amber-300/10">
               <span className="h-3.5 w-3.5 rounded-full bg-amber-300 shadow-[0_0_15px_rgb(var(--accent-300)/0.95)]" />
             </span>
           </div>
 
-          {/* Tabs */}
+          {/* Abas */}
           <div className="flex rounded-2xl border border-white/[0.07] bg-white/[0.03] p-1 mb-8">
             {(["login", "register"] as Tab[]).map((t) => (
               <button

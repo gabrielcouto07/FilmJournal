@@ -63,7 +63,7 @@ test("computeTimelineYears aggregates rating, lean, film era and genre share", (
   assert.equal(result.tasteLean, 0); // mean(+2, -2)
   assert.equal(result.leanSampleSize, 2);
   assert.equal(result.averageFilmYear, 2000); // mean(1990, 2010, 2000)
-  // 3 films have genres; Drama in 2 of them.
+  // Três filmes têm gênero; dois são Drama.
   assert.deepEqual(result.genreShares[0], { genre: "Drama", count: 2, share: 0.667 });
 });
 
@@ -85,7 +85,7 @@ test("computeInsights describes the largest genre share shift", () => {
   const insights = computeInsights(years);
   assert.equal(insights.length, 1);
   assert.equal(insights[0].year, 2024);
-  // Drama fell 30 points, Terror rose 30 — the tie keeps the first found; both are valid headline shifts.
+  // Drama cai 30 pontos e Terror sobe 30; o empate mantém o primeiro encontrado.
   assert.match(insights[0].sentences[0], /(Drama perdeu espaço|Terror ganhou espaço)/);
   assert.match(insights[0].sentences[0], /de (50|10)% para (20|40)%/);
 });
@@ -96,7 +96,7 @@ test("computeInsights reports era, rating and lean shifts with pt-BR templates",
     year({ year: 2024, averageFilmYear: 1985, averageRating: 3.9, tasteLean: -0.4 }),
   ];
   const [insight] = computeInsights(years);
-  // Era shift (20 years) outranks the rating shift (0.7★): both surface, era first.
+  // A mudança de época supera a variação de nota, mas as duas aparecem.
   assert.equal(insight.sentences.length, 2);
   assert.match(insight.sentences[0], /mergulhou mais fundo no passado.*2005 para 1985/);
   assert.match(insight.sentences[1], /Notas mais generosas.*3\.2★ para 3\.9★/);

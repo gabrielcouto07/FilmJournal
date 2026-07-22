@@ -35,7 +35,7 @@ export async function PATCH(request: Request) {
       update: parsed.data,
     });
   } catch (error) {
-    // Pre-migration deployment: the UserSettings table doesn't exist yet.
+    // Compatibilidade com instalações que ainda não criaram UserSettings.
     console.error("[settings] save failed:", error);
     return NextResponse.json(
       { error: "As preferências ainda não podem ser salvas: as migrações do banco de dados estão pendentes (execute `npx prisma migrate deploy`)." },

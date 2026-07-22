@@ -1,15 +1,14 @@
 import type { NextAuthConfig } from "next-auth";
 
-// Edge-safe NextAuth config: no database or Node crypto imports here so it can
-// be consumed by `middleware.ts` (Edge runtime). The Credentials provider,
-// which needs Prisma + node:crypto, is added in `src/auth.ts` for the Node runtime.
+// Esta parte roda no Edge e não pode depender do banco nem do crypto do Node.
+// O login com credenciais fica em `src/auth.ts`.
 export const authConfig = {
   trustHost: true,
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },
   providers: [],
   callbacks: {
-    // Gate the admin surface. Returning false triggers a redirect to `pages.signIn`.
+    // Só o dono pode entrar na área administrativa.
     authorized({ auth, request }) {
       const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
       if (!isAdminRoute) return true;

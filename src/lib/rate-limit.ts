@@ -2,8 +2,7 @@ import { prisma } from "./prisma";
 
 type Options = { max: number; windowMs: number };
 
-// In-memory fallback (per serverless instance) for when the RateLimit table is
-// unreachable or not migrated yet. Better than failing open with no limit at all.
+// Usa memória como reserva quando a tabela de limites não está disponível.
 const memory = new Map<string, { count: number; resetAt: number }>();
 
 function memoryLimited(key: string, { max, windowMs }: Options): boolean {
@@ -18,11 +17,7 @@ function memoryLimited(key: string, { max, windowMs }: Options): boolean {
   return false;
 }
 
-/**
- * Shared-store rate limiter (survives serverless cold starts, unlike a Map).
- * Returns true when the key exceeded `max` hits inside the window. Degrades to
- * the in-memory limiter if the database/table is unavailable.
- */
+/** Retorna `true` quando a chave passa do limite dentro da janela. */
 export async function isRateLimited(key: string, options: Options): Promise<boolean> {
   const now = new Date();
   try {
@@ -34,7 +29,7 @@ export async function isRateLimited(key: string, options: Options): Promise<bool
         create: { key, count: 1, resetAt },
         update: { count: 1, resetAt },
       });
-      // Opportunistic cleanup of long-expired windows; failures are irrelevant.
+      // Limpa janelas antigas sem atrapalhar a requisição se falhar.
       prisma.rateLimit.deleteMany({ where: { resetAt: { lt: new Date(now.getTime() - 24 * 60 * 60 * 1000) } } }).catch(() => {});
       return false;
     }

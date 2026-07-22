@@ -12,8 +12,7 @@ import { prisma } from "@/lib/prisma";
 
 import { getCurrentUser } from "@/lib/auth";
 
-// No force-dynamic export needed: getCurrentUser() reads the session cookie,
-// which already renders this page per-request.
+// A leitura da sessão já faz esta página ser renderizada por requisição.
 type Props={params:Promise<{id:string}>;searchParams:Promise<Record<string,string|string[]|undefined>>};
 function formatDate(date:Date|null){return date?new Intl.DateTimeFormat("pt-BR",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(date):"Data não registrada";}
 
@@ -23,7 +22,7 @@ export default async function FilmPage({params,searchParams}:Props){
   const viewer = await getCurrentUser();
   const ownerId = viewer?.id || "";
 
-  // Per-user state (userMovies) is folded into the same query — one round trip.
+  // Traz o estado do usuário na mesma consulta.
   const movie = await prisma.movie.findUnique({
     where: { id },
     include: {
@@ -32,8 +31,7 @@ export default async function FilmPage({params,searchParams}:Props){
     },
   });
   if (!movie) notFound();
-  // TMDB metadata (identity, poster, credits, rating) is filled by a background
-  // request after paint — never blocking this render. See <BackgroundEnrich/>.
+  // Os dados do TMDB são completados em segundo plano, sem travar a página.
   const needsMetadata = !movie.tmdbId || !movie.directors || !movie.cast || movie.tmdbRating == null;
 
   const userMovie = movie.userMovies[0] ?? null;

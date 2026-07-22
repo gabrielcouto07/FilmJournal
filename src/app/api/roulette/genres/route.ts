@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const genres = await getTmdbGenres("pt-BR");
     const response = NextResponse.json({ genres });
-    // Genre list is stable; cache it aggressively.
+    // A lista muda pouco, então pode ficar bastante tempo em cache.
     response.headers.set("Cache-Control", "public, max-age=86400, stale-while-revalidate=604800");
     return response;
   } catch (error) {

@@ -6,8 +6,7 @@ import { crossOriginResponse, isSameOrigin } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
-// The last-used roulette setup, persisted per user (UserSettings.rouletteFilters)
-// so the same intent is preloaded on the next visit, on any device.
+// Guarda os últimos filtros da roleta para a próxima visita.
 const prefsSchema = z.object({
   source: z.enum(["popular", "watchlist", "blindspots"]),
   genres: z.array(z.number().int().positive()).max(10),

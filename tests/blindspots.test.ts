@@ -56,8 +56,7 @@ test("decadeDomain spans the 1930s through the current decade", () => {
 });
 
 test("findGaps puts zero-coverage buckets first (domain order), then thinnest covered buckets", () => {
-  // Every decade covered with 10 films except: 1960s thin (1 film), 2020s empty.
-  // Mean over covered buckets ≈ 9 → ratio gate ≈ 2.25, so the 1960s qualifies.
+  // Todas as décadas têm dez filmes, menos 1960 (um) e 2020 (nenhum).
   const films = [1930, 1940, 1950, 1970, 1980, 1990, 2000, 2010].flatMap((decade) =>
     Array.from({ length: 10 }, () => film({ year: decade + 5 })),
   );
@@ -67,15 +66,14 @@ test("findGaps puts zero-coverage buckets first (domain order), then thinnest co
     domain: decadeDomain(2026),
     coverage: computeCoverage(films, "decade"),
   });
-  // The single zero bucket leads; the thin 1960s bucket follows.
+  // A faixa vazia vem antes da década de 1960, que tem pouca cobertura.
   assert.deepEqual(gaps.map((gap) => gap.key), ["2020", "1960"]);
   assert.equal(gaps[0].count, 0);
   assert.equal(gaps[1].count, 1);
 });
 
 test("findGaps caps output and lets zero-coverage buckets outrank thin ones", () => {
-  // 40 films in the 2010s, 1 in the 2000s → eight zero decades exist, so the
-  // cap (6) is filled entirely by zero gaps in domain order.
+  // O limite de seis é preenchido pelas décadas vazias na ordem do domínio.
   const films = [...Array.from({ length: 40 }, () => film({ year: 2015 })), film({ year: 2005 })];
   const gaps = findGaps({
     dimension: "decade",

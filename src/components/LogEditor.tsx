@@ -67,7 +67,7 @@ export default function LogEditor({ movieId, title, logId, initialDate, initialR
       });
       const payload = await response.json() as { message?: string; error?: string };
       if (!response.ok) throw new Error(payload.error ?? "Não foi possível salvar esta entrada do diário.");
-      // Sync the "liked" heart to the movie's favorite state when it changed.
+      // Mantém a curtida e o favorito do filme em sincronia.
       if (liked !== initialFavorite) {
         await fetch("/api/movies", {
           method: "PATCH",

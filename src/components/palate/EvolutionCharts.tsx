@@ -11,11 +11,11 @@ import {
   YAxis,
 } from "recharts";
 import type { TimelineYear } from "@/lib/analytics/timeline";
+import { useSettings } from "@/components/SettingsProvider";
+import { accentPalette } from "@/lib/accent";
 
-/** Same chart theme as PalateCharts — gold accent, muted axes, surface tooltip. */
+/** Mantém o mesmo visual dos outros gráficos do Paladar. */
 const C = {
-  gold: "#f5c518",
-  goldSoft: "#f8c970",
   blue: "#74b9ff",
   violet: "#b48ef1",
   neutral: "#6b655c",
@@ -25,7 +25,6 @@ const C = {
 
 const AXIS_TICK = { fill: C.axis, fontSize: 11, fontWeight: 700 } as const;
 const AXIS_LINE = { stroke: C.grid } as const;
-const GENRE_COLORS = [C.gold, C.blue, C.goldSoft, C.violet, C.neutral];
 
 type TooltipRow = { label: string; value: string; color?: string };
 function ChartTooltip({ title, rows }: { title: string; rows: TooltipRow[] }) {
@@ -44,10 +43,11 @@ function ChartTooltip({ title, rows }: { title: string; rows: TooltipRow[] }) {
   );
 }
 
-// -------------------------------------------------- rating + lean per year
+// Nota e diferença para o público por ano
 
-/** Average rating (0–5, left axis) and distance from the crowd (right axis). */
+/** Nota média à esquerda e distância do público à direita. */
 export function RatingLeanTrend({ years }: { years: TimelineYear[] }) {
+  const accent = accentPalette(useSettings().settings.accentColor);
   return (
     <ResponsiveContainer width="100%" height={260}>
       <LineChart data={years} margin={{ top: 8, right: 8, bottom: 4, left: 0 }}>
@@ -65,7 +65,7 @@ export function RatingLeanTrend({ years }: { years: TimelineYear[] }) {
               <ChartTooltip
                 title={String(year.year)}
                 rows={[
-                  { label: "Nota média", value: year.averageRating != null ? `${year.averageRating.toFixed(2)}★` : "—", color: C.gold },
+                  { label: "Nota média", value: year.averageRating != null ? `${year.averageRating.toFixed(2)}★` : "—", color: accent.base },
                   { label: "Vs. público", value: year.tasteLean != null ? `${year.tasteLean > 0 ? "+" : ""}${year.tasteLean.toFixed(2)}★` : "—", color: C.blue },
                   { label: "Sessões", value: String(year.sessions) },
                 ]}
@@ -73,17 +73,18 @@ export function RatingLeanTrend({ years }: { years: TimelineYear[] }) {
             );
           }}
         />
-        <Line yAxisId="rating" dataKey="averageRating" stroke={C.gold} strokeWidth={2.5} dot={{ r: 3, fill: C.gold, strokeWidth: 0 }} connectNulls isAnimationActive={false} />
+        <Line yAxisId="rating" dataKey="averageRating" stroke={accent.base} strokeWidth={2.5} dot={{ r: 3, fill: accent.base, strokeWidth: 0 }} connectNulls isAnimationActive={false} />
         <Line yAxisId="lean" dataKey="tasteLean" stroke={C.blue} strokeWidth={2} strokeDasharray="6 4" dot={{ r: 3, fill: C.blue, strokeWidth: 0 }} connectNulls isAnimationActive={false} />
       </LineChart>
     </ResponsiveContainer>
   );
 }
 
-// ------------------------------------------------------- film era per year
+// Época dos filmes por ano
 
-/** Average release year of the films watched, per watch year. */
+/** Ano médio de lançamento dos filmes vistos em cada período. */
 export function EraDrift({ years }: { years: TimelineYear[] }) {
+  const accent = accentPalette(useSettings().settings.accentColor);
   const values = years.map((year) => year.averageFilmYear).filter((value): value is number => value != null);
   const min = values.length ? Math.floor((Math.min(...values) - 4) / 10) * 10 : 1900;
   const max = values.length ? Math.ceil((Math.max(...values) + 4) / 10) * 10 : 2030;
@@ -102,31 +103,32 @@ export function EraDrift({ years }: { years: TimelineYear[] }) {
               <ChartTooltip
                 title={String(year.year)}
                 rows={[
-                  { label: "Época média", value: year.averageFilmYear != null ? String(Math.round(year.averageFilmYear)) : "—", color: C.gold },
+                  { label: "Época média", value: year.averageFilmYear != null ? String(Math.round(year.averageFilmYear)) : "—", color: accent.base },
                   { label: "Sessões", value: String(year.sessions) },
                 ]}
               />
             );
           }}
         />
-        <Line dataKey="averageFilmYear" stroke={C.gold} strokeWidth={2.5} dot={{ r: 3, fill: C.gold, strokeWidth: 0 }} connectNulls isAnimationActive={false} />
+        <Line dataKey="averageFilmYear" stroke={accent.base} strokeWidth={2.5} dot={{ r: 3, fill: accent.base, strokeWidth: 0 }} connectNulls isAnimationActive={false} />
       </LineChart>
     </ResponsiveContainer>
   );
 }
 
-// ---------------------------------------------------- genre share per year
+// Participação dos gêneros por ano
 
 type GenreDriftRow = { year: number; [genre: string]: number | null };
 
-/** Share of each top genre per watch year (a film counts once per genre). */
+/** Participação dos principais gêneros em cada ano. */
 export function GenreShareDrift({ years, genres }: { years: TimelineYear[]; genres: string[] }) {
+  const accent = accentPalette(useSettings().settings.accentColor);
+  const GENRE_COLORS = [accent.base, C.blue, accent.soft, C.violet, C.neutral];
   const rows: GenreDriftRow[] = years.map((year) => {
     const row: GenreDriftRow = { year: year.year };
     const shares = new Map(year.genreShares.map((item) => [item.genre, item.share]));
     for (const genre of genres) {
-      // A year without genre data at all stays null (gap); a year with data
-      // where the genre is absent is a real 0%.
+      // Sem dados vira lacuna; com dados e sem o gênero vira 0%.
       row[genre] = year.genreShares.length ? Math.round((shares.get(genre) ?? 0) * 100) : null;
     }
     return row;

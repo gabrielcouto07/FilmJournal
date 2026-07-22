@@ -8,7 +8,7 @@ import {
   type VerdictInput,
 } from "../src/lib/analytics/verdict";
 
-/** A full-signal input: strict rater, 2000s drama, loyal to one director. */
+/** Entrada com todos os sinais: notas rígidas, drama dos anos 2000 e um diretor recorrente. */
 function richInput(overrides: Partial<VerdictInput> = {}): VerdictInput {
   return {
     totalFilms: 40,

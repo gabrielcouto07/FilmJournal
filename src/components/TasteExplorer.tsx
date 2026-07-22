@@ -32,7 +32,7 @@ export default function TasteExplorer({ initialData }: { initialData: TasteData 
     const token = `${movie.tmdbId}:${action}`;
     setPending(token);
     try {
-      // "open" and "log" both go to the film page; "log" opens the rating/review editor there.
+      // A ação de registrar já abre o editor na página do filme.
       if ((action === "open" || action === "log") && movie.existing) { router.push(`/film/${movie.existing.id}${action === "log" ? "?log=1" : ""}`); return; }
       let existing = movie.existing;
       let notice = "Filme atualizado.";

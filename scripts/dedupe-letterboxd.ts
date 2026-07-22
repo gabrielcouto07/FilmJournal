@@ -35,7 +35,7 @@ function unionValues(values: Array<string | null>): string | null {
 function groupAuthoritative(entries: Entry[]): MergeGroup[] {
   const grouped = new Map<string, Entry[]>();
   entries.forEach((entry) => {
-    // Distinct Letterboxd event URIs are distinct events, even on the same day.
+    // URIs diferentes representam sessões diferentes, mesmo no mesmo dia.
     const identity = entry.sourceUri
       ? `uri:${entry.sourceUri.toLowerCase()}`
       : `key:${entry.sourceKey}`;
@@ -93,8 +93,7 @@ export async function dedupeLetterboxd(apply = false): Promise<{ before: number;
 
   await prisma.$transaction(async (transaction) => {
     for (const plan of plans) {
-      // Per-user watched/rating/favorite state lives on UserMovie now; this
-      // maintenance tool only reconciles the shared LogEntry rows.
+      // Este ajuste cuida apenas dos registros de diário compartilhados.
       const deleteIds = [
         ...plan.catalogArtifacts.map((entry) => entry.id),
         ...plan.mergeGroups.flatMap((group) => group.redundant.map((entry) => entry.id)),

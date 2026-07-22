@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const dismissSchema = z.object({
   dimension: z.enum(["decade", "country", "language", "genre"]),
-  // A bucket key ("1960", "JP", "ja", TMDB genre id) or "*" to mute the dimension.
+  // Usa a chave da faixa ou "*" para ocultar a dimensão inteira.
   gapKey: z.string().trim().min(1).max(20),
 });
 

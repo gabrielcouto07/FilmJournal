@@ -9,27 +9,12 @@ import type { DiaryItem } from "@/components/DiaryExplorer";
 import type { WatchlistMovie } from "@/components/WatchlistExplorer";
 import type { FavoriteMovie } from "@/components/FavoritesManager";
 
-/**
- * Cached, per-user data layer for the heavy read pages.
- *
- * - Every function returns a JSON-safe view model (dates pre-serialized or
- *   pre-aggregated) because `unstable_cache` round-trips values through JSON.
- * - Entries are tagged `user:{id}` + `catalog` and invalidated by the write API
- *   routes via `revalidateTag`, so navigation is served from cache and refreshes
- *   immediately after a mutation. `revalidate` is a safety net for out-of-band
- *   writes (e.g. the CLI importer).
- */
+/** Camada de leitura por usuário, com dados serializáveis e cache por etiquetas. */
 export const CATALOG_TAG = "catalog";
 export const userTag = (userId: string) => `user:${userId}`;
 const REVALIDATE_SECONDS = 300;
 
-/**
- * unstable_cache wrapper shared by every read below (same tags + revalidate),
- * with timing telemetry: a MISS line means the Prisma work actually ran; a HIT
- * line was served from the cache without touching the database. A page that
- * logs MISS on every navigation means its entry is being invalidated (or
- * silently dropped) and the cache is not doing its job.
- */
+/** Compartilha a configuração de cache e registra HIT/MISS para diagnóstico. */
 function timedRead<T>(label: string, version: string, userId: string, compute: () => Promise<T>): Promise<T> {
   const start = performance.now();
   let computeMs: number | null = null;
@@ -77,7 +62,7 @@ function toCard(movie: Movie, um?: UserState | null): CardMovie {
   };
 }
 
-// ---------------------------------------------------------------- dashboard
+// Página inicial
 
 export type DashboardData = {
   featured: null | {
@@ -181,7 +166,7 @@ export function getDashboardData(userId: string): Promise<DashboardData> {
   });
 }
 
-// -------------------------------------------------------------------- diary
+// Diário
 
 export type DiaryData = { entries: DiaryItem[]; reviews: number; rewatches: number };
 
@@ -227,7 +212,7 @@ export function getDiaryData(userId: string): Promise<DiaryData> {
   });
 }
 
-// ---------------------------------------------------------------- watchlist
+// Lista para assistir
 
 export function getWatchlistData(userId: string): Promise<WatchlistMovie[]> {
   return timedRead("watchlist", "watchlist-v1", userId, async (): Promise<WatchlistMovie[]> => {
@@ -252,7 +237,7 @@ export function getWatchlistData(userId: string): Promise<WatchlistMovie[]> {
   });
 }
 
-// ---------------------------------------------------------------- favorites
+// Favoritos
 
 export function getFavoritesData(userId: string): Promise<FavoriteMovie[]> {
   return timedRead("favorites", "favorites-v1", userId, async (): Promise<FavoriteMovie[]> => {
@@ -271,7 +256,7 @@ export function getFavoritesData(userId: string): Promise<FavoriteMovie[]> {
         favorite: um.favorite,
         genres: um.movie.genres,
       }));
-      // Ranked favorites first (ascending), then unranked favorites by title.
+      // Favoritos ranqueados primeiro; os demais ficam em ordem alfabética.
       movies.sort((a, b) => {
         if (a.favoriteRank !== null && b.favoriteRank !== null) return a.favoriteRank - b.favoriteRank;
         if (a.favoriteRank !== null) return -1;
@@ -282,7 +267,7 @@ export function getFavoritesData(userId: string): Promise<FavoriteMovie[]> {
   });
 }
 
-// -------------------------------------------------------------------- stats
+// Estatísticas
 
 export type StatsData = {
   sessions: number;
@@ -315,13 +300,13 @@ function countValues(values: Array<string | null>): Array<[string, number]> {
 }
 
 export function getStatsData(userId: string): Promise<StatsData> {
-  // v2: genre/director/highest-rated aggregates moved to the palate data.
+  // Gêneros, diretores e maiores notas agora são calculados pelo Paladar.
   return timedRead("stats", "stats-v2", userId, async (): Promise<StatsData> => {
       const currentYear = new Date().getUTCFullYear();
       const yearStart = new Date(Date.UTC(currentYear, 0, 1));
 
       const [logs, watchedCount, yearLogs] = await Promise.all([
-        // Note: no movie include — the aggregate charts only need the log fields.
+        // Estes gráficos usam apenas os campos do registro.
         prisma.logEntry.findMany({
           where: { userId },
           select: { rating: true, review: true, rewatch: true, watchedAt: true, loggedAt: true },
@@ -351,7 +336,7 @@ export function getStatsData(userId: string): Promise<StatsData> {
       });
       const monthSeries = [...months.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-18).map(([key, count]) => ({ key, count }));
 
-      // Year in review ("Retrospectiva").
+      // Retrospectiva do ano.
       const yearRated = yearLogs.filter((log) => log.rating != null);
       const yearMonths = new Map<string, number>();
       yearLogs.forEach((log) => {
@@ -387,14 +372,9 @@ export function getStatsData(userId: string): Promise<StatsData> {
   });
 }
 
-// ------------------------------------------------------------------- palate
+// Paladar
 
-/**
- * Taste-analytics aggregates for the /dashboard page. The Prisma read lives
- * here; the maths lives in the pure, unit-tested `computePalate`. The palate
- * universe is the viewer's *rated* films — ratings are the clearest taste
- * signal and the contrarian analysis needs a user rating per point.
- */
+/** Carrega os filmes avaliados e entrega os cálculos ao módulo puro do Paladar. */
 export function getPalateData(userId: string): Promise<Palate> {
   return timedRead("palate", "palate-v1", userId, async (): Promise<Palate> => {
       const rows = await prisma.userMovie.findMany({
@@ -430,14 +410,9 @@ export function getPalateData(userId: string): Promise<Palate> {
   });
 }
 
-// ----------------------------------------------------------------- timeline
+// Evolução
 
-/**
- * Taste-over-time aggregates for the /dashboard "Evolução" section. The time
- * axis is the diary (LogEntry), not the UserMovie snapshot — watchedAt falling
- * back to loggedAt, mirroring getStatsData. The maths lives in the pure,
- * unit-tested `computeTimeline`.
- */
+/** Carrega o diário e calcula a evolução do gosto ao longo do tempo. */
 export function getTimelineData(userId: string): Promise<Timeline> {
   return timedRead("timeline", "timeline-v1", userId, async (): Promise<Timeline> => {
       const logs = await prisma.logEntry.findMany({
@@ -469,14 +444,9 @@ export function getTimelineData(userId: string): Promise<Timeline> {
   });
 }
 
-// ------------------------------------------------------------------- motifs
+// Motivos recorrentes
 
-/**
- * Recurring themes in the viewer's highly-rated films, from the TMDB keyword
- * relations (populated on add since the enrichment fix). The maths lives in
- * the pure, unit-tested `computeMotifSummary`; `sentence` is null when the
- * data is too thin, and the dashboard hides the section entirely.
- */
+/** Resume temas recorrentes nos filmes mais bem avaliados pelo usuário. */
 export function getMotifsData(userId: string): Promise<MotifSummary> {
   return timedRead("motifs", "motifs-v1", userId, async (): Promise<MotifSummary> => {
       const rows = await prisma.userMovie.findMany({

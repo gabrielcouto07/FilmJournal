@@ -1,24 +1,9 @@
-/**
- * Cine-Detetive — pure grading, reveal-schedule and scoring logic for the
- * hybrid guessing game (spotle.movie-inspired). No I/O here so everything is
- * unit-testable (tests/play-hybrid.test.ts). The round token / TMDB plumbing
- * lives in src/lib/play/token.ts and the /api/play routes.
- *
- * Owner sign-off (2026-07-22):
- * - Reveal schedule: cast least-billed → top-billed on guesses 1–4 and 6;
- *   optional hints at 5 (keywords) and 8 (tagline); poster enters heavily
- *   blurred at 7, medium at 8, light at 9, clear only at win/loss.
- * - Tiles: year ±5 = close (with direction); genres set-equal = exact,
- *   ≥1 shared = close; director exact-only; studio primary = exact, any
- *   shared company = close; TMDB score ±0.3 exact / ±1.0 close (direction);
- *   cast overlap over the top-10 pool: ≥3 exact, 1–2 close (names shown).
- * - The old timed cast quiz was replaced by this game (owner's call).
- */
+/** Regras puras de comparação, pistas e pontuação do Cine-Detetive. */
 
 export const MAX_GUESSES = 10;
-/** Actors used as progressive identity clues (billed #5 → #1). */
+/** Atores liberados como pistas, do menos para o mais conhecido. */
 export const CAST_REVEALS = 5;
-/** Top-billed pool compared for the cast-overlap tile. */
+/** Quantidade de atores usada na comparação de elenco. */
 export const CAST_OVERLAP_POOL = 10;
 export const HINT_KEYWORDS_AT = 5;
 export const HINT_TAGLINE_AT = 8;
@@ -28,16 +13,16 @@ export const POSTER_LIGHT_AT = 9;
 export const YEAR_CLOSE_WINDOW = 5;
 export const RATING_EXACT_WINDOW = 0.3;
 export const RATING_CLOSE_WINDOW = 1.0;
-/** Shared cast members needed for a green cast tile. */
+/** Atores em comum necessários para uma comparação exata. */
 export const CAST_EXACT_MIN = 3;
-/** Hints available per round (keywords, tagline). */
+/** Dicas disponíveis por rodada. */
 export const HINT_COUNT = 2;
 
 import type { TmdbMovieDetails } from "../tmdb";
 
 export type CastMember = { id: number; name: string; profilePath: string | null };
 
-/** Everything a movie needs to be graded — both guesses and the target. */
+/** Dados necessários para comparar um filme. */
 export type MovieProfile = {
   tmdbId: number;
   title: string;
@@ -45,18 +30,15 @@ export type MovieProfile = {
   genres: Array<{ id: number; name: string }>;
   directorId: number | null;
   directorName: string | null;
-  /** Production companies in billing order — [0] is the primary studio. */
+  /** Produtoras em ordem; a primeira é a principal. */
   companies: Array<{ id: number; name: string }>;
-  /** TMDB vote_average on the raw 0–10 scale. */
+  /** Nota do TMDB entre 0 e 10. */
   rating: number | null;
-  /** Top-billed cast, billing order, up to CAST_OVERLAP_POOL entries. */
+  /** Elenco principal na ordem de crédito. */
   cast: CastMember[];
 };
 
-/**
- * Flatten a TMDB details payload (the shared getTmdbMovie fetch shape) into a
- * grading profile. Pure mapping — the type import is erased at compile time.
- */
+/** Converte os detalhes do TMDB no perfil usado pelo jogo. */
 export function profileFromDetails(details: TmdbMovieDetails): MovieProfile {
   const director = details.credits?.crew.find((person) => person.job === "Director") ?? null;
   return {
@@ -77,7 +59,7 @@ export function profileFromDetails(details: TmdbMovieDetails): MovieProfile {
 }
 
 export type TileGrade = "exact" | "close" | "miss";
-/** Where the target sits relative to the guess (the arrow on the tile). */
+/** Direção do filme secreto em relação ao palpite. */
 export type Direction = "target-higher" | "target-lower" | null;
 
 export type GuessTiles = {
@@ -106,12 +88,12 @@ function numericTile(
   return { grade, direction };
 }
 
-/** Grade one guessed movie against the target across the six tiles. */
+/** Compara um palpite com o filme secreto nos seis critérios. */
 export function gradeGuess(guess: MovieProfile, target: MovieProfile): GuessGrade {
-  // Year: exact same year, close within ±YEAR_CLOSE_WINDOW, arrow toward target.
+  // Ano exato ou próximo, com seta na direção do filme secreto.
   const year = numericTile(guess.year, target.year, 0, YEAR_CLOSE_WINDOW);
 
-  // Genres: identical sets (by id) = exact; any overlap = close.
+  // Gêneros iguais são exatos; qualquer gênero em comum fica próximo.
   const targetGenreIds = new Set(target.genres.map((genre) => genre.id));
   const sharedGenres = guess.genres.filter((genre) => targetGenreIds.has(genre.id));
   const setsEqual =
@@ -124,8 +106,7 @@ export function gradeGuess(guess: MovieProfile, target: MovieProfile): GuessGrad
     shared: sharedGenres.map((genre) => genre.name),
   };
 
-  // Director: exact-only — same TMDB person id, falling back to the name when
-  // an id is missing on either side.
+  // Diretor só aceita igualdade; usa o nome quando falta ID.
   const directorMatch =
     guess.directorId != null && target.directorId != null
       ? guess.directorId === target.directorId
@@ -139,7 +120,7 @@ export function gradeGuess(guess: MovieProfile, target: MovieProfile): GuessGrad
     guessDirector: guess.directorName,
   };
 
-  // Studio: same primary company = exact; any shared company = close.
+  // Produtora principal igual é exato; qualquer produtora em comum fica próxima.
   const targetCompanyIds = new Set(target.companies.map((company) => company.id));
   const sharedCompanies = guess.companies.filter((company) => targetCompanyIds.has(company.id));
   const primaryMatch =
@@ -150,10 +131,10 @@ export function gradeGuess(guess: MovieProfile, target: MovieProfile): GuessGrad
     shared: sharedCompanies.map((company) => company.name),
   };
 
-  // TMDB score: ±RATING_EXACT_WINDOW exact, ±RATING_CLOSE_WINDOW close.
+  // A nota usa janelas diferentes para exato e próximo.
   const rating = numericTile(guess.rating, target.rating, RATING_EXACT_WINDOW, RATING_CLOSE_WINDOW);
 
-  // Cast overlap over the top-billed pools; shared names double as clues.
+  // Atores em comum também aparecem como pistas.
   const guessCastIds = new Set(guess.cast.slice(0, CAST_OVERLAP_POOL).map((member) => member.id));
   const sharedCast = target.cast
     .slice(0, CAST_OVERLAP_POOL)
@@ -177,13 +158,9 @@ export function gradeGuess(guess: MovieProfile, target: MovieProfile): GuessGrad
   };
 }
 
-// ------------------------------------------------------------ reveal schedule
+// Liberação das pistas
 
-/**
- * How many identity-clue actors are visible while MAKING guess `guessNumber`.
- * G1–G4 reveal one per guess (billed #5 → #2), G5 pauses (hint 1 unlocks),
- * G6 reveals the top-billed name. Capped by how many actors the movie has.
- */
+/** Quantos atores ficam visíveis em cada palpite. */
 export function actorsVisible(guessNumber: number, castCount: number): number {
   const n = clamp(guessNumber, 1, MAX_GUESSES);
   const scheduled = n <= 4 ? n : n === 5 ? 4 : CAST_REVEALS;
@@ -192,7 +169,7 @@ export function actorsVisible(guessNumber: number, castCount: number): number {
 
 export type PosterStage = "hidden" | "heavy" | "medium" | "light";
 
-/** Poster blur stage while making guess `guessNumber` (clear only at the end). */
+/** Nível de desfoque do pôster em cada palpite. */
 export function posterStage(guessNumber: number): PosterStage {
   const n = clamp(guessNumber, 1, MAX_GUESSES);
   if (n < POSTER_AT) return "hidden";
@@ -201,26 +178,20 @@ export function posterStage(guessNumber: number): PosterStage {
   return "light";
 }
 
-/** Whether an optional hint (1 = keywords, 2 = tagline) is unlocked at a guess. */
+/** Indica se uma dica já foi liberada. */
 export function hintUnlocked(hint: 1 | 2, guessNumber: number): boolean {
   const n = clamp(guessNumber, 1, MAX_GUESSES);
   return hint === 1 ? n >= HINT_KEYWORDS_AT : n >= HINT_TAGLINE_AT;
 }
 
-/**
- * The identity-clue reveal order: the first CAST_REVEALS billed actors,
- * reversed, so clues escalate from least to most famous.
- */
+/** Ordena as pistas de elenco do nome menos para o mais conhecido. */
 export function revealOrder<T>(castBillingOrder: T[]): T[] {
   return castBillingOrder.slice(0, CAST_REVEALS).reverse();
 }
 
-// ------------------------------------------------------------------- scoring
+// Pontuação
 
-/**
- * Final score: fewer guesses = more points (1000 → 100 across the 10),
- * +50 per unused hint. A lost round scores 0.
- */
+/** Menos palpites e dicas não usadas rendem mais pontos; derrota vale zero. */
 export function computeHybridScore(options: { solved: boolean; guessesUsed: number; hintsUsed: number }): number {
   if (!options.solved) return 0;
   const guesses = clamp(options.guessesUsed, 1, MAX_GUESSES);
@@ -228,14 +199,14 @@ export function computeHybridScore(options: { solved: boolean; guessesUsed: numb
   return 1000 - (guesses - 1) * 100 + (HINT_COUNT - hints) * 50;
 }
 
-// ---------------------------------------------------------------- daily seed
+// Sorteio diário
 
-/** UTC day key ("2026-07-22") — the whole world shares one movie per day. */
+/** Chave UTC que mantém o mesmo filme do dia para todos. */
 export function dailyKey(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-/** FNV-1a over the day key: a stable, well-spread 32-bit seed. */
+/** Gera uma semente estável de 32 bits com FNV-1a. */
 export function dailySeed(key: string): number {
   let hash = 0x811c9dc5;
   for (let index = 0; index < key.length; index += 1) {

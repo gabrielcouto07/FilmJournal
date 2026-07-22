@@ -102,7 +102,7 @@ async function saveMovie(film: LetterboxdFilm, skipMetadata: boolean): Promise<M
     }
   }
 
-  // Movie is now the shared catalog only; per-user state lives on UserMovie below.
+  // Movie guarda o catálogo; o estado pessoal fica em UserMovie.
   const data = {
     title: film.name,
     year: film.year,
@@ -110,10 +110,7 @@ async function saveMovie(film: LetterboxdFilm, skipMetadata: boolean): Promise<M
     ...metadata,
   };
 
-  // Older imports could attach the first fuzzy TMDb result to the wrong film.
-  // When an exact title/year search now resolves to an identifier occupied by a
-  // different entity, release only that entity's derived metadata; its journal
-  // and collection state stay intact and it is enriched correctly later.
+  // Corrige metadados presos ao filme errado sem apagar diário nem coleção.
   const conflicting = metadata.tmdbId
     ? await prisma.movie.findUnique({ where: { tmdbId: metadata.tmdbId } })
     : metadata.imdbId ? await prisma.movie.findUnique({ where: { imdbId: metadata.imdbId } }) : null;
@@ -163,7 +160,7 @@ async function saveMovie(film: LetterboxdFilm, skipMetadata: boolean): Promise<M
     });
   }
 
-  // Ranked profile favorites map to the owner's per-user favoriteRank slot.
+  // A ordem dos favoritos vira `favoriteRank` para o usuário.
   if (ownerId && film.profileRank) {
     const current = await prisma.userMovie.findUnique({ where: { userId_movieId: { userId: ownerId, movieId: movie.id } } });
     if (current && current.favoriteRank == null) {
@@ -182,8 +179,7 @@ function sameDay(entry: LogEntry, watchedAt: Date | null, loggedAt: Date | null)
 
 async function saveEvents(movie: Movie, film: LetterboxdFilm): Promise<number> {
   const existingLogs = await prisma.logEntry.findMany({ where: { movieId: movie.id }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] });
-  // Reassign event ordinals from a clean slate. This prevents a unique-key
-  // collision when two legitimate same-day URI events change sort order.
+  // Recalcula a ordem para evitar colisões entre sessões do mesmo dia.
   if (existingLogs.length) await prisma.logEntry.updateMany({ where: { movieId: movie.id }, data: { dedupeKey: null } });
   const claimed = new Set<string>();
   const dayOccurrences = new Map<string, number>();
@@ -269,12 +265,7 @@ type ImportPlan = {
   skipped: { unknownTitle: number; missingYear: number; undatedEvents: number };
 };
 
-/**
- * Read-only preview of a live import. Performs ZERO database writes: it never
- * calls `ensureOwnerUser` (which would create/promote the owner) and only reads
- * existing rows to estimate create-vs-update counts, mirroring the match
- * priority used by `saveEvents` (sourceKey -> sourceUri -> same-day).
- */
+/** Simula a importação sem escrever no banco e estima criações e atualizações. */
 export async function planImport(): Promise<ImportPlan> {
   const files = await readLetterboxdExport();
   const filesPresent = exportFileNames.filter((name) => (files[name] ?? "").trim().length > 0);
@@ -315,7 +306,7 @@ export async function planImport(): Promise<ImportPlan> {
       if (existingUserMovie) plan.userMoviesToUpdate += 1;
       else plan.userMoviesToCreate += 1;
     } else {
-      // No owner yet: a live run would create it, then create one UserMovie per film.
+      // Sem dono ainda, a importação real criaria a conta e seus UserMovie.
       plan.userMoviesToCreate += 1;
     }
 

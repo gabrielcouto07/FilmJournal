@@ -1,23 +1,18 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 import type { MovieProfile } from "./hybrid";
 
-/**
- * Round tokens for Cine-Detetive. The answer (full grading profile + hint
- * material) is AES-256-GCM sealed so the server stays stateless while the
- * client cannot read the answer out of a network inspector — clue data is only
- * ever sent when its guess number arrives. Key derives from NEXTAUTH_SECRET.
- */
+/** Protege a resposta da rodada com AES-256-GCM sem guardar estado no servidor. */
 
 export type HybridRoundPayload = {
-  /** The target's full grading profile (also the answer reveal). */
+  /** Perfil completo do filme secreto. */
   target: MovieProfile;
   posterPath: string | null;
-  /** Hint 1 material: up to three TMDB keywords. */
+  /** Primeira dica: até três palavras-chave do TMDB. */
   keywords: string[];
-  /** Hint 2 material. */
+  /** Conteúdo da segunda dica. */
   tagline: string | null;
   source: "mine" | "popular" | "daily";
-  /** Epoch ms after which the token is rejected. */
+  /** Momento em que o token expira. */
   exp: number;
 };
 
@@ -34,7 +29,7 @@ export function sealRound(payload: HybridRoundPayload): string {
   return Buffer.concat([iv, cipher.getAuthTag(), ciphertext]).toString("base64url");
 }
 
-/** Returns null for tampered, malformed, or expired tokens. */
+/** Retorna `null` para tokens alterados, inválidos ou vencidos. */
 export function openRound(token: string): HybridRoundPayload | null {
   try {
     const raw = Buffer.from(token, "base64url");

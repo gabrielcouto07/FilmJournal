@@ -29,8 +29,7 @@ export default async function DiscoverPage() {
 
       <DiscoverExplorer initial={initial} />
 
-      {/* Similarity-based curation (moved from the retired /stats page): the
-          blind-spot engine above expands the map; these rails deepen it. */}
+      {/* A seleção abaixo aprofunda as indicações dos pontos cegos. */}
       <TasteExplorer initialData={tasteData} />
     </main>
   );

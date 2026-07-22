@@ -28,7 +28,7 @@ export const metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
-  // Read the viewer's settings server-side so theme/accent apply without a flash.
+  // Carrega tema e cor no servidor para evitar uma troca visual ao abrir a página.
   const user = await getCurrentUser();
   const settings = await getUserSettings(user?.id);
   const initialTheme = settings.theme === "light" ? "light" : "dark";
@@ -43,7 +43,7 @@ export default async function RootLayout({
     >
       <body>
         <AppProviders initialSettings={settings}>
-          <SiteHeader />
+          <SiteHeader avatarUrl={user?.avatarUrl ?? null} />
           <PageTransition>{children}</PageTransition>
         </AppProviders>
       </body>

@@ -261,9 +261,7 @@ async function archiveFingerprint(userId: string) {
 export async function getTasteData({ refresh = false, userId }: { refresh?: boolean; userId: string }) {
   if (refresh) return buildTasteData(true, userId);
 
-  // Timing telemetry mirrors data.ts: MISS = buildTasteData (and its TMDB
-  // calls) actually ran; HIT = served from cache. The fingerprint queries run
-  // on every request either way — their cost shows up inside the total.
+  // HIT usa o cache; MISS refaz os dados e as chamadas ao TMDB.
   const start = performance.now();
   const fingerprint = await archiveFingerprint(userId);
   const fingerprintMs = Math.round(performance.now() - start);

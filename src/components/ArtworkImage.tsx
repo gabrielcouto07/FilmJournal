@@ -104,7 +104,7 @@ export default function ArtworkImage({
 
   useEffect(() => {
     const image = imageRef.current;
-    // Cached eager images can complete before React attaches onLoad during hydration.
+    // Uma imagem em cache pode carregar antes de o React registrar o `onLoad`.
     if (image?.complete && image.naturalWidth > 0) setLoaded(true);
   }, [activeSource]);
 

@@ -13,11 +13,10 @@ import {
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-// Large libraries take a while to persist; ask Vercel for more headroom than the
-// 10s default (honored on plans that allow it).
+// Bibliotecas grandes precisam de mais tempo para serem salvas na Vercel.
 export const maxDuration = 60;
 
-// Filenames Letterboxd puts in its export ZIP. Any subset is accepted.
+// Nomes usados pelo Letterboxd no ZIP de exportação. Aceitamos qualquer subconjunto.
 const KNOWN_FILES: LetterboxdFile[] = [
   "diary.csv",
   "reviews.csv",
@@ -28,8 +27,7 @@ const KNOWN_FILES: LetterboxdFile[] = [
   "likes/films.csv",
 ];
 
-// Vercel Functions reject request bodies above 4.5 MB before this route runs.
-// Leave room for multipart boundaries so users get our own actionable error.
+// Deixa uma margem abaixo do limite da Vercel para retornar um erro mais claro.
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 const MAX_UNCOMPRESSED_BYTES = 25 * 1024 * 1024;
 
@@ -42,7 +40,7 @@ function knownFileFromPath(path: string): LetterboxdFile | null {
   return KNOWN_FILES.find((known) => normalized === known || normalized.endsWith(`/${known}`)) ?? null;
 }
 
-/** Pull only known Letterboxd CSVs out of a ZIP, ignoring any wrapping folder. */
+/** Extrai do ZIP apenas os CSVs conhecidos, mesmo que estejam dentro de uma pasta. */
 function filesFromZip(bytes: Uint8Array): LetterboxdFiles {
   let expandedBytes = 0;
   let limitExceeded = false;
@@ -76,11 +74,7 @@ function filesFromZip(bytes: Uint8Array): LetterboxdFiles {
   return files;
 }
 
-/**
- * Import a Letterboxd export into the signed-in user's journal.
- * Accepts either a single `.zip` (field `archive`/`zip`/`file`) or the individual
- * CSV files (field named after the file, e.g. `diary.csv` or bare `diary`).
- */
+/** Importa um ZIP do Letterboxd ou seus CSVs separados para o diário do usuário. */
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return crossOriginResponse();
   const user = await getCurrentUser();
@@ -124,7 +118,7 @@ export async function POST(request: Request) {
       return json({ error: "Não foi possível ler o .zip. Verifique se é o export do Letterboxd." }, 400);
     }
   } else {
-    // Individual CSV uploads: accept the exact filename or a bare field name.
+    // Aceita o nome completo do CSV ou o nome sem extensão.
     let totalBytes = 0;
     for (const known of KNOWN_FILES) {
       const bare = known.replace(/\.csv$/, "").replace("likes/", "");
@@ -148,8 +142,7 @@ export async function POST(request: Request) {
 
   try {
     const summary = await importLetterboxdForUser(user.id, files);
-    // The import fills the user's journal and may add catalog movies — drop
-    // every cached page so the freshly imported profile shows up immediately.
+    // Limpa o cache para mostrar o conteúdo importado na hora.
     revalidateTag(userTag(user.id));
     revalidateTag(CATALOG_TAG);
     return json({ ok: true, summary, errors });

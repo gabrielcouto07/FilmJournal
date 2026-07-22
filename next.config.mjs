@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async redirects() {
-    // The Paladar became the home page; /dashboard (and the older /stats)
-    // redirect there so old bookmarks keep working.
+    // O Paladar virou a página inicial; os atalhos antigos continuam funcionando.
     return [
       { source: "/dashboard", destination: "/", permanent: true },
       { source: "/stats", destination: "/", permanent: true },

@@ -1,8 +1,5 @@
-// Perf harness: times the background enrich POST that <BackgroundEnrich/>
-// fires after every dashboard paint, to see how much server work each
-// navigation triggers and whether the sweep converges (requested should drop
-// to 0 on repeat calls thanks to the no-change cooldown).
-// Usage: node scripts/perf-enrich.mjs [baseUrl] [passes]
+// Mede o enriquecimento em segundo plano e confirma que chamadas repetidas convergem.
+// Uso: node scripts/perf-enrich.mjs [baseUrl] [passes]
 import "dotenv/config";
 
 const BASE = process.argv[2] || "http://localhost:3000";

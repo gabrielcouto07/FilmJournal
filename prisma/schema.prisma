@@ -43,16 +43,14 @@ model Movie {
   @@index([year])
 }
 
-// TMDB genre taxonomy (id is the TMDB genre id). Related many-to-many to Movie
-// via genreList; the denormalized Movie.genres string is kept for legacy reads.
+// Gêneros do TMDB ligados aos filmes; o texto antigo continua por compatibilidade.
 model Genre {
   id     Int     @id // TMDB genre id
   name   String
   movies Movie[]
 }
 
-// TMDB keyword/tag taxonomy (id is the TMDB keyword id). Used by the themes /
-// motifs analysis (see roadmap Phase 5).
+// Palavras-chave do TMDB usadas na análise de temas recorrentes.
 model Keyword {
   id     Int     @id // TMDB keyword id
   name   String
@@ -75,10 +73,23 @@ model User {
   settings            UserSettings?
   blindSpotDismissals BlindSpotDismissal[]
   gameScores          GameScore[]
+  pendingPasswordChange PendingPasswordChange?
 }
 
-// Best score per game mode. game is the mode id ("cast" = Guess by Cast);
-// source is the round pool ("mine" = the viewer's films, "popular" = TMDB).
+// Troca de senha pendente: guarda o código (hash) enviado por e-mail e a nova
+// senha (hash) até o usuário confirmar pelo código. Uma por usuário; expira e
+// limita tentativas. Ver /api/account/password e .../password/confirm.
+model PendingPasswordChange {
+  userId          String   @id
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash        String
+  newPasswordHash String
+  attempts        Int      @default(0)
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+}
+
+// Melhor pontuação por modo e fonte do jogo.
 model GameScore {
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -91,9 +102,7 @@ model GameScore {
   @@id([userId, game, source])
 }
 
-// "Not interested" signals for the blind-spot engine. gapKey is a bucket key
-// within the dimension ("1960" for a decade, "JP" for a country, "ja" for a
-// language, a TMDB genre id for a genre) or "*" to mute the whole dimension.
+// Preferências ignoradas nos pontos cegos; `*` silencia a dimensão inteira.
 model BlindSpotDismissal {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -118,11 +127,9 @@ model UserSettings {
   showAdultContent   Boolean  @default(false)
   defaultLandingPage String   @default("/")
   emailNotifications Boolean  @default(false)
-  // Last-used roulette filter set ({ source, genres, people, yearFrom, ... }),
-  // written by /api/roulette/prefs so a spin setup survives across devices.
+  // Últimos filtros da roleta, compartilhados entre dispositivos.
   rouletteFilters    Json?
-  // First-run onboarding: null = the /welcome flow has not been completed yet.
-  // Accounts that already had journal data were backfilled at migration time.
+  // `null` indica que a introdução ainda não foi concluída.
   onboardedAt        DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
@@ -151,8 +158,7 @@ model UserMovie {
   @@index([userId, rating])
 }
 
-// Shared-store rate limiting (survives serverless cold starts). Keys are
-// namespaced, e.g. "register:{ip}" or "pwd:{userId}".
+// Limites de requisição compartilhados entre instâncias serverless.
 model RateLimit {
   key     String   @id
   count   Int      @default(1)
@@ -168,8 +174,7 @@ model LogEntry {
   userId     String?
   user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   sourceKey  String    @unique
-  // v2 event identity: movie + effective watch day + same-day occurrence.
-  // Content such as a rating or review may change without changing this identity.
+  // Identidade da sessão: filme, dia efetivo e ocorrência no mesmo dia.
   dedupeKey  String?   @unique
   sourceType String
   sourceUri  String?

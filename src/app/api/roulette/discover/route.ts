@@ -23,7 +23,7 @@ type PoolMovie = {
   rating: number | null;
   overview: string | null;
   genreIds: number[];
-  /** Present only for blind-spot picks: why this film is a growth pick. */
+  /** Explica por que o filme ajuda a explorar um ponto cego. */
   rationale?: string;
   gapLabel?: string;
 };
@@ -45,7 +45,7 @@ function toPoolMovie(movie: TmdbMovieSearchResult): PoolMovie {
   };
 }
 
-// Fisher-Yates shuffle (route runtime, Math.random is fine here).
+// Embaralhamento Fisher-Yates; `Math.random` basta para este sorteio.
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
   for (let i = copy.length - 1; i > 0; i -= 1) {
@@ -68,7 +68,7 @@ function errorResponse(error: unknown) {
 export async function GET(request: Request) {
   const url = new URL(request.url);
 
-  // --- Winner detail mode: localized full details for a single movie. ---
+  // Detalhes completos do filme sorteado.
   const movieIdParam = Number(url.searchParams.get("movieId"));
   if (Number.isInteger(movieIdParam) && movieIdParam > 0) {
     try {
@@ -91,7 +91,7 @@ export async function GET(request: Request) {
     }
   }
 
-  // --- Pool mode: discover a shuffled sample of `count` movies. ---
+  // Monta uma amostra embaralhada com `count` filmes.
   const source = url.searchParams.get("source") ?? "popular";
   const genres = (url.searchParams.get("genres") ?? "").split(",").map((g) => g.trim()).filter(Boolean);
   const people = (url.searchParams.get("people") ?? "").split(",").map((p) => p.trim()).filter(Boolean);
@@ -101,7 +101,7 @@ export async function GET(request: Request) {
   const requestedCount = Number(url.searchParams.get("count"));
   const count = ALLOWED_COUNTS.includes(requestedCount) ? requestedCount : 8;
 
-  // --- Personal sources need a signed-in viewer. ---
+  // Fontes pessoais exigem uma sessão ativa.
   if (source === "watchlist" || source === "blindspots") {
     const user = await getCurrentUser();
     if (!user) return NextResponse.json({ error: "Faça login para usar esta fonte." }, { status: 401 });
@@ -129,7 +129,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ movies: pool, totalResults: pool.length });
       }
 
-      // source === "watchlist": the pool is the viewer's own saved films.
+      // Na lista para assistir, o sorteio usa os filmes salvos pelo usuário.
       const genreIds = genres.map(Number).filter((id) => Number.isInteger(id) && id > 0);
       const rows = await prisma.userMovie.findMany({
         where: { userId: user.id, watchlist: true, movie: { tmdbId: { not: null } } },
@@ -147,7 +147,7 @@ export async function GET(request: Request) {
         .map((row) => row.movie)
         .filter((movie) => !(Number.isInteger(yearFrom) && yearFrom > 1800) || (movie.year ?? 0) >= yearFrom)
         .filter((movie) => !(Number.isInteger(yearTo) && yearTo > 1800) || (movie.year ?? 9999) <= yearTo)
-        // A runtime ceiling excludes films whose runtime is unknown — the filter must be trustworthy.
+        // Com limite de duração, filmes sem duração conhecida ficam de fora.
         .filter((movie) => !(Number.isInteger(runtimeMax) && runtimeMax > 0) || (movie.runtime != null && movie.runtime <= runtimeMax))
         .filter((movie) => !genreIds.length || movie.genreList.some((genre) => genreIds.includes(genre.id)));
 
@@ -180,8 +180,7 @@ export async function GET(request: Request) {
   if (Number.isInteger(runtimeMax) && runtimeMax > 0) discoverParams["with_runtime.lte"] = String(runtimeMax);
 
   try {
-    // Randomize page (1–5) so repeat spins with the same filters vary. Refetch
-    // page 1 if the random page overshot the available result count.
+    // Varia a página entre giros e volta à primeira se a escolhida estiver vazia.
     const randomPage = 1 + Math.floor(Math.random() * 5);
     discoverParams.page = String(randomPage);
     let result = await discoverTmdbMovies(discoverParams);

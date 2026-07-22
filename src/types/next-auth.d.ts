@@ -1,7 +1,6 @@
 import type { DefaultSession } from "next-auth";
 
-// Augment NextAuth's User/Session/JWT with the owner fields we carry through
-// the Credentials provider so `session.user.role` etc. are strongly typed.
+// Inclui nos tipos do NextAuth os dados do dono repassados pelo login com credenciais.
 declare module "next-auth" {
   interface User {
     id?: string;
