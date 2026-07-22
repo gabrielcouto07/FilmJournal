@@ -23,6 +23,36 @@ export const CATALOG_TAG = "catalog";
 export const userTag = (userId: string) => `user:${userId}`;
 const REVALIDATE_SECONDS = 300;
 
+/**
+ * unstable_cache wrapper shared by every read below (same tags + revalidate),
+ * with timing telemetry: a MISS line means the Prisma work actually ran; a HIT
+ * line was served from the cache without touching the database. A page that
+ * logs MISS on every navigation means its entry is being invalidated (or
+ * silently dropped) and the cache is not doing its job.
+ */
+function timedRead<T>(label: string, version: string, userId: string, compute: () => Promise<T>): Promise<T> {
+  const start = performance.now();
+  let computeMs: number | null = null;
+  return unstable_cache(
+    async (): Promise<T> => {
+      const computeStart = performance.now();
+      const value = await compute();
+      computeMs = performance.now() - computeStart;
+      return value;
+    },
+    [version, userId],
+    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
+  )().then((value) => {
+    const total = Math.round(performance.now() - start);
+    console.log(
+      computeMs === null
+        ? `[data] ${label} HIT ${total}ms`
+        : `[data] ${label} MISS ${total}ms (compute ${Math.round(computeMs)}ms)`,
+    );
+    return value;
+  });
+}
+
 type UserState = {
   rating: number | null;
   watched: boolean;
@@ -75,8 +105,7 @@ export type DashboardData = {
 };
 
 export function getDashboardData(userId: string): Promise<DashboardData> {
-  return unstable_cache(
-    async (): Promise<DashboardData> => {
+  return timedRead("dashboard", "dashboard-v1", userId, async (): Promise<DashboardData> => {
       const since = new Date();
       since.setUTCMonth(since.getUTCMonth() - 11, 1);
       since.setUTCHours(0, 0, 0, 0);
@@ -149,10 +178,7 @@ export function getDashboardData(userId: string): Promise<DashboardData> {
         months,
         yearWatches,
       };
-    },
-    ["dashboard-v1", userId],
-    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
-  )();
+  });
 }
 
 // -------------------------------------------------------------------- diary
@@ -160,8 +186,7 @@ export function getDashboardData(userId: string): Promise<DashboardData> {
 export type DiaryData = { entries: DiaryItem[]; reviews: number; rewatches: number };
 
 export function getDiaryData(userId: string): Promise<DiaryData> {
-  return unstable_cache(
-    async (): Promise<DiaryData> => {
+  return timedRead("diary", "diary-v1", userId, async (): Promise<DiaryData> => {
       const logs = await prisma.logEntry.findMany({
         where: { userId },
         include: {
@@ -199,17 +224,13 @@ export function getDiaryData(userId: string): Promise<DiaryData> {
         reviews: logs.filter((log) => log.review?.trim()).length,
         rewatches: logs.filter((log) => log.rewatch).length,
       };
-    },
-    ["diary-v1", userId],
-    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
-  )();
+  });
 }
 
 // ---------------------------------------------------------------- watchlist
 
 export function getWatchlistData(userId: string): Promise<WatchlistMovie[]> {
-  return unstable_cache(
-    async (): Promise<WatchlistMovie[]> => {
+  return timedRead("watchlist", "watchlist-v1", userId, async (): Promise<WatchlistMovie[]> => {
       const userMovies = await prisma.userMovie.findMany({
         where: { userId, watchlist: true },
         include: { movie: true },
@@ -228,17 +249,13 @@ export function getWatchlistData(userId: string): Promise<WatchlistMovie[]> {
         watchlistAddedAt: um.watchlistAddedAt?.toISOString() ?? null,
         tmdbRating: um.movie.tmdbRating,
       }));
-    },
-    ["watchlist-v1", userId],
-    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
-  )();
+  });
 }
 
 // ---------------------------------------------------------------- favorites
 
 export function getFavoritesData(userId: string): Promise<FavoriteMovie[]> {
-  return unstable_cache(
-    async (): Promise<FavoriteMovie[]> => {
+  return timedRead("favorites", "favorites-v1", userId, async (): Promise<FavoriteMovie[]> => {
       const userMovies = await prisma.userMovie.findMany({
         where: { userId, OR: [{ favorite: true }, { favoriteRank: { not: null } }] },
         include: { movie: true },
@@ -262,10 +279,7 @@ export function getFavoritesData(userId: string): Promise<FavoriteMovie[]> {
         return a.title.localeCompare(b.title);
       });
       return movies;
-    },
-    ["favorites-v1", userId],
-    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
-  )();
+  });
 }
 
 // -------------------------------------------------------------------- stats
@@ -301,8 +315,8 @@ function countValues(values: Array<string | null>): Array<[string, number]> {
 }
 
 export function getStatsData(userId: string): Promise<StatsData> {
-  return unstable_cache(
-    async (): Promise<StatsData> => {
+  // v2: genre/director/highest-rated aggregates moved to the palate data.
+  return timedRead("stats", "stats-v2", userId, async (): Promise<StatsData> => {
       const currentYear = new Date().getUTCFullYear();
       const yearStart = new Date(Date.UTC(currentYear, 0, 1));
 
@@ -370,11 +384,7 @@ export function getStatsData(userId: string): Promise<StatsData> {
         maxMonth: Math.max(1, ...monthSeries.map((item) => item.count)),
         retro,
       };
-    },
-    // v2: genre/director/highest-rated aggregates moved to the palate data.
-    ["stats-v2", userId],
-    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
-  )();
+  });
 }
 
 // ------------------------------------------------------------------- palate
@@ -386,8 +396,7 @@ export function getStatsData(userId: string): Promise<StatsData> {
  * signal and the contrarian analysis needs a user rating per point.
  */
 export function getPalateData(userId: string): Promise<Palate> {
-  return unstable_cache(
-    async (): Promise<Palate> => {
+  return timedRead("palate", "palate-v1", userId, async (): Promise<Palate> => {
       const rows = await prisma.userMovie.findMany({
         where: { userId, rating: { not: null } },
         select: {
@@ -418,10 +427,7 @@ export function getPalateData(userId: string): Promise<Palate> {
       }));
 
       return computePalate(films);
-    },
-    ["palate-v1", userId],
-    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
-  )();
+  });
 }
 
 // ----------------------------------------------------------------- timeline
@@ -433,8 +439,7 @@ export function getPalateData(userId: string): Promise<Palate> {
  * unit-tested `computeTimeline`.
  */
 export function getTimelineData(userId: string): Promise<Timeline> {
-  return unstable_cache(
-    async (): Promise<Timeline> => {
+  return timedRead("timeline", "timeline-v1", userId, async (): Promise<Timeline> => {
       const logs = await prisma.logEntry.findMany({
         where: { userId },
         select: {
@@ -461,10 +466,7 @@ export function getTimelineData(userId: string): Promise<Timeline> {
       }));
 
       return computeTimeline(entries);
-    },
-    ["timeline-v1", userId],
-    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
-  )();
+  });
 }
 
 // ------------------------------------------------------------------- motifs
@@ -476,8 +478,7 @@ export function getTimelineData(userId: string): Promise<Timeline> {
  * data is too thin, and the dashboard hides the section entirely.
  */
 export function getMotifsData(userId: string): Promise<MotifSummary> {
-  return unstable_cache(
-    async (): Promise<MotifSummary> => {
+  return timedRead("motifs", "motifs-v1", userId, async (): Promise<MotifSummary> => {
       const rows = await prisma.userMovie.findMany({
         where: { userId, rating: { not: null } },
         select: {
@@ -492,8 +493,5 @@ export function getMotifsData(userId: string): Promise<MotifSummary> {
       }));
 
       return computeMotifSummary(films);
-    },
-    ["motifs-v1", userId],
-    { revalidate: REVALIDATE_SECONDS, tags: [userTag(userId), CATALOG_TAG] },
-  )();
+  });
 }

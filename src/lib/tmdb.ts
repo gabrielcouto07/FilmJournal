@@ -103,7 +103,7 @@ async function tmdbFetch<T>(path: string, params: Record<string, string>, refres
     if (response.status === 401) throw new TmdbError("TMDb rejected the configured API key.", 503);
     if (response.status === 404) throw new TmdbError("The requested TMDb movie was not found.", 404);
     if (response.status === 429) throw new TmdbError("TMDb is rate limiting requests. Please try again shortly.", 429);
-    throw new TmdbError("TMDb could not complete this request. Please try again.", 502);
+    throw new TmdbError(`TMDb could not complete this request (upstream HTTP ${response.status}). Please try again.`, 502);
   }
 
   return response.json() as Promise<T>;

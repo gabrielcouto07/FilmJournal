@@ -180,11 +180,17 @@ async function fetchCandidates(context: GapContext, gaps: GapBucket[]): Promise<
 }
 
 export async function getDiscoverPicks(userId: string, focus?: GapDimension): Promise<DiscoverData> {
+  const start = performance.now();
   const context = await loadGapContext(userId, focus);
+  const contextMs = Math.round(performance.now() - start);
   const gapsToFill = focus ? GAPS_TO_FILL_FOCUSED : GAPS_TO_FILL_AUTO;
   const dimensions = focus ? [focus] : DIMENSION_ORDER;
   const targets = dimensions.flatMap((dimension) => (context.gapsByDimension[dimension] ?? []).slice(0, gapsToFill));
   const candidates = await fetchCandidates(context, targets);
+  // Uncached by design (see module doc) — this line is the per-request price.
+  console.log(
+    `[data] discover-picks UNCACHED ${Math.round(performance.now() - start)}ms (context ${contextMs}ms, ${targets.length} TMDB gap queries, degraded=${context.degraded})`,
+  );
 
   return {
     totalFilms: context.films.length,

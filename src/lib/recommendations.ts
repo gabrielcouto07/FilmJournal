@@ -249,12 +249,6 @@ async function buildTasteData(refresh: boolean, userId: string): Promise<TasteDa
   };
 }
 
-const getCachedTasteData = unstable_cache(
-  async (_archiveFingerprint: string, userId: string) => buildTasteData(false, userId),
-  ["filmjournal-taste-v2"],
-  { revalidate: RECOMMENDATION_TTL_SECONDS },
-);
-
 async function archiveFingerprint(userId: string) {
   const [movieCount, logCount, latestMovie, latestLog] = await Promise.all([
     prisma.movie.count(), prisma.logEntry.count({ where: { userId } }),
@@ -266,5 +260,29 @@ async function archiveFingerprint(userId: string) {
 
 export async function getTasteData({ refresh = false, userId }: { refresh?: boolean; userId: string }) {
   if (refresh) return buildTasteData(true, userId);
-  return getCachedTasteData(await archiveFingerprint(userId), userId);
+
+  // Timing telemetry mirrors data.ts: MISS = buildTasteData (and its TMDB
+  // calls) actually ran; HIT = served from cache. The fingerprint queries run
+  // on every request either way — their cost shows up inside the total.
+  const start = performance.now();
+  const fingerprint = await archiveFingerprint(userId);
+  const fingerprintMs = Math.round(performance.now() - start);
+  let computeMs: number | null = null;
+  const value = await unstable_cache(
+    async (_archiveFingerprint: string, uid: string) => {
+      const computeStart = performance.now();
+      const data = await buildTasteData(false, uid);
+      computeMs = performance.now() - computeStart;
+      return data;
+    },
+    ["filmjournal-taste-v2"],
+    { revalidate: RECOMMENDATION_TTL_SECONDS },
+  )(fingerprint, userId);
+  const total = Math.round(performance.now() - start);
+  console.log(
+    computeMs === null
+      ? `[data] taste HIT ${total}ms (fingerprint ${fingerprintMs}ms)`
+      : `[data] taste MISS ${total}ms (fingerprint ${fingerprintMs}ms, compute ${Math.round(computeMs)}ms)`,
+  );
+  return value;
 }
