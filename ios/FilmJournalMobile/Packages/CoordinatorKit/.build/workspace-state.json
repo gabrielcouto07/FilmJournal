@@ -1,0 +1,27 @@
+{
+  "object" : {
+    "artifacts" : [
+
+    ],
+    "dependencies" : [
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "kit",
+          "kind" : "fileSystem",
+          "location" : "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit",
+          "name" : "Kit"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit"
+        },
+        "subpath" : "kit"
+      }
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}

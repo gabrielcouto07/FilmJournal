@@ -1,0 +1,33 @@
+{
+  "": {
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/primary.swiftdeps"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/Sources/CoordinatorKit/RootCoordinator.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RootCoordinator.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RootCoordinator.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RootCoordinator~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RootCoordinator.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RootCoordinator.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/Sources/CoordinatorKit/Router.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Router.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Router.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Router~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Router.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Router.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/Sources/CoordinatorKit/RouterNavigationStack.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RouterNavigationStack.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RouterNavigationStack.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RouterNavigationStack~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RouterNavigationStack.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/RouterNavigationStack.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/Sources/CoordinatorKit/Routes.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Routes.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Routes.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Routes~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Routes.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/CoordinatorKit/.build/arm64-apple-macosx/debug/CoordinatorKit.build/Routes.dia"
+  }
+}

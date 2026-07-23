@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/KitTests.build/primary.swiftdeps"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Tests/KitTests/RatingTests.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/KitTests.build/RatingTests.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/KitTests.build/RatingTests.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/KitTests.build/RatingTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/KitTests.build/RatingTests.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/KitTests.build/RatingTests.dia"
+  }
+}

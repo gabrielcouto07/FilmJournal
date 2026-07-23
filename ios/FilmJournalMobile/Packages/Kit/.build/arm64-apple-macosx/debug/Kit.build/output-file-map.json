@@ -1,0 +1,236 @@
+{
+  "": {
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/primary.swiftdeps"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Environment/AppConfig.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AppConfig.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AppConfig.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AppConfig~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AppConfig.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AppConfig.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/FilmJournalAPI.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/FilmJournalAPI.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/FilmJournalAPI.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/FilmJournalAPI~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/FilmJournalAPI.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/FilmJournalAPI.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Auth.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Auth.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Auth.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Auth~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Auth.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Auth.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Common.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Common.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Common.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Common~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Common.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Common.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Discover.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Discover.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Discover.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Discover~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Discover.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Discover.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/GameScore.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/GameScore.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/GameScore.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/GameScore~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/GameScore.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/GameScore.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Import.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Import.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Import.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Import~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Import.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Import.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/LogEntry.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogEntry.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogEntry.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogEntry~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogEntry.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogEntry.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Movie.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Movie.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Movie.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Movie~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Movie.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Movie.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Play.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Play.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Play.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Play~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Play.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Play.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Recommendations.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Recommendations.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Recommendations.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Recommendations~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Recommendations.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Recommendations.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Roulette.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Roulette.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Roulette.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Roulette~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Roulette.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Roulette.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Settings.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Settings.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Settings.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Settings~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Settings.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/Settings.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/TMDB.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDB.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDB.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDB~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDB.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDB.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/User.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/User.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/User.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/User~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/User.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/User.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Networking/APIClient.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIClient.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIClient.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIClient~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIClient.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIClient.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Networking/APIError.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIError.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIError.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIError~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIError.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/APIError.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Networking/HTTPMethod.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/HTTPMethod.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/HTTPMethod.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/HTTPMethod~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/HTTPMethod.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/HTTPMethod.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Networking/JSONCoding.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/JSONCoding.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/JSONCoding.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/JSONCoding~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/JSONCoding.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/JSONCoding.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/AccountService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AccountService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AccountService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AccountService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AccountService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AccountService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/AuthService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AuthService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AuthService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AuthService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AuthService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/AuthService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/DiscoverService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/DiscoverService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/DiscoverService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/DiscoverService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/DiscoverService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/DiscoverService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/ImportService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ImportService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ImportService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ImportService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ImportService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ImportService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/LogsService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogsService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogsService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogsService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogsService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/LogsService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/MoviesService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/MoviesService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/MoviesService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/MoviesService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/MoviesService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/MoviesService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/OnboardingService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/OnboardingService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/OnboardingService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/OnboardingService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/OnboardingService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/OnboardingService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/PlayService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/PlayService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/PlayService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/PlayService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/PlayService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/PlayService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/ProfileService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ProfileService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ProfileService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ProfileService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ProfileService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/ProfileService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/RecommendationsService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RecommendationsService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RecommendationsService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RecommendationsService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RecommendationsService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RecommendationsService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/RouletteService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RouletteService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RouletteService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RouletteService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RouletteService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/RouletteService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/SettingsService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SettingsService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SettingsService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SettingsService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SettingsService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SettingsService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/TMDBService.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDBService.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDBService.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDBService~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDBService.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/TMDBService.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/Sources/Kit/SessionController.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SessionController.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SessionController.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SessionController~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SessionController.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/Kit/.build/arm64-apple-macosx/debug/Kit.build/SessionController.dia"
+  }
+}

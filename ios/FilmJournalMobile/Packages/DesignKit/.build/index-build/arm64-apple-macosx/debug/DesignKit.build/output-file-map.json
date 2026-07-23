@@ -1,0 +1,54 @@
+{
+  "": {
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/primary.swiftdeps"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/Sources/DesignKit/Components/FJScreen.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/FJScreen.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/FJScreen.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/FJScreen~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/FJScreen.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/FJScreen.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/Sources/DesignKit/Components/RatingStarsView.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/RatingStarsView.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/RatingStarsView.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/RatingStarsView~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/RatingStarsView.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/RatingStarsView.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/Sources/DesignKit/Components/StateViews.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/StateViews.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/StateViews.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/StateViews~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/StateViews.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/StateViews.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/Sources/DesignKit/Components/TMDBImage.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TMDBImage.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TMDBImage.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TMDBImage~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TMDBImage.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TMDBImage.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/Sources/DesignKit/Components/TopBarStyle.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TopBarStyle.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TopBarStyle.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TopBarStyle~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TopBarStyle.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/TopBarStyle.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/Sources/DesignKit/Tokens/ColorTokens.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/ColorTokens.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/ColorTokens.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/ColorTokens~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/ColorTokens.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/ColorTokens.dia"
+  },
+  "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/Sources/DesignKit/Tokens/Spacing.swift": {
+    "dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/Spacing.d",
+    "object": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/Spacing.swift.o",
+    "swiftmodule": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/Spacing~partial.swiftmodule",
+    "swift-dependencies": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/Spacing.swiftdeps",
+    "diagnostics": "/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournalMobile/FilmJournalMobile/Packages/DesignKit/.build/index-build/arm64-apple-macosx/debug/DesignKit.build/Spacing.dia"
+  }
+}
