@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -37,7 +38,7 @@ export default function CommandPalette() {
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
       try {
-        const response = await fetch(`/api/movies?q=${encodeURIComponent(query.trim())}&limit=6`, { signal: controller.signal });
+        const response = await apiFetch(`/movies?q=${encodeURIComponent(query.trim())}&limit=6`, { signal: controller.signal });
         const payload = await response.json() as { movies?: Result[] };
         setResults(payload.movies ?? []);
       } catch { if (!controller.signal.aborted) setResults([]); }

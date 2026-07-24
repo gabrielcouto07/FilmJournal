@@ -1,15 +1,15 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { needsOnboarding } from "@/lib/onboarding";
+import { apiGet, getSessionUser } from "@/lib/api-server";
 import WelcomeFlow from "@/components/WelcomeFlow";
 
 export const metadata = { title: "Bem-vindo · FilmJournal" };
 export const dynamic = "force-dynamic";
 
 export default async function WelcomePage() {
-  const viewer = await getCurrentUser();
+  const viewer = await getSessionUser();
   if (!viewer) redirect("/login");
   // Quem já passou pela introdução segue direto para o início.
-  if (!(await needsOnboarding(viewer.id))) redirect("/");
+  const { onboarded } = await apiGet<{ onboarded: boolean }>("/profile");
+  if (onboarded) redirect("/");
   return <WelcomeFlow displayName={viewer.displayName ?? viewer.username} />;
 }

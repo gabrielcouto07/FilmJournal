@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -37,7 +38,7 @@ export default function TasteExplorer({ initialData }: { initialData: TasteData 
       let existing = movie.existing;
       let notice = "Filme atualizado.";
       if (!existing) {
-        const addResponse = await fetch("/api/movies", {
+        const addResponse = await apiFetch("/movies", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ tmdbId: movie.tmdbId, ...(action === "watchlist" ? { watchlist: true } : {}) }),
@@ -48,7 +49,7 @@ export default function TasteExplorer({ initialData }: { initialData: TasteData 
         notice = addPayload.message ?? notice;
         updateExisting(movie.tmdbId, existing);
       } else if (action === "watchlist" && !existing.watchlist) {
-        const response = await fetch("/api/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId: existing.id, action: "watchlist", value: true }) });
+        const response = await apiFetch("/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId: existing.id, action: "watchlist", value: true }) });
         const payload = await response.json() as { movie?: { id: string; watchlist: boolean; favorite: boolean }; message?: string; error?: string };
         if (!response.ok || !payload.movie) throw new Error(payload.error ?? "Não foi possível atualizar sua lista para assistir.");
         existing = { id: payload.movie.id, watchlist: payload.movie.watchlist, favorite: payload.movie.favorite };
@@ -69,7 +70,7 @@ export default function TasteExplorer({ initialData }: { initialData: TasteData 
   async function refresh() {
     setRefreshing(true); setError("");
     try {
-      const response = await fetch("/api/recommendations?refresh=1", { cache: "no-store" });
+      const response = await apiFetch("/recommendations?refresh=1", { cache: "no-store" });
       const payload = await response.json() as TasteData & { error?: string };
       if (!response.ok) throw new Error(payload.error ?? "Não foi possível atualizar sua curadoria.");
       setData(payload); notify("Sua curadoria de próximos filmes foi atualizada.");

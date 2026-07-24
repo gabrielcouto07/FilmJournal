@@ -1,11 +1,10 @@
 import Link from "next/link";
 import DiaryExplorer from "@/components/DiaryExplorer";
-import { getCurrentUser } from "@/lib/auth";
-import { getDiaryData } from "@/lib/data";
+import { apiGet } from "@/lib/api-server";
+import type { DiaryData } from "@/lib/data";
 
 export default async function DiaryPage() {
-  const viewer = await getCurrentUser();
-  const { entries, reviews, rewatches } = await getDiaryData(viewer?.id ?? "");
+  const { entries, reviews, rewatches } = await apiGet<DiaryData>("/diary");
 
   return <main className="page-shell">
     <header className="mb-8 grid gap-6 lg:grid-cols-[1fr_auto]"><div><p className="eyebrow">Arquivo cronológico</p><h1 className="display-title mt-3 text-5xl sm:text-7xl">Seu diário, em movimento.</h1><p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">Cada sessão que você registrou, em ordem cronológica — com notas, resenhas e reexibições no mesmo lugar.</p></div><div className="grid grid-cols-3 gap-2 self-end"><Stat label="Entradas" value={entries.length} accent /><Stat label="Resenhas" value={reviews} /><Stat label="Reexibições" value={rewatches} /></div></header>

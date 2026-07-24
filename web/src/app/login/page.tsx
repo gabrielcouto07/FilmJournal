@@ -62,8 +62,8 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erro ao criar conta.");
+      // O cadastro já devolve a sessão autenticada.
       notify("Conta criada! Entrando...", "success");
-      await login(regUsername, regPassword);
       router.push("/"); router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Não foi possível criar a conta.";

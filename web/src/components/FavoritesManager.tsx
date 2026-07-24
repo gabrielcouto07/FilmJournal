@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import Link from "next/link";
 import { useState } from "react";
 import { getPosterUrl } from "@/lib/tmdb";
@@ -26,7 +27,7 @@ export default function FavoritesManager({ initialMovies }: { initialMovies: Fav
       setMovies((items) => items.map((movie) => movie.id === movieId ? { ...movie, favoriteRank: nextRank } : occupant && movie.id === occupant.id ? { ...movie, favoriteRank: moving.favoriteRank } : movie));
     }
     try {
-      const response = await fetch("/api/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action === "favoriteRank" ? { movieId, action, rank: value } : { movieId, action, value }) });
+      const response = await apiFetch("/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action === "favoriteRank" ? { movieId, action, rank: value } : { movieId, action, value }) });
       const payload = await response.json() as { movie?: FavoriteMovie; message?: string; error?: string };
       if (!response.ok || !payload.movie) throw new Error(payload.error ?? "Não foi possível atualizar seu Top 10.");
       setMovies((items) => items.map((movie) => movie.id === movieId ? { ...movie, favoriteRank: payload.movie?.favoriteRank ?? null } : movie));

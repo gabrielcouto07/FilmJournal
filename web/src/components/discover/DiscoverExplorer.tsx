@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import { useState } from "react";
 import ArtworkImage from "@/components/ArtworkImage";
 import { useToast } from "@/components/ToastProvider";
@@ -26,7 +27,7 @@ export default function DiscoverExplorer({ initial }: { initial: DiscoverData })
     setLoading(true);
     try {
       const query = nextFocus === "auto" ? "" : `?dimension=${nextFocus}`;
-      const res = await fetch(`/api/discover${query}`);
+      const res = await apiFetch(`/discover${query}`);
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.error || "Falha ao buscar sugestões.");
       setData(payload as DiscoverData);
@@ -39,7 +40,7 @@ export default function DiscoverExplorer({ initial }: { initial: DiscoverData })
 
   async function dismiss(dimension: GapDimension, gapKey: string) {
     try {
-      const res = await fetch("/api/discover/dismiss", {
+      const res = await apiFetch("/discover/dismiss", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dimension, gapKey }),
@@ -55,7 +56,7 @@ export default function DiscoverExplorer({ initial }: { initial: DiscoverData })
 
   async function addToWatchlist(pick: BlindSpotPick) {
     try {
-      const res = await fetch("/api/movies", {
+      const res = await apiFetch("/movies", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tmdbId: pick.movie.tmdbId, watchlist: true }),

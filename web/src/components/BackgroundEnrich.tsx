@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
@@ -12,7 +13,7 @@ export default function BackgroundEnrich({ movieIds, when = true }: { movieIds?:
     if (!when || started.current) return;
     started.current = true;
     const payload = movieIds && movieIds.length ? { movieIds } : { limit: 12 };
-    fetch("/api/movies/enrich", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+    apiFetch("/movies/enrich", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => { if (data && data.enriched > 0) router.refresh(); })
       .catch(() => { /* metadata is best-effort */ });

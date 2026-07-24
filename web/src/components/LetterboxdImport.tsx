@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -94,7 +95,7 @@ export default function LetterboxdImport() {
     else csvs.forEach((file) => { const name = mapCsvName(file.name); if (name) form.append(name, file); });
 
     try {
-      const res = await fetch("/api/import/letterboxd", { method: "POST", body: form });
+      const res = await apiFetch("/import/letterboxd", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Não foi possível importar.");
       setSummary(data.summary as Summary);

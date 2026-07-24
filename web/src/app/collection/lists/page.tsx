@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import ArtworkImage from "@/components/ArtworkImage";
+import { apiFetch } from "@/lib/api";
 import { getPosterUrl } from "@/lib/tmdb";
 
 type MovieList = {
@@ -28,7 +29,7 @@ export default function ListsPage() {
   const [description, setDescription] = useState("");
 
   async function loadLists() {
-    const response = await fetch("/api/lists");
+    const response = await apiFetch("/lists");
     const data = await response.json();
     setLists(data.lists ?? []);
   }
@@ -42,7 +43,7 @@ export default function ListsPage() {
 
     if (!name.trim()) return;
 
-    const response = await fetch("/api/lists", {
+    const response = await apiFetch("/lists", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, description }),

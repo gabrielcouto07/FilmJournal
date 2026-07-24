@@ -1,6 +1,6 @@
-import { getCurrentUser } from "@/lib/auth";
-import { getDiscoverPicks } from "@/lib/discover";
-import { getTasteData } from "@/lib/recommendations";
+import { apiGet } from "@/lib/api-server";
+import type { DiscoverData } from "@/lib/discover";
+import type { TasteData } from "@/lib/recommendations";
 import DiscoverExplorer from "@/components/discover/DiscoverExplorer";
 import TasteExplorer from "@/components/TasteExplorer";
 
@@ -8,9 +8,10 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Descobrir · FilmJournal" };
 
 export default async function DiscoverPage() {
-  const viewer = await getCurrentUser();
-  const userId = viewer?.id ?? "";
-  const [initial, tasteData] = await Promise.all([getDiscoverPicks(userId), getTasteData({ userId })]);
+  const [initial, tasteData] = await Promise.all([
+    apiGet<DiscoverData>("/discover"),
+    apiGet<TasteData>("/recommendations"),
+  ]);
 
   return (
     <main className="page-shell space-y-8">

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { getBackdropUrl, getPosterUrl, getTmdbFeed, type TmdbMovieSearchResult } from "@/lib/tmdb";
+import { getBackdropUrl, getPosterUrl, type TmdbMovieSearchResult } from "@/lib/tmdb";
+import { API_URL } from "@/lib/api";
 import ArtworkImage from "./ArtworkImage";
 
-// Página pública renderizada no servidor, sem expor a chave do TMDB.
+// Página pública renderizada no servidor, com os destaques vindos da API.
 
 const FEATURES = [
   { icon: "🗺️", title: "Mapa de gosto", body: "Veja onde seu gosto pousa por década, país, gênero e duração — o retrato real do que você assiste." },
@@ -17,10 +18,12 @@ const HERO_TAGS = ["Mapa de gosto", "Análise contrarian", "Pontos cegos", "Jogo
 
 async function getTrending(): Promise<TmdbMovieSearchResult[]> {
   try {
-    const feed = await getTmdbFeed("trending");
+    const response = await fetch(`${API_URL}/tmdb?feed=trending`, { next: { revalidate: 21600 } });
+    if (!response.ok) return [];
+    const feed = (await response.json()) as { results: TmdbMovieSearchResult[] };
     return feed.results.filter((movie) => movie.poster_path).slice(0, 12);
   } catch {
-    // A página continua funcionando mesmo se o TMDB falhar.
+    // A página continua funcionando mesmo se a API falhar.
     return [];
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- avatares podem vir de URLs que o next/image não conhece */
 
+import { apiFetch } from "@/lib/api";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ToastProvider";
@@ -112,7 +113,7 @@ function ProfileTab({ user, notify }: { user: ProfileUser; notify: Notify }) {
   async function save() {
     setSaving(true);
     try {
-      const res = await fetch("/api/profile", {
+      const res = await apiFetch("/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ displayName: displayName.trim(), bio: bio.trim() || null, avatarUrl: avatar }),
@@ -165,13 +166,13 @@ function PreferencesTab({ initial, notify, applyLive }: { initial: AppSettings; 
   async function save() {
     setSaving(true);
     try {
-      const res = await fetch("/api/settings", {
+      const res = await apiFetch("/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           theme: form.theme, accentColor: form.accentColor, language: form.language, region: form.region,
           dateFormat: form.dateFormat, defaultRatingScale: form.defaultRatingScale, allowHalfStars: form.allowHalfStars,
-          showAdultContent: form.showAdultContent, emailNotifications: form.emailNotifications,
+          emailNotifications: form.emailNotifications,
         }),
       });
       const data = await res.json();
@@ -226,7 +227,6 @@ function PreferencesTab({ initial, notify, applyLive }: { initial: AppSettings; 
         <Field label="Região (TMDB)"><input className="field" value={form.region} maxLength={8} onChange={(e) => set("region", e.target.value.toUpperCase())} /></Field>
       </div>
       <Toggle label="Permitir meia-estrela nas notas" checked={form.allowHalfStars} onChange={(v) => set("allowHalfStars", v)} />
-      <Toggle label="Mostrar conteúdo adulto (TMDB)" checked={form.showAdultContent} onChange={(v) => set("showAdultContent", v)} />
       <Toggle label="Receber notificações por e-mail" checked={form.emailNotifications} onChange={(v) => set("emailNotifications", v)} />
       <button type="button" onClick={save} disabled={saving} className="accent-button disabled:opacity-50">{saving ? "Salvando…" : "Salvar preferências"}</button>
     </Section>
@@ -243,7 +243,7 @@ function AccountTab({ user, notify, onDeleted }: { user: ProfileUser; notify: No
   const [busy, setBusy] = useState<string | null>(null);
 
   async function post(url: string, body: unknown, method = "POST") {
-    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const res = await apiFetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Falha na operação.");
     return data;
@@ -259,7 +259,7 @@ function AccountTab({ user, notify, onDeleted }: { user: ProfileUser; notify: No
             <button type="button" disabled={busy !== null} className="accent-button disabled:opacity-50" onClick={async () => {
               setBusy("pw");
               try {
-                const data = await post("/api/account/password", { currentPassword: pw.current, newPassword: pw.next });
+                const data = await post("/account/password", { currentPassword: pw.current, newPassword: pw.next });
                 setPwMask(data.email ?? user.email);
                 setPwCode("");
                 setPwStep("code");
@@ -278,7 +278,7 @@ function AccountTab({ user, notify, onDeleted }: { user: ProfileUser; notify: No
               <button type="button" disabled={busy !== null || pwCode.length !== 6} className="accent-button disabled:opacity-50" onClick={async () => {
                 setBusy("pwc");
                 try {
-                  await post("/api/account/password/confirm", { code: pwCode });
+                  await post("/account/password/confirm", { code: pwCode });
                   notify("Senha atualizada.", "success");
                   setPw({ current: "", next: "" });
                   setPwCode("");
@@ -297,7 +297,7 @@ function AccountTab({ user, notify, onDeleted }: { user: ProfileUser; notify: No
         <Field label="Senha atual"><input type="password" className="field" value={emailForm.password} onChange={(e) => setEmailForm({ ...emailForm, password: e.target.value })} /></Field>
         <button type="button" disabled={busy !== null} className="accent-button disabled:opacity-50" onClick={async () => {
           setBusy("email");
-          try { await post("/api/account/email", { email: emailForm.email, currentPassword: emailForm.password }); notify("E-mail atualizado.", "success"); setEmailForm({ ...emailForm, password: "" }); }
+          try { await post("/account/email", { email: emailForm.email, currentPassword: emailForm.password }); notify("E-mail atualizado.", "success"); setEmailForm({ ...emailForm, password: "" }); }
           catch (err) { notify(err instanceof Error ? err.message : "Falha.", "error"); } finally { setBusy(null); }
         }}>{busy === "email" ? "Salvando…" : "Atualizar e-mail"}</button>
       </Section>
@@ -311,7 +311,7 @@ function AccountTab({ user, notify, onDeleted }: { user: ProfileUser; notify: No
             <Field label="Senha atual"><input type="password" className="field" value={del.password} onChange={(e) => setDel({ ...del, password: e.target.value })} /></Field>
             <button type="button" disabled={busy !== null} className="inline-flex items-center justify-center rounded-full bg-red-500/90 px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-red-500 disabled:opacity-50" onClick={async () => {
               setBusy("del");
-              try { await post("/api/account", { confirm: del.confirm, currentPassword: del.password }, "DELETE"); notify("Conta excluída.", "success"); onDeleted(); }
+              try { await post("/account", { confirm: del.confirm, currentPassword: del.password }, "DELETE"); notify("Conta excluída.", "success"); onDeleted(); }
               catch (err) { notify(err instanceof Error ? err.message : "Falha.", "error"); } finally { setBusy(null); }
             }}>{busy === "del" ? "Excluindo…" : "Excluir minha conta"}</button>
           </div>

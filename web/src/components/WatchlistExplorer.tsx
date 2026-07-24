@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { getPosterUrl } from "@/lib/tmdb";
@@ -40,7 +41,7 @@ export default function WatchlistExplorer({ initialMovies }: { initialMovies: Wa
     const previous = movies;
     setMovies((items) => items.filter((item) => item.id !== movie.id));
     try {
-      const response = await fetch("/api/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId: movie.id, action: "watchlist", value: false }) });
+      const response = await apiFetch("/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId: movie.id, action: "watchlist", value: false }) });
       const payload = await response.json() as { message?: string; error?: string };
       if (!response.ok) throw new Error(payload.error ?? "Não foi possível remover este filme.");
       notify(payload.message ?? "Removido da sua lista para assistir.");

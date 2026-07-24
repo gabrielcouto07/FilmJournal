@@ -1,4 +1,4 @@
-/** Calcula o Paladar com dados prontos, sem acessar o Prisma. */
+/** Calcula o Paladar a partir de dados já carregados. */
 
 /** Escala de notas do usuário. */
 export const USER_SCALE_MAX = 5;

@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -21,7 +22,7 @@ function resolveArtwork(key: string, payload: { movieId?: string; title?: string
   const existing = artworkRequests.get(key);
   if (existing) return existing;
 
-  const request = fetch("/api/movies/artwork", {
+  const request = apiFetch("/movies/artwork", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

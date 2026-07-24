@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import { useState } from "react";
 import { useToast } from "./ToastProvider";
 import { useAuth } from "./AuthProvider";
@@ -28,7 +29,7 @@ export default function CollectionControls({ movieId, initialWatchlist, initialF
     if (action === "top10" && !value) setFavoriteRank(null);
     setPending(action);
     try {
-      const response = await fetch("/api/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId, action, value }) });
+      const response = await apiFetch("/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId, action, value }) });
       const payload = await response.json() as MovieResponse;
       if (!response.ok || !payload.movie) throw new Error(payload.error ?? "Não foi possível atualizar este filme.");
       setWatchlist(payload.movie.watchlist);

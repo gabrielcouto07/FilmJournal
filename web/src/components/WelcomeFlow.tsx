@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -59,7 +60,7 @@ export default function WelcomeFlow({ displayName }: { displayName: string }) {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const response = await fetch(`/api/tmdb?q=${encodeURIComponent(trimmed)}`, { signal: controller.signal });
+        const response = await apiFetch(`/tmdb?q=${encodeURIComponent(trimmed)}`, { signal: controller.signal });
         if (!response.ok) throw new Error();
         const data = await response.json();
         setResults((data.results ?? []).slice(0, 8));
@@ -89,7 +90,7 @@ export default function WelcomeFlow({ displayName }: { displayName: string }) {
   const finish = async (seeds: SeedPick[]) => {
     setBusy(true);
     try {
-      const response = await fetch("/api/onboarding", {
+      const response = await apiFetch("/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ seeds: seeds.map((pick) => ({ tmdbId: pick.tmdbId, rating: pick.rating })) }),

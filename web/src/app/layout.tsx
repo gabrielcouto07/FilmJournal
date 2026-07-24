@@ -4,8 +4,8 @@ import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import AppProviders from "@/components/AppProviders";
 import PageTransition from "@/components/PageTransition";
-import { getCurrentUser } from "@/lib/auth";
-import { getUserSettings } from "@/lib/settings";
+import { apiGet, getSessionUser } from "@/lib/api-server";
+import { DEFAULT_SETTINGS, type AppSettings } from "@/lib/settings";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,8 +29,20 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   // Carrega tema e cor no servidor para evitar uma troca visual ao abrir a página.
-  const user = await getCurrentUser();
-  const settings = await getUserSettings(user?.id);
+  const session = await getSessionUser();
+  let settings = DEFAULT_SETTINGS;
+  let avatarUrl: string | null = null;
+
+  if (session) {
+    // Uma falha na API não pode derrubar o app: cai nos padrões e segue.
+    const [settingsResult, profileResult] = await Promise.allSettled([
+      apiGet<{ settings: AppSettings }>("/settings"),
+      apiGet<{ user: { avatarUrl: string | null } }>("/profile"),
+    ]);
+    if (settingsResult.status === "fulfilled") settings = settingsResult.value.settings;
+    if (profileResult.status === "fulfilled") avatarUrl = profileResult.value.user.avatarUrl;
+  }
+
   const initialTheme = settings.theme === "light" ? "light" : "dark";
   const rootStyle = { colorScheme: initialTheme, "--accent": settings.accentColor } as CSSProperties;
 
@@ -42,8 +54,8 @@ export default async function RootLayout({
       className={`${inter.variable} ${playfair.variable}`}
     >
       <body>
-        <AppProviders initialSettings={settings}>
-          <SiteHeader avatarUrl={user?.avatarUrl ?? null} />
+        <AppProviders initialSettings={settings} initialUser={session}>
+          <SiteHeader avatarUrl={avatarUrl} />
           <PageTransition>{children}</PageTransition>
         </AppProviders>
       </body>

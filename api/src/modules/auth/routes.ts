@@ -59,10 +59,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/auth/register", async (request, reply) => {
-    // No same-origin/CSRF check here: unlike web's old NextAuth cookie session,
-    // this API is Bearer-token authenticated, which browsers never attach
-    // automatically — so there's no ambient credential for a forged cross-site
-    // request to ride on. IP rate limiting still guards against abuse.
+    // Sem checagem de CSRF: a API usa Bearer token, que o navegador nunca envia
+    // sozinho — não há credencial ambiente para um site malicioso explorar.
     const ip = clientIp(request);
     if (await isRateLimited(`register:${ip}`, { max: 5, windowMs: 10 * 60 * 1000 })) {
       return reply.status(429).send({ error: "Muitas tentativas. Aguarde alguns minutos." });
@@ -71,7 +69,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
     try {
       const data = registerSchema.parse(request.body);
       const user = await register(data);
-      return reply.status(201).send(user);
+      // Auto-login: a conta recém-criada já sai autenticada, igual ao /auth/login.
+      const accessToken = fastify.signAccessToken(user);
+      const refreshToken = fastify.signRefreshToken(user.id);
+      return reply.status(201).send({ accessToken, refreshToken, user });
     } catch (err) {
       if (err instanceof ZodError) {
         return reply.status(400).send({ error: "Dados inválidos.", details: err.errors });

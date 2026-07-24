@@ -3,32 +3,32 @@ import { redirect } from "next/navigation";
 import BackgroundEnrich from "@/components/BackgroundEnrich";
 import PublicOverview from "@/components/PublicOverview";
 import TasteDashboard from "@/components/dashboard/TasteDashboard";
-import { auth } from "@/auth";
-import { getCurrentUser } from "@/lib/auth";
-import { needsOnboarding } from "@/lib/onboarding";
-import { getMotifsData, getPalateData, getStatsData, getTimelineData } from "@/lib/data";
-import { computeVerdict, MIN_RATED_FOR_VERDICT } from "@/lib/analytics/verdict";
+import { apiGet, getSessionUser } from "@/lib/api-server";
+import type { StatsData } from "@/lib/data";
+import type { Palate } from "@/lib/analytics/palate";
+import type { Timeline } from "@/lib/analytics/timeline";
+import type { MotifSummary } from "@/lib/analytics/motifs";
+import { MIN_RATED_FOR_VERDICT, type Verdict } from "@/lib/analytics/verdict";
 
 export const metadata = { title: "Paladar cinematográfico · FilmJournal" };
 
 /** A página começa pelo perfil de gosto e deixa os detalhes para a rolagem. */
 export default async function HomePage() {
-  const session = await auth();
+  const session = await getSessionUser();
   // Visitantes veem a página pública; o diário continua privado.
-  if (!session?.user) return <PublicOverview />;
+  if (!session) return <PublicOverview />;
   // Contas novas passam pela introdução antes de ver um perfil vazio.
-  if (session.user.id && (await needsOnboarding(session.user.id))) redirect("/welcome");
+  const { onboarded } = await apiGet<{ onboarded: boolean }>("/profile");
+  if (!onboarded) redirect("/welcome");
   return <TasteFirstHome />;
 }
 
 async function TasteFirstHome() {
-  const viewer = await getCurrentUser();
-  const userId = viewer?.id ?? "";
   const [palate, stats, timeline, motifs] = await Promise.all([
-    getPalateData(userId),
-    getStatsData(userId),
-    getTimelineData(userId),
-    getMotifsData(userId),
+    apiGet<Palate & { verdict: Verdict }>("/palate"),
+    apiGet<StatsData>("/stats"),
+    apiGet<Timeline>("/timeline"),
+    apiGet<MotifSummary>("/motifs"),
   ]);
 
   if (stats.sessions === 0 && palate.contrarian.sampleSize === 0) {
@@ -49,13 +49,7 @@ async function TasteFirstHome() {
     );
   }
 
-  const verdict = computeVerdict({
-    totalFilms: palate.totalFilms,
-    contrarian: palate.contrarian,
-    decades: palate.decades,
-    genres: palate.genres,
-    directors: palate.directors,
-  });
+  const verdict = palate.verdict;
 
   return (
     <main className="page-shell space-y-12">

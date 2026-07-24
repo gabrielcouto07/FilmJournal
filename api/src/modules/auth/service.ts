@@ -22,7 +22,6 @@ function toAuthUser(user: { id: string; username: string; displayName: string | 
   };
 }
 
-/** Mirrors the web app's NextAuth Credentials `authorize` callback. */
 export async function login(username: string, password: string): Promise<AuthUser> {
   if (username === env.APP_OWNER_USERNAME?.trim()) {
     await ensureOwnerUser();
@@ -66,7 +65,7 @@ export async function register(input: { username: string; email: string; passwor
     },
   });
 
-  return { id: user.id, username: user.username };
+  return toAuthUser(user);
 }
 
 export async function getUserById(id: string): Promise<AuthUser | null> {

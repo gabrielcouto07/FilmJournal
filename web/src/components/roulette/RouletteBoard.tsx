@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -128,7 +129,7 @@ export default function RouletteBoard() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/roulette/genres");
+        const res = await apiFetch("/roulette/genres");
         const data = await res.json();
         if (!cancelled && res.ok) setGenres(data.genres ?? []);
       } catch {
@@ -145,7 +146,7 @@ export default function RouletteBoard() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/roulette/prefs");
+        const res = await apiFetch("/roulette/prefs");
         const data = await res.json();
         const prefs = res.ok ? data.prefs : null;
         if (cancelled || !prefs) return;
@@ -174,7 +175,7 @@ export default function RouletteBoard() {
     }
     const handle = window.setTimeout(async () => {
       try {
-        const res = await fetch(`/api/roulette/people?q=${encodeURIComponent(query)}`);
+        const res = await apiFetch(`/roulette/people?q=${encodeURIComponent(query)}`);
         const data = await res.json();
         if (res.ok) setPeopleResults(data.people ?? []);
       } catch {
@@ -256,7 +257,7 @@ export default function RouletteBoard() {
       params.set("count", String(count));
 
       // Guarda os filtros para a próxima visita sem esperar a resposta.
-      void fetch("/api/roulette/prefs", {
+      void apiFetch("/roulette/prefs", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -270,7 +271,7 @@ export default function RouletteBoard() {
         }),
       }).catch(() => {});
 
-      const res = await fetch(`/api/roulette/discover?${params.toString()}`);
+      const res = await apiFetch(`/roulette/discover?${params.toString()}`);
       const data = await res.json();
       if (!res.ok) {
         notify(data.error || "Serviço temporariamente indisponível. Tente novamente.", "error");
@@ -290,7 +291,7 @@ export default function RouletteBoard() {
   const fetchWinnerDetail = useCallback(async (movieId: number) => {
     setDetailLoading(true);
     try {
-      const res = await fetch(`/api/roulette/discover?movieId=${movieId}`);
+      const res = await apiFetch(`/roulette/discover?movieId=${movieId}`);
       const data = await res.json();
       if (res.ok) setWinnerDetail(data.movie);
     } catch {
@@ -345,7 +346,7 @@ export default function RouletteBoard() {
       if (openingId) return;
       setOpeningId(movie.id);
       try {
-        const res = await fetch("/api/movies", {
+        const res = await apiFetch("/movies", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ tmdbId: movie.id }),
@@ -366,7 +367,7 @@ export default function RouletteBoard() {
       if (savingWatchlist) return;
       setSavingWatchlist(true);
       try {
-        const res = await fetch("/api/movies", {
+        const res = await apiFetch("/movies", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ tmdbId: movie.id, watchlist: true }),

@@ -131,6 +131,34 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
     return reply.send({ movies });
   });
 
+  /** Ficha completa do filme: metadados + estado do usuário + histórico de sessões. */
+  fastify.get<{ Params: { id: string } }>("/movies/:id", { preHandler: requireAuth }, async (request, reply) => {
+    const userId = request.user!.id;
+    const movie = await prisma.movie.findUnique({
+      where: { id: request.params.id },
+      include: {
+        logs: { where: { userId }, orderBy: [{ watchedAt: "desc" }, { loggedAt: "desc" }] },
+        userMovies: { where: { userId } },
+      },
+    });
+    if (!movie) return reply.status(404).send({ error: "Filme não encontrado." });
+
+    const um = movie.userMovies[0];
+    const { userMovies: _userMovies, logs, ...fields } = movie;
+    return reply.send({
+      movie: {
+        ...fields,
+        rating: um?.rating ?? null,
+        watched: um?.watched ?? false,
+        favorite: um?.favorite ?? false,
+        watchlist: um?.watchlist ?? false,
+        watchlistAddedAt: um?.watchlistAddedAt ?? null,
+        favoriteRank: um?.favoriteRank ?? null,
+      },
+      logs,
+    });
+  });
+
   fastify.post<{ Body: { tmdbId?: unknown; watchlist?: unknown } }>(
     "/movies",
     { preHandler: requireAuth },
@@ -231,9 +259,6 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
       }
 
       if (body.action === "poster" || body.action === "backdrop") {
-        if (user.role !== "OWNER") {
-          return reply.status(403).send({ error: "A arte do catálogo só pode ser alterada pelo proprietário." });
-        }
         if (typeof body.value !== "string" || !body.value.startsWith("/") || body.value.length > 200) {
           return reply.status(400).send({ error: "É necessário um caminho de arte válido do TMDb." });
         }

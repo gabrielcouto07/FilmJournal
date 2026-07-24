@@ -162,8 +162,8 @@ export async function getDatabaseReview(): Promise<DatabaseReview> {
 
   const readiness: ReadinessItem[] = [
     { label: "Modelo User com senha protegida (scrypt)", status: "ok", detail: "Implementado em src/lib/password.ts (scrypt + salt)." },
-    { label: "Sessões com NextAuth v5", status: "ok", detail: "Credentials provider + JWT (src/auth.ts, src/auth.config.ts)." },
-    { label: "/admin protegido por middleware", status: "ok", detail: "src/middleware.ts redireciona não autenticados para /login." },
+    { label: "Autenticação stateless com JWT", status: "ok", detail: "Access + refresh tokens emitidos pela API (src/plugins/jwt.ts)." },
+    { label: "Rotas administrativas restritas ao proprietário", status: "ok", detail: "Guard requireOwner aplicado em /admin/*." },
     {
       label: "Vínculo de usuário em UserMovie e LogEntry",
       status: migrated && allLogsLinked ? "ok" : "warn",
@@ -173,8 +173,8 @@ export async function getDatabaseReview(): Promise<DatabaseReview> {
     },
     {
       label: "Rota de importação Letterboxd com guarda de autenticação",
-      status: "warn",
-      detail: "Pendente: /api/import/letterboxd ainda está com TODO de proteção (scaffold da Fase 2).",
+      status: "ok",
+      detail: "POST /import/letterboxd exige usuário autenticado (requireAuth).",
     },
     { label: "Registro público de usuários", status: "ok", detail: "Implementado com validação, nomes reservados e limite por IP." },
     {

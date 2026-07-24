@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ArtworkImage from "@/components/ArtworkImage";
+import { apiFetch } from "@/lib/api";
 import { getPosterUrl } from "@/lib/tmdb";
 
 type Movie = {
@@ -35,7 +36,7 @@ export default function MovieListPage({
     async function loadList() {
       const { listId } = await params;
       setCurrentListId(listId);
-      const response = await fetch(`/api/lists/${listId}`);
+      const response = await apiFetch(`/lists/${listId}`);
 
       if (!response.ok) {
         setError("Lista não encontrada.");
@@ -53,8 +54,8 @@ export default function MovieListPage({
     if (!currentListId) return;
 
     setRemovingId(movieId);
-    const response = await fetch(
-      `/api/lists/${currentListId}/movies?movieId=${encodeURIComponent(movieId)}`,
+    const response = await apiFetch(
+      `/lists/${currentListId}/movies?movieId=${encodeURIComponent(movieId)}`,
       { method: "DELETE" },
     );
 

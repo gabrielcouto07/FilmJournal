@@ -25,11 +25,7 @@ declare module "fastify" {
   }
 }
 
-/**
- * Stateless JWT auth, replacing web's NextAuth cookie sessions so both `web`
- * and `ios` authenticate against this API the same way (Bearer access token +
- * refresh token), instead of iOS having to replay NextAuth's cookie dance.
- */
+/** Auth stateless com JWT: access token via Bearer + refresh token, igual para web e ios. */
 export default fp(async (fastify: FastifyInstance) => {
   fastify.decorate("signAccessToken", (user: AuthUser): string => {
     const claims: AccessTokenClaims = { ...user, type: "access" };

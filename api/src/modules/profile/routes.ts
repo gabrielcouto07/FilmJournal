@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma.js";
-import { markOnboarded } from "../../lib/onboarding.js";
+import { markOnboarded, needsOnboarding } from "../../lib/onboarding.js";
 import { upsertEnrichedMovie } from "../../lib/movie-metadata.js";
 import { CATALOG_TAG, userTag } from "../../lib/dashboard-data.js";
 import { revalidateTag } from "../../lib/cache.js";
@@ -36,6 +36,19 @@ const onboardingSchema = z.object({
 });
 
 export default async function profileRoutes(fastify: FastifyInstance) {
+  /** Perfil completo do usuário logado (o token JWT só carrega o essencial). */
+  fastify.get("/profile", { preHandler: requireAuth }, async (request, reply) => {
+    const [user, onboarded] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: request.user!.id },
+        select: { id: true, username: true, displayName: true, bio: true, avatarUrl: true, email: true, role: true, createdAt: true },
+      }),
+      needsOnboarding(request.user!.id).then((pending) => !pending),
+    ]);
+    if (!user) return reply.status(404).send({ error: "Usuário não encontrado." });
+    return reply.send({ user, onboarded });
+  });
+
   fastify.patch<{ Body: { displayName?: unknown; bio?: unknown; avatarUrl?: unknown } }>(
     "/profile",
     { preHandler: requireAuth },

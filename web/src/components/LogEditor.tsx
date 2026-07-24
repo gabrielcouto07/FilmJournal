@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -60,7 +61,7 @@ export default function LogEditor({ movieId, title, logId, initialDate, initialR
     event.preventDefault();
     setSaving(true);
     try {
-      const response = await fetch("/api/logs", {
+      const response = await apiFetch("/logs", {
         method: logId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...(logId ? { id: logId } : { movieId }), watchedAt: date, rating, review, rewatch, tags }),
@@ -69,7 +70,7 @@ export default function LogEditor({ movieId, title, logId, initialDate, initialR
       if (!response.ok) throw new Error(payload.error ?? "Não foi possível salvar esta entrada do diário.");
       // Mantém a curtida e o favorito do filme em sincronia.
       if (liked !== initialFavorite) {
-        await fetch("/api/movies", {
+        await apiFetch("/movies", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ movieId, action: "favorite", value: liked }),

@@ -118,7 +118,7 @@ async function tmdbFetch<T>(path: string, params: Record<string, string>, refres
   return refresh ? tmdbFetchUncached<T>(url) : tmdbFetchCached<T>(url);
 }
 
-export async function searchTmdbMovies(query: string, year?: number, page = 1, includeAdult = false, language?: string): Promise<TmdbSearchResponse> {
+export async function searchTmdbMovies(query: string, year?: number, page = 1, language?: string): Promise<TmdbSearchResponse> {
   const normalizedQuery = query.trim();
   if (normalizedQuery.length < 2) {
     throw new TmdbError("Enter at least two characters to search.", 400);
@@ -126,7 +126,7 @@ export async function searchTmdbMovies(query: string, year?: number, page = 1, i
 
   const params: Record<string, string> = {
     query: normalizedQuery,
-    include_adult: includeAdult ? "true" : "false",
+    include_adult: "true",
     page: String(Math.min(Math.max(page, 1), 500)),
   };
   if (year) params.year = String(year);
@@ -180,7 +180,7 @@ export async function getTmdbMovieRecommendations(tmdbId: number, refresh = fals
 
 export async function discoverTmdbMovies(params: Record<string, string>, refresh = false): Promise<TmdbSearchResponse> {
   return tmdbFetch<TmdbSearchResponse>("/discover/movie", {
-    include_adult: "false",
+    include_adult: "true",
     include_video: "false",
     page: "1",
     region: "BR",
@@ -193,7 +193,7 @@ export async function searchTmdbPerson(name: string, refresh = false): Promise<T
   if (!query) return null;
   const response = await tmdbFetch<TmdbPersonSearchResponse>("/search/person", {
     query,
-    include_adult: "false",
+    include_adult: "true",
     page: "1",
   }, refresh);
   return response.results.find((person) => person.known_for_department === "Directing") ?? response.results[0] ?? null;
@@ -218,7 +218,7 @@ export async function searchTmdbPeople(query: string, language = "pt-BR"): Promi
   if (normalized.length < 2) return [];
   const response = await tmdbFetch<TmdbPersonSearchResponse>("/search/person", {
     query: normalized,
-    include_adult: "false",
+    include_adult: "true",
     page: "1",
     language,
   });

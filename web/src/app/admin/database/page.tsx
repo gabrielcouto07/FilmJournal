@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { getDatabaseReview, type ReadinessStatus } from "@/lib/db-review";
+import { apiGet, getSessionUser } from "@/lib/api-server";
+import type { DatabaseReview, ReadinessStatus } from "@/lib/db-review";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +17,12 @@ const SEVERITY_TONE: Record<ReadinessStatus, string> = {
 };
 
 export default async function DatabaseReviewPage() {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user || user.role !== "OWNER") {
     redirect("/login");
   }
 
-  const review = await getDatabaseReview();
+  const review = await apiGet<DatabaseReview>("/admin/db-review");
 
   const summaryCards = [
     { label: "Filmes no catálogo", value: review.summary.totalMovies },

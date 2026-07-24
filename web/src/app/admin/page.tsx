@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { apiGet, getSessionUser } from "@/lib/api-server";
 
 export const dynamic = "force-dynamic";
 
@@ -9,19 +8,16 @@ export const metadata = {
   title: "Admin — FilmJournal",
 };
 
+type AdminStats = { movieCount: number; logCount: number; watchlistCount: number; favoriteCount: number };
+
 // Confere a permissão também no servidor, além do bloqueio do middleware.
 export default async function AdminPage() {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user || user.role !== "OWNER") {
     redirect("/login");
   }
 
-  const [movieCount, logCount, watchlistCount, favoriteCount] = await Promise.all([
-    prisma.movie.count(),
-    prisma.logEntry.count({ where: { userId: user.id } }),
-    prisma.userMovie.count({ where: { userId: user.id, watchlist: true } }),
-    prisma.userMovie.count({ where: { userId: user.id, favorite: true } }),
-  ]);
+  const { movieCount, logCount, watchlistCount, favoriteCount } = await apiGet<AdminStats>("/admin/stats");
 
   const stats = [
     { label: "Filmes no catálogo", value: movieCount },

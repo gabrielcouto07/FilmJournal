@@ -1,9 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { SessionProvider, useSession, signIn, signOut } from "next-auth/react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-interface AuthUser {
+export interface AuthUser {
   id: string;
   username: string;
   displayName: string | null;
@@ -17,35 +16,41 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
-}
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: false,
+  login: async () => {},
+  logout: async () => {},
+});
 
-/** Mantém uma API simples de autenticação sobre o Auth.js. */
-export function useAuth(): AuthContextType {
-  const { data: session, status } = useSession();
+export function AuthProvider({ initialUser = null, children }: { initialUser?: AuthUser | null; children: ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(initialUser);
 
-  const user: AuthUser | null = session?.user?.id
-    ? {
-        id: session.user.id,
-        username: session.user.username,
-        displayName: session.user.displayName ?? null,
-        role: session.user.role,
-      }
-    : null;
+  // Re-sincroniza quando o servidor re-renderiza o layout (login, logout, refresh).
+  useEffect(() => {
+    setUser(initialUser);
+  }, [initialUser]);
 
   const login = async (username: string, password: string) => {
-    const result = await signIn("credentials", { username, password, redirect: false });
-    if (!result || result.error) {
-      throw new Error("Credenciais inválidas.");
-    }
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.error ?? "Credenciais inválidas.");
+    setUser(data.user);
   };
 
   const logout = async () => {
-    // Ignora a URL devolvida pelo servidor para não sair do domínio atual.
-    await signOut({ redirect: false });
+    await fetch("/api/auth/logout", { method: "POST" });
+    setUser(null);
     window.location.assign("/");
   };
 
-  return { user, loading: status === "loading", login, logout };
+  return <AuthContext.Provider value={{ user, loading: false, login, logout }}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthContextType {
+  return useContext(AuthContext);
 }

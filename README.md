@@ -4,9 +4,15 @@ Uma ferramenta pessoal que transforma seu histórico de filmes num autorretrato 
 
 Você registra o que assiste e dá suas notas. O app faz o resto: abre com um **veredito** — uma frase que resume que tipo de espectador você é — e, ao rolar a página, mostra como seu gosto se comporta, como ele mudou com o tempo e o que você ainda não descobriu no cinema.
 
-Feito com **Next.js 15** · **React 19** · **TypeScript** · **Tailwind CSS** · **Prisma** · **PostgreSQL** · **NextAuth.js** · **Recharts**
+O projeto é dividido em três partes independentes:
 
-> 📐 Quer entender o código por dentro — estrutura, camadas, banco, decisões e armadilhas conhecidas? Veja **[ARCHITECTURE.md](ARCHITECTURE.md)**.
+| Pasta | O que é | Stack |
+|---|---|---|
+| [`web/`](web) | Frontend (interface) | Next.js 15 · React 19 · TypeScript · Tailwind CSS · Recharts |
+| [`api/`](api) | Backend (regras, dados, auth JWT) | Fastify 5 · Prisma · Zod · TypeScript |
+| Banco | PostgreSQL gerenciado | Neon (ou qualquer Postgres) |
+
+O `web` não fala com o banco: toda leitura e escrita passa pela `api`. Detalhes do backend em **[api/README.md](api/README.md)** · guia de publicação em **[DEPLOY.md](DEPLOY.md)**.
 
 ***
 
@@ -41,121 +47,124 @@ Sem segredo:
 
 ***
 
-## Como rodar localmente
+## Como rodar localmente — tutorial
 
-Passos para ter o app funcionando no seu computador. Requer **Node.js 20+** e um banco **PostgreSQL**.
+São **dois servidores em dois terminais**: a **api** (porta 4000) sobe primeiro, o **web** (porta 3000) depois. Requer **Node.js 20+** e um banco **PostgreSQL**.
 
-### 1. Baixar o código e instalar as dependências
+### Primeira vez (configuração)
+
+**1. Baixe o código**
 ```bash
 git clone https://github.com/gabrielcouto07/FilmJournal
 cd FilmJournal
-npm install
 ```
-O `npm install` já roda `prisma generate` no final (via `postinstall`), então o cliente do banco fica pronto sozinho.
 
-### 2. Configurar as variáveis de ambiente
-Copie o arquivo de exemplo e preencha com os seus valores:
+**2. Configure e suba a API — terminal 1**
 ```bash
-cp .env.example .env.local
+cd api
+cp .env.example .env    # abra o .env e preencha com os seus valores
+npm install             # já roda `prisma generate` no final
+npm run db:migrate      # cria/atualiza as tabelas no banco
+npm run dev
 ```
+Deu certo quando aparecer `Server listening at http://0.0.0.0:4000`.
+Teste rápido: abra [http://localhost:4000/health](http://localhost:4000/health) → deve responder `{"status":"ok"}`.
 
-O que cada variável significa:
+O que cada variável do `api/.env` significa:
 
 | Variável | Para que serve |
 |---|---|
 | `DATABASE_URL` | Endereço do PostgreSQL (use o *pooled* na Neon/serverless) |
 | `DIRECT_URL` | Endereço direto, sem pool — usado só pelas migrações |
-| `NEXTAUTH_URL` | Endereço do app (localmente, `http://localhost:3000`) |
-| `NEXTAUTH_SECRET` | Chave secreta do login — gere com `openssl rand -base64 32` |
+| `PORT` | Porta do servidor (padrão `4000`) |
+| `CORS_ORIGIN` | Endereço do frontend (local: `http://localhost:3000`) |
+| `JWT_SECRET` | Chave dos tokens de login — gere com `openssl rand -base64 32` |
 | `TMDB_API_KEY` | Chave gratuita do [TMDB](https://www.themoviedb.org/settings/api) |
 | `APP_OWNER_USERNAME` | Nome de usuário da conta principal |
 | `APP_OWNER_PASSWORD` | Senha da conta principal (só no primeiro login) |
+| `RESEND_API_KEY` | E-mails do código de troca de senha ([resend.com](https://resend.com)) |
 
-> O Next.js lê o `.env.local`. Se o Prisma na sua máquina ler apenas `.env`, duplique os mesmos valores num `.env` local. Nunca envie esses arquivos para o git — os dois já são ignorados.
+**Sem banco? Suba um com Docker (dentro de `api/`):** `docker compose up -d`
 
-**Sem banco de dados? Suba um com Docker:**
+**3. Configure e suba o frontend — terminal 2**
 ```bash
-docker run -d --name filmjournal-db \
-  -e POSTGRES_PASSWORD=dev \
-  -e POSTGRES_DB=filmjournal \
-  -p 5432:5432 postgres:16
-```
-E use `DATABASE_URL="postgresql://postgres:dev@localhost:5432/filmjournal"` no `.env.local` (sem os parâmetros de pool, que são só para a Neon).
-
-### 3. Criar as tabelas no banco
-```bash
-npm run db:push      # desenvolvimento: sincroniza o esquema direto
-# ou, se preferir o histórico versionado de migrações:
-npm run db:migrate   # produção: aplica as migrações da pasta prisma/migrations
-```
-
-### 4. Ligar o app
-```bash
+cd web
+cp .env.example .env.local   # só tem NEXT_PUBLIC_API_URL; o padrão local já serve
+npm install
 npm run dev
 ```
-Abra [http://localhost:3000](http://localhost:3000) e entre em `/login` com o usuário e a senha configurados acima. No primeiro login, a conta principal é criada automaticamente.
+Deu certo quando aparecer `Local: http://localhost:3000`.
+
+**4. Entre no app**
+Abra [http://localhost:3000](http://localhost:3000) → `/login` → usuário e senha configurados no `api/.env`. No primeiro login, a conta principal é criada automaticamente.
+
+### No dia a dia
+
+```bash
+# terminal 1              # terminal 2
+cd api && npm run dev     cd web && npm run dev
+```
+A ordem importa: **api primeiro, web depois**. Para parar, `Ctrl+C` nos dois.
+
+### Se algo der errado
+
+| Sintoma | Causa e solução |
+|---|---|
+| Terminal do web diz `Port 3000 is in use, using 3001` | Sobrou um processo Node antigo segurando a porta. Feche tudo e mate os processos: `taskkill /F /IM node.exe` (Windows) ou `pkill node` (Mac/Linux), e suba de novo. Use sempre a porta 3000 |
+| "Failed to fetch" em tudo / páginas quebradas | A api não está de pé (confira `http://localhost:4000/health`) ou o web abriu em outra porta (caso acima) |
+| API cai na hora com erro de `.env` | Falta variável obrigatória — confira `DATABASE_URL` e `JWT_SECRET` no `api/.env` |
+| `EADDRINUSE: 4000` ao subir a api | Outra api já está rodando — mate os processos Node como acima |
+| Erro de tabela/coluna inexistente | Migrações pendentes: `cd api && npm run db:migrate` |
+| Login não funciona no primeiro uso | Confira `APP_OWNER_USERNAME`/`APP_OWNER_PASSWORD` no `api/.env` — a conta é criada no primeiro login com essas credenciais |
 
 ***
 
-## Publicar na internet (Vercel + Neon, de graça)
+## Publicar na internet
 
-1. Crie um banco PostgreSQL gratuito no [neon.tech](https://neon.tech).
-2. Importe este repositório no [vercel.com](https://vercel.com).
-3. No painel da Vercel, cadastre as mesmas variáveis de ambiente da seção anterior — usando o endereço *pooled* do Neon em `DATABASE_URL` e o endereço direto em `DIRECT_URL`.
-4. Com um banco novo, crie as tabelas uma única vez a partir do seu terminal (com as variáveis do Neon carregadas):
-```bash
-npx prisma migrate deploy
-```
-
-Para um banco antigo que foi criado com `db push`, marque a base uma vez e depois aplique o resto:
-```bash
-npx prisma migrate resolve --applied 20260721000000_init
-npx prisma migrate deploy
-```
-
-`APP_OWNER_USERNAME` e `APP_OWNER_PASSWORD` servem só para criar a conta principal na primeira vez. Depois disso, a senha de bootstrap pode ser trocada ou removida — mantenha apenas o `APP_OWNER_USERNAME` configurado.
+O guia completo — Vercel para o `web`, um host Node para a `api`, Neon para o banco, com todas as variáveis — está em **[DEPLOY.md](DEPLOY.md)**.
 
 ***
 
 ## Importar seu histórico do Letterboxd
 
-A importação é segura: dá para testar antes sem gravar nada, e rodar de novo não duplica registros.
+O caminho normal é **pela interface**: exporte seus dados no Letterboxd (Settings → Data → *Export your data*) e envie o ZIP em **Perfil → Importar do Letterboxd**. A importação é segura — reenviar o mesmo export não duplica registros.
 
-1. **Exporte no Letterboxd:** Settings → Data → *Export your data*. Baixe o ZIP e descompacte.
-2. **Coloque os arquivos CSV na raiz do projeto.** O importador aceita qualquer subconjunto destes (os que faltarem são ignorados): `diary.csv` · `reviews.csv` · `ratings.csv` · `watched.csv` · `watchlist.csv` · `profile.csv` · `likes/films.csv` (mantenha a subpasta `likes/`).
-3. **Teste primeiro, sem gravar nada.** Mostra em qual banco vai gravar e o que *seria* criado:
+Para importações grandes via terminal, os scripts continuam disponíveis dentro de `api/`:
+
 ```bash
-npm run import:letterboxd:dry
-```
-4. **Rode a importação de verdade.** Ela exige confirmação explícita:
-```bash
+cd api
+npm run import:letterboxd:dry     # simula, sem gravar nada
 npm run import:letterboxd -- --yes
+npm run validate:letterboxd       # confere o resultado (só leitura)
 ```
-5. **Confira o resultado** (só leitura, compara o banco com o export):
-```bash
-npm run validate:letterboxd
-```
-6. **Apague os CSVs da raiz do projeto** quando terminar.
 
-> ⚠️ **Nunca envie os CSVs do export para o git** — eles contêm dados pessoais. O `.gitignore` já os exclui, mas confira o `git status` antes de commitar. Antes da primeira importação real, tire um snapshot/branch do banco no Neon por segurança.
+> ⚠️ **Nunca envie os CSVs do export para o git** — eles contêm dados pessoais. Antes da primeira importação real, tire um snapshot/branch do banco no Neon por segurança.
 
 ***
 
 ## Comandos úteis
 
+Na pasta **`api/`**:
+
 | Comando | O que faz |
 |---|---|
-| `npm run dev` | Liga o app localmente |
-| `npm run build` | Gera a versão de produção |
-| `npm start` | Sobe a versão de produção já compilada |
-| `npm test` | Roda os testes automáticos |
+| `npm run dev` | Liga a API localmente (porta 4000) |
+| `npm run build` / `npm start` | Compila e sobe a versão de produção |
+| `npm test` | Roda os testes automáticos (71 testes, 8 suítes) |
 | `npm run typecheck` | Confere os tipos do TypeScript |
-| `npm run lint` | Roda o ESLint |
-| `npm run db:push` | Sincroniza o esquema com o banco (desenvolvimento) |
-| `npm run db:migrate` | Aplica as migrações (produção) |
+| `npm run db:migrate` | Aplica as migrações no banco |
 | `npm run db:studio` | Abre uma interface visual do banco |
 | `npm run import:letterboxd:dry` | Simula a importação do Letterboxd, sem gravar |
 | `npm run backfill:tmdb` | Preenche metadados que faltam a partir do TMDB |
+
+Na pasta **`web/`**:
+
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Liga o frontend localmente (porta 3000) |
+| `npm run build` / `npm start` | Compila e sobe a versão de produção |
+| `npm run typecheck` | Confere os tipos do TypeScript |
+| `npm run lint` | Roda o ESLint |
 
 ***
 
@@ -163,9 +172,9 @@ npm run validate:letterboxd
 
 Três decisões guiam o código:
 
-- **Três camadas bem separadas.** Toda a matemática das análises vive em módulos "puros" — funções que só recebem dados e devolvem resultados, sem tocar em banco ou internet. Uma camada de dados fala com o banco (com cache). E as páginas só exibem o que recebem. Isso deixa cada parte simples de entender e de testar.
-- **Testes de verdade.** `npm test` roda **71 testes em 8 suítes**: importação do Letterboxd, deduplicação do histórico, paladar, pontos cegos, evolução no tempo, motivos recorrentes, o veredito e o jogo Cine-Detetive. Toda a lógica de análise é coberta.
-- **O banco nunca anda para trás.** As migrações do banco de dados só *adicionam* — nunca apagam uma coluna com dados. Uma versão nova do app nunca destrói o histórico de ninguém.
+- **Frontend e backend separados de verdade.** O `web` é só interface: autentica com JWT e consome a `api` por HTTP. Toda a matemática das análises vive em módulos "puros" no backend — funções que só recebem dados e devolvem resultados —, uma camada de dados fala com o banco (com cache) e as páginas só exibem o que recebem.
+- **Testes de verdade.** `npm test` (em `api/`) roda **71 testes em 8 suítes**: importação do Letterboxd, deduplicação do histórico, paladar, pontos cegos, evolução no tempo, motivos recorrentes, o veredito e o jogo Cine-Detetive. Toda a lógica de análise é coberta.
+- **O banco protege o histórico.** As migrações são aditivas por padrão — uma coluna só é removida quando o próprio recurso deixa de existir, nunca para "arrumar" dados. Uma versão nova do app não destrói o histórico de ninguém.
 
 E sobre segurança, em resumo: senhas guardadas com hash `scrypt`, cadastro com limite de tentativas por IP, ações sensíveis exigem a senha atual, e as rotas que alteram dados rejeitam requisições de outros sites (proteção CSRF).
 

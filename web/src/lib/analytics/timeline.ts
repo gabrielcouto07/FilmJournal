@@ -1,4 +1,4 @@
-/** Calcula a evolução do gosto a partir do diário, sem acessar o Prisma. */
+/** Calcula a evolução do gosto a partir do diário. */
 
 import { MIN_CROWD_VOTES, mean, normalizeCrowdRating, round } from "./palate";
 

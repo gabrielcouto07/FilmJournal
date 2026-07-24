@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import { useState } from "react";
 import { useToast } from "./ToastProvider";
 
@@ -15,7 +16,7 @@ export default function FavoriteToggle({ movieId, initialFavorite, compact = fal
     setFavorite(next);
     setSaving(true);
     try {
-      const response = await fetch("/api/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId, action: "favorite", value: next }) });
+      const response = await apiFetch("/movies", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ movieId, action: "favorite", value: next }) });
       const payload = await response.json() as { message?: string; error?: string };
       if (!response.ok) throw new Error(payload.error ?? "Não foi possível atualizar os favoritos.");
       notify(payload.message ?? "Favoritos atualizados.");

@@ -1,19 +1,31 @@
-import { redirect } from "next/navigation";
 import LetterboxdImport from "@/components/LetterboxdImport";
 import ProfileSettings from "@/components/ProfileSettings";
-import { getCurrentUser } from "@/lib/auth";
-import { getUserSettings } from "@/lib/settings";
+import { apiGet } from "@/lib/api-server";
+import type { AppSettings } from "@/lib/settings";
 
 export const metadata = {
   title: "Perfil e configurações — FilmJournal",
 };
 
+type ProfileResponse = {
+  user: {
+    username: string;
+    displayName: string | null;
+    bio: string | null;
+    avatarUrl: string | null;
+    email: string;
+    role: string;
+    createdAt: string;
+  };
+};
+
 export default async function ProfilePage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  const settings = await getUserSettings(user.id);
+  const [{ user }, { settings }] = await Promise.all([
+    apiGet<ProfileResponse>("/profile"),
+    apiGet<{ settings: AppSettings }>("/settings"),
+  ]);
   const displayName = user.displayName || user.username;
-  const memberSince = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" }).format(user.createdAt);
+  const memberSince = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(user.createdAt));
 
   return (
     <main className="page-shell max-w-5xl space-y-8">

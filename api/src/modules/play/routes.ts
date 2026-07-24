@@ -315,7 +315,7 @@ export default async function playRoutes(fastify: FastifyInstance) {
 
     const fromTmdb = async (): Promise<Suggestion[]> => {
       try {
-        const result = await searchTmdbMovies(query, undefined, 1, false, "pt-BR");
+        const result = await searchTmdbMovies(query, undefined, 1, "pt-BR");
         return result.results.map((movie) => ({
           tmdbId: movie.id,
           title: movie.title || movie.original_title || "",

@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ArtworkImage from "@/components/ArtworkImage";
@@ -143,7 +144,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
     }
     const handle = window.setTimeout(async () => {
       try {
-        const res = await fetch(`/api/play/search?q=${encodeURIComponent(query)}&source=${source}`);
+        const res = await apiFetch(`/play/search?q=${encodeURIComponent(query)}&source=${source}`);
         const data = await res.json();
         if (res.ok) setSuggestions(data.suggestions ?? []);
       } catch {
@@ -159,7 +160,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
     setPhase("over");
     setPlayedIds((current) => [...current, answer.tmdbId].slice(-40));
     try {
-      const res = await fetch("/api/play/score", {
+      const res = await apiFetch("/play/score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ source: currentSource, score, rounds: guessesUsed }),
@@ -188,7 +189,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
     setHintGates({ keywords: false, tagline: false });
     setGuessNumber(1);
     try {
-      const res = await fetch("/api/play/round", {
+      const res = await apiFetch("/play/round", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ source: chosen, excludeIds: chosen === "daily" ? [] : playedIds }),
@@ -216,7 +217,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
     setSuggestions([]);
     setGuess("");
     try {
-      const res = await fetch("/api/play/guess", {
+      const res = await apiFetch("/play/guess", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, action: "guess", tmdbId: pick.tmdbId, guessNumber }),
@@ -254,7 +255,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
     if (hint === 2 && tagline !== null) return;
     setBusy(true);
     try {
-      const res = await fetch("/api/play/guess", {
+      const res = await apiFetch("/play/guess", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, action: "hint", hint, guessNumber }),
@@ -274,7 +275,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
     if (busy || outcome) return;
     setBusy(true);
     try {
-      const res = await fetch("/api/play/guess", {
+      const res = await apiFetch("/play/guess", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, action: "giveup", guessNumber }),

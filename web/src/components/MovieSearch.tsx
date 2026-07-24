@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -35,7 +36,7 @@ export default function MovieSearch() {
     const timer = window.setTimeout(async () => {
       setStatus("loading"); setMessage("");
       try {
-        const response = await fetch(`/api/tmdb?q=${encodeURIComponent(normalized)}`, { signal: controller.signal });
+        const response = await apiFetch(`/tmdb?q=${encodeURIComponent(normalized)}`, { signal: controller.signal });
         const payload = await response.json() as SearchResponse;
         if (!response.ok) throw new Error(payload.error ?? "Não foi possível concluir a busca.");
         setResults(payload.results ?? []); setStatus(payload.results?.length ? "success" : "empty");
@@ -48,7 +49,7 @@ export default function MovieSearch() {
   useEffect(() => {
     if (query.trim() || feedCache[activeFeed]) return;
     const controller = new AbortController(); setFeedLoading(true);
-    fetch(`/api/tmdb?feed=${activeFeed}`, { signal: controller.signal }).then(async (response) => {
+    apiFetch(`/tmdb?feed=${activeFeed}`, { signal: controller.signal }).then(async (response) => {
       const payload = await response.json() as SearchResponse;
       if (!response.ok) throw new Error(payload.error);
       setFeedCache((cache) => ({ ...cache, [activeFeed]: payload.results ?? [] }));
@@ -61,7 +62,7 @@ export default function MovieSearch() {
     if ((action === "open" || action === "log") && result.existing) { router.push(`/film/${result.existing.id}${action === "log" ? "?log=1" : ""}`); return; }
     const token = `${result.id}:${action}`; setPending(token);
     try {
-      const addResponse = await fetch("/api/movies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tmdbId: result.id, ...(action === "watchlist" ? { watchlist: !result.existing?.watchlist } : {}) }) });
+      const addResponse = await apiFetch("/movies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tmdbId: result.id, ...(action === "watchlist" ? { watchlist: !result.existing?.watchlist } : {}) }) });
       const addPayload = await addResponse.json() as { movie?: ExistingMovie & { title?: string }; message?: string; error?: string };
       if (!addResponse.ok || !addPayload.movie) throw new Error(addPayload.error ?? "Não foi possível salvar este filme.");
       let saved = addPayload.movie;
@@ -73,7 +74,7 @@ export default function MovieSearch() {
         return;
       }
       if (action === "favorite") {
-        const response = await fetch("/api/movies", { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({movieId:saved.id,action:"favorite",value:!result.existing?.favorite}) });
+        const response = await apiFetch("/movies", { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({movieId:saved.id,action:"favorite",value:!result.existing?.favorite}) });
         const payload = await response.json() as { movie?: typeof saved; message?: string; error?: string };
         if (!response.ok || !payload.movie) throw new Error(payload.error ?? "Não foi possível atualizar os favoritos."); saved = payload.movie; notice = payload.message ?? notice;
       }

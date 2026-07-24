@@ -9,14 +9,10 @@ import {
   getTimelineData,
   getMotifsData,
 } from "../../lib/dashboard-data.js";
+import { computeVerdict } from "../../lib/analytics/verdict.js";
 import { requireAuth } from "../../plugins/jwt.js";
 
-/**
- * These used to be React Server Components importing `dashboard-data.ts`
- * directly (home dashboard, diary, watchlist, favorites, stats, palate,
- * timeline, motifs). Now that `web` and `ios` are separate HTTP clients,
- * they're plain authenticated GET endpoints instead.
- */
+/** Leituras autenticadas das páginas de análise (painel, diário, listas, paladar, evolução). */
 export default async function dashboardRoutes(fastify: FastifyInstance) {
   fastify.get("/dashboard", { preHandler: requireAuth }, async (request, reply) => {
     try {
@@ -71,7 +67,15 @@ export default async function dashboardRoutes(fastify: FastifyInstance) {
   fastify.get("/palate", { preHandler: requireAuth }, async (request, reply) => {
     try {
       const data = await getPalateData(request.user!.id);
-      return reply.send(data);
+      // O veredito deriva dos mesmos sinais do paladar, então viaja junto.
+      const verdict = computeVerdict({
+        totalFilms: data.totalFilms,
+        contrarian: data.contrarian,
+        decades: data.decades,
+        genres: data.genres,
+        directors: data.directors,
+      });
+      return reply.send({ ...data, verdict });
     } catch (error) {
       request.log.error(error, "[palate] failed");
       return reply.status(500).send({ error: "Não foi possível carregar seu paladar." });

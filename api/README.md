@@ -1,15 +1,15 @@
 # filmjournal-api
 
-Standalone backend for FilmJournal, extracted from the `web` Next.js app so both
-`web` and `ios` consume it as regular API clients.
+Backend do FilmJournal. O frontend `web` (e futuramente o `ios`) consome esta API
+como cliente HTTP comum — nenhum deles acessa o banco diretamente.
 
 ## Stack
 
 - Node.js + TypeScript
-- Fastify (HTTP layer) + `fastify-type-provider-zod` for request/response validation
+- Fastify (HTTP layer) + Zod for request/response validation
 - Prisma + PostgreSQL
-- JWT (access + refresh) auth, replacing the web app's NextAuth cookie sessions
-- `@fastify/swagger` — generates an OpenAPI contract both `web` and `ios` can consume/generate clients from
+- JWT auth (access + refresh), igual para todos os clientes
+- `@fastify/swagger` — OpenAPI em `/docs`
 
 ## Local development
 
@@ -25,17 +25,18 @@ Server boots on `PORT` (default `4000`), health check at `GET /health`.
 
 ## Structure
 
-- `src/modules/*` — one folder per domain (auth, movies, discover, recommendations,
-  roulette, play, import, settings, account, admin), each with `routes.ts` +
-  `service.ts` + `schema.ts`.
-- `src/lib/*` — framework-agnostic business logic ported from `web/src/lib`.
-- `src/plugins/*` — Fastify plugins (Prisma client, JWT auth, CORS, rate limiting, OpenAPI).
-- `prisma/` — schema, migrations, seed script (ported as-is from `web/prisma`).
-- `scripts/` — ops scripts (Letterboxd import/dedupe, TMDB backfill, owner reset).
+- `src/modules/*` — um domínio por pasta (auth, movies, logs/import, account,
+  profile/settings/onboarding, discover/recommendations, roulette, play,
+  dashboard, admin), cada um com suas rotas.
+- `src/lib/*` — regras de negócio independentes de framework (analytics, TMDB,
+  importação do Letterboxd, e-mail, cache).
+- `src/plugins/*` — plugins do Fastify (Prisma, JWT, CORS, rate limiting, OpenAPI).
+- `prisma/` — schema, migrações e seed.
+- `scripts/` — scripts de operação (import/dedupe do Letterboxd, backfill do TMDB, reset do owner).
+- `tests/` — 71 testes das 8 suítes de lógica pura (`npm test`).
 
-## Migrating from `web`
+## Auth
 
-This repo was split out of `FilmJournal/web`. The database, Prisma schema, and
-`src/lib` business logic moved over close to unchanged; the Next.js Route
-Handlers were rewritten as Fastify routes, and auth moved from NextAuth cookie
-sessions to stateless JWTs so both `web` and `ios` can authenticate the same way.
+`POST /auth/login` (ou `/auth/register`) devolve `{ accessToken, refreshToken, user }`.
+Envie `Authorization: Bearer <accessToken>` nas demais rotas e renove com
+`POST /auth/refresh` quando expirar (15 min por padrão).

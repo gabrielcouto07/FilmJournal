@@ -6,12 +6,7 @@ import { computeTimeline, type Timeline, type TimelineEntry } from "./analytics/
 import { computeMotifSummary, type MotifFilm, type MotifSummary } from "./analytics/motifs.js";
 import type { CardMovie } from "./types.js";
 
-/**
- * Read layer used by the `dashboard`/`diary`/`watchlist`/`favorites`/`stats`
- * routes. These used to be Next.js Server Components importing this module
- * directly; now they're plain HTTP endpoints so both `web` and `ios` call them
- * the same way.
- */
+/** Camada de leitura das rotas dashboard/diary/watchlist/favorites/stats, com cache por etiquetas. */
 export const CATALOG_TAG = "catalog";
 export const userTag = (userId: string) => `user:${userId}`;
 const REVALIDATE_SECONDS = 300;

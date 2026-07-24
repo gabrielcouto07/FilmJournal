@@ -2,7 +2,6 @@ import type { FastifyInstance, FastifyReply } from "fastify";
 import { prisma } from "../../lib/prisma.js";
 import { getDatabaseReview } from "../../lib/db-review.js";
 import { getTmdbFeed, getTmdbMovieWithImages, searchTmdbMovies, TmdbError, type TmdbFeed } from "../../lib/tmdb.js";
-import { getUserSettings } from "../../lib/settings.js";
 import { requireOwner } from "../../plugins/jwt.js";
 
 function tmdbErrorResponse(reply: FastifyReply, error: unknown) {
@@ -13,6 +12,17 @@ function tmdbErrorResponse(reply: FastifyReply, error: unknown) {
 }
 
 export default async function adminRoutes(fastify: FastifyInstance) {
+  fastify.get("/admin/stats", { preHandler: requireOwner }, async (request, reply) => {
+    const userId = request.user!.id;
+    const [movieCount, logCount, watchlistCount, favoriteCount] = await Promise.all([
+      prisma.movie.count(),
+      prisma.logEntry.count({ where: { userId } }),
+      prisma.userMovie.count({ where: { userId, watchlist: true } }),
+      prisma.userMovie.count({ where: { userId, favorite: true } }),
+    ]);
+    return reply.send({ movieCount, logCount, watchlistCount, favoriteCount });
+  });
+
   fastify.get("/admin/db-review", { preHandler: requireOwner }, async (request, reply) => {
     try {
       const review = await getDatabaseReview();
@@ -96,12 +106,10 @@ export default async function adminRoutes(fastify: FastifyInstance) {
           });
         }
 
-        const settings = await getUserSettings(viewer?.id);
         const results = await searchTmdbMovies(
           query,
           Number.isInteger(yearValue) && yearValue > 1800 ? yearValue : undefined,
           Number.isInteger(pageValue) ? pageValue : 1,
-          settings.showAdultContent,
         );
 
         const existingMovies = await prisma.movie.findMany({

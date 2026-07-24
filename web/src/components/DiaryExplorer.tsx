@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/api";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { getPosterUrl } from "@/lib/tmdb";
@@ -86,7 +87,7 @@ export default function DiaryExplorer({ entries: initialEntries }: { entries: Di
   async function deleteEntry(item: DiaryItem) {
     setDeletingId(item.id);
     try {
-      const response = await fetch(`/api/logs?id=${item.id}`, { method: "DELETE" });
+      const response = await apiFetch(`/logs?id=${item.id}`, { method: "DELETE" });
       const payload = await response.json() as { message?: string; error?: string };
       if (!response.ok) throw new Error(payload.error ?? "Não foi possível excluir esta entrada.");
       setEntries((items) => items.filter((entry) => entry.id !== item.id));

@@ -126,7 +126,6 @@ model UserSettings {
   defaultRatingScale Int      @default(5) // 5 | 10
   allowHalfStars     Boolean  @default(true)
   profileVisibility  String   @default("private") // "private" | "public"
-  showAdultContent   Boolean  @default(false)
   defaultLandingPage String   @default("/")
   emailNotifications Boolean  @default(false)
   // Últimos filtros da roleta, compartilhados entre dispositivos.

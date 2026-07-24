@@ -4,7 +4,6 @@ import type { CardMovie } from "@/lib/types";
 import ArtworkImage from "./ArtworkImage";
 import StarRating from "./StarRating";
 
-// Aceita tanto objetos do Prisma quanto dados serializados do cache.
 type CardLogInfo = { rating: number | null; rewatch: boolean };
 type Props = { movie: CardMovie; log?: CardLogInfo | null; priority?: boolean; rank?: number };
 

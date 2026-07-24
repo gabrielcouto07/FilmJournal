@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useRef, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 type MovieList = {
   id: string;
@@ -35,7 +36,7 @@ export default function AddToListButton({
     setOpen(true);
 
     setMessage("");
-    const response = await fetch(`/api/lists?movieId=${encodeURIComponent(movieId)}`);
+    const response = await apiFetch(`/lists?movieId=${encodeURIComponent(movieId)}`);
     const data = await response.json();
 
     setLists(data.lists ?? []);
@@ -50,7 +51,7 @@ export default function AddToListButton({
       return;
     }
 
-    const response = await fetch(`/api/lists/${listId}/movies`, {
+    const response = await apiFetch(`/lists/${listId}/movies`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
