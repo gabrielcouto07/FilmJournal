@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import FavoritesManager, { type FavoriteMovie } from "@/components/FavoritesManager";
 import WatchlistExplorer, { type WatchlistMovie } from "@/components/WatchlistExplorer";
@@ -47,6 +48,12 @@ export default function CollectionHub({
             {item.label}
           </button>
         ))}
+        <Link
+          href="/collection/lists"
+          className="rounded-full px-4 py-2 text-xs font-black uppercase tracking-wider text-slate-400 transition hover:text-white"
+        >
+          ▣ Coleções
+        </Link>
       </nav>
 
       {tab === "favoritos" ? (

@@ -38,6 +38,7 @@ model Movie {
   userMovies            UserMovie[]
   genreList             Genre[]
   keywords              Keyword[]
+  movieLists            MovieListMovie[]
 
   @@index([title])
   @@index([year])
@@ -73,6 +74,7 @@ model User {
   settings            UserSettings?
   blindSpotDismissals BlindSpotDismissal[]
   gameScores          GameScore[]
+  movieLists          MovieList[]
   pendingPasswordChange PendingPasswordChange?
 }
 
@@ -133,6 +135,32 @@ model UserSettings {
   onboardedAt        DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+model MovieList {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  isPublic    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  movies      MovieListMovie[]
+
+  @@index([userId])
+}
+
+model MovieListMovie {
+  listId   String
+  movieId  String
+  position Int?
+  addedAt  DateTime  @default(now())
+  list     MovieList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  movie    Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@id([listId, movieId])
+  @@index([movieId])
 }
 
 model UserMovie {

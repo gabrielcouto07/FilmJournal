@@ -403,7 +403,7 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
       {loadingRound ? (
         <div className="surface skeleton-bg h-96 rounded-[2rem]" />
       ) : (
-        <div className="grid gap-5 lg:grid-cols-[19rem_1fr]">
+        <div className="grid gap-5 lg:grid-cols-[22rem_1fr]">
           {/* Pistas de elenco e pôster */}
           <aside className="surface h-fit space-y-5 rounded-[2rem] p-5 sm:p-6">
             <div>
@@ -421,8 +421,8 @@ export default function HybridGame({ initialBest }: { initialBest: Partial<Recor
                       transition={{ type: "spring", stiffness: 260, damping: 22 }}
                       className={`flex items-center gap-3 rounded-2xl border p-2 ${index === actors.length - 1 ? "border-amber-300/40 bg-amber-300/[0.07]" : "border-white/[0.07] bg-white/[0.03]"}`}
                     >
-                      <span className="artwork-frame h-12 w-12 shrink-0 overflow-hidden rounded-full">
-                        <ArtworkImage src={image(actor.profilePath, "w185")} alt={actor.name} title={actor.name} className="h-full w-full object-cover" sizes="48px" />
+                      <span className="artwork-frame h-16 w-16 shrink-0 overflow-hidden rounded-full">
+                        <ArtworkImage src={image(actor.profilePath, "w185")} alt={actor.name} title={actor.name} className="h-full w-full object-cover" sizes="64px" />
                       </span>
                       <span className="min-w-0 flex-1 truncate text-sm font-black text-white">{actor.name}</span>
                     </motion.li>

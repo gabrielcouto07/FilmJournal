@@ -14,6 +14,7 @@ import adminRoutes from "./modules/admin/routes.js";
 import dashboardRoutes from "./modules/dashboard/routes.js";
 import playRoutes from "./modules/play/routes.js";
 import logsRoutes from "./modules/logs/routes.js";
+import listsRoutes from "./modules/lists/routes.js";
 
 export async function buildApp() {
   const app = Fastify({ logger: true });
@@ -36,6 +37,7 @@ export async function buildApp() {
   await app.register(dashboardRoutes);
   await app.register(playRoutes);
   await app.register(logsRoutes);
+  await app.register(listsRoutes);
 
   return app;
 }
