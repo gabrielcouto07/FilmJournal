@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: filmjournal
+      POSTGRES_PASSWORD: filmjournal
+      POSTGRES_DB: filmjournal
+    ports:
+      - "5432:5432"
+    volumes:
+      - filmjournal_pgdata:/var/lib/postgresql/data
+
+volumes:
+  filmjournal_pgdata:
