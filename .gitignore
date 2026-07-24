@@ -1,5 +1,8 @@
 # Sistema
 .DS_Store
 
-# Configuração local pessoal do Claude Code (a CLAUDE.md e as skills são versionadas)
-.claude/settings.local.json
+# Ferramentas locais de desenvolvimento — nunca versionar
+.claude/
+.codex/
+.agents/
+DEPLOY.md
