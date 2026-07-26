@@ -89,12 +89,7 @@ struct AppSettingsView: View {
                 ))
             }
 
-            Section("Privacidade e notificações") {
-                Toggle("Mostrar conteúdo adulto", isOn: Binding(
-                    get: { viewModel.settings.showAdultContent },
-                    set: { newValue in Task { await viewModel.setShowAdultContent(newValue, api: api) } }
-                ))
-
+            Section("Notificações") {
                 Toggle("Notificações por e-mail", isOn: Binding(
                     get: { viewModel.settings.emailNotifications },
                     set: { newValue in Task { await viewModel.setEmailNotifications(newValue, api: api) } }

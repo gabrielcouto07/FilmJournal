@@ -1,25 +1,26 @@
 import Foundation
 
-/// Client HTTP central do app. Fala com a mesma API REST do FilmJournal (Next.js).
+/// Client HTTP central do app. Fala com o backend `api/` (Fastify) do FilmJournal.
 ///
-/// Autenticação usa o cookie de sessão do NextAuth (estratégia JWT em cookie httpOnly) — por
-/// isso a `URLSession` usa `HTTPCookieStorage.shared`, que o iOS já persiste em disco entre
-/// aberturas do app. Não é necessário (nem possível) ler o cookie manualmente: o sistema
-/// aplica e reenvia os cookies automaticamente em toda requisição para o mesmo host.
+/// Autenticação é **JWT stateless via `Authorization: Bearer`** (`api/src/plugins/jwt.ts`,
+/// "igual para web e ios") — não há mais cookie de sessão do NextAuth. O `access token` é
+/// anexado em toda requisição autenticada; em um 401 (exceto nas próprias rotas de `/auth/*`)
+/// tentamos renovar uma única vez via `refresh token` antes de repassar o erro. Os tokens vivem
+/// no Keychain via `TokenStore` (ver arquivo irmão), não em `HTTPCookieStorage`.
 ///
-/// Sobre CSRF: o backend só bloqueia mutações quando o header `Origin` está presente e não
-/// bate com o `Host` (ver `isSameOrigin` em `src/lib/security.ts`). Um client nativo via
-/// `URLSession` não envia `Origin` — a checagem já passa sem nenhum header extra.
+/// As rotas do backend não têm prefixo `/api` (ex. `/movies`, `/logs`, `/auth/login`) — isso
+/// mudou na separação frontend/backend (commit `26c5c92`); todo `Service` deste pacote já
+/// chama os paths sem esse prefixo.
 public final class APIClient {
     public let config: AppConfig
     private let session: URLSession
+    private let tokenStore: TokenStore
+    private let refreshCoordinator = TokenRefreshCoordinator()
 
-    public init(config: AppConfig) {
+    public init(config: AppConfig, tokenStore: TokenStore = .shared) {
         self.config = config
+        self.tokenStore = tokenStore
         let configuration = URLSessionConfiguration.default
-        configuration.httpCookieStorage = .shared
-        configuration.httpShouldSetCookies = true
-        configuration.httpCookieAcceptPolicy = .always
         configuration.timeoutIntervalForRequest = config.requestTimeout
         self.session = URLSession(configuration: configuration)
     }
@@ -33,7 +34,7 @@ public final class APIClient {
         _ path: String,
         query: [String: String?] = [:]
     ) async throws -> Response {
-        let (data, _) = try await rawRequest(method, path, query: query, body: nil, contentType: nil)
+        let (data, _) = try await authorizedRequest(method, path, query: query, body: nil, contentType: nil)
         return try decode(data)
     }
 
@@ -45,13 +46,8 @@ public final class APIClient {
         query: [String: String?] = [:],
         body: Body
     ) async throws -> Response {
-        let payload: Data
-        do {
-            payload = try JSONCoding.encoder.encode(body)
-        } catch {
-            throw APIError.encoding(error.localizedDescription)
-        }
-        let (data, _) = try await rawRequest(method, path, query: query, body: payload, contentType: "application/json")
+        let payload = try encode(body)
+        let (data, _) = try await authorizedRequest(method, path, query: query, body: payload, contentType: "application/json")
         return try decode(data)
     }
 
@@ -62,13 +58,8 @@ public final class APIClient {
         query: [String: String?] = [:],
         body: Body
     ) async throws {
-        let payload: Data
-        do {
-            payload = try JSONCoding.encoder.encode(body)
-        } catch {
-            throw APIError.encoding(error.localizedDescription)
-        }
-        _ = try await rawRequest(method, path, query: query, body: payload, contentType: "application/json")
+        let payload = try encode(body)
+        _ = try await authorizedRequest(method, path, query: query, body: payload, contentType: "application/json")
     }
 
     public func requestDiscardingResponse(
@@ -76,7 +67,15 @@ public final class APIClient {
         _ path: String,
         query: [String: String?] = [:]
     ) async throws {
-        _ = try await rawRequest(method, path, query: query, body: nil, contentType: nil)
+        _ = try await authorizedRequest(method, path, query: query, body: nil, contentType: nil)
+    }
+
+    private func encode<Body: Encodable>(_ body: Body) throws -> Data {
+        do {
+            return try JSONCoding.encoder.encode(body)
+        } catch {
+            throw APIError.encoding(error.localizedDescription)
+        }
     }
 
     private func decode<Response: Decodable>(_ data: Data) throws -> Response {
@@ -90,21 +89,7 @@ public final class APIClient {
         }
     }
 
-    // MARK: - Form-encoded (fluxo de login do NextAuth)
-
-    @discardableResult
-    func formRequest(_ path: String, form: [String: String]) async throws -> (Data, HTTPURLResponse) {
-        let encoded = form.map { key, value in
-            "\(percentEncode(key))=\(percentEncode(value))"
-        }.joined(separator: "&")
-        return try await rawRequest(.post, path, query: [:], body: Data(encoded.utf8), contentType: "application/x-www-form-urlencoded", followRedirects: false)
-    }
-
-    private func percentEncode(_ value: String) -> String {
-        value.addingPercentEncoding(withAllowedCharacters: .urlQueryValueAllowed) ?? value
-    }
-
-    // MARK: - Multipart (import do Letterboxd)
+    // MARK: - Multipart (import do Letterboxd, upload de avatar)
 
     public func upload<Response: Decodable>(
         _ path: String,
@@ -113,16 +98,75 @@ public final class APIClient {
         fileData: Data,
         mimeType: String = "application/zip"
     ) async throws -> Response {
+        try await upload(path, parts: [(fieldName: fileFieldName, fileName: fileName, mimeType: mimeType, data: fileData)])
+    }
+
+    /// Variante com múltiplos arquivos (ex. CSVs soltos do Letterboxd, um campo por arquivo).
+    public func upload<Response: Decodable>(
+        _ path: String,
+        parts: [(fieldName: String, fileName: String, mimeType: String, data: Data)]
+    ) async throws -> Response {
         let boundary = "FilmJournalBoundary-\(UUID().uuidString)"
         var body = Data()
-        body.append("--\(boundary)\r\n".utf8Data)
-        body.append("Content-Disposition: form-data; name=\"\(fileFieldName)\"; filename=\"\(fileName)\"\r\n".utf8Data)
-        body.append("Content-Type: \(mimeType)\r\n\r\n".utf8Data)
-        body.append(fileData)
-        body.append("\r\n--\(boundary)--\r\n".utf8Data)
+        for part in parts {
+            body.append("--\(boundary)\r\n".utf8Data)
+            body.append("Content-Disposition: form-data; name=\"\(part.fieldName)\"; filename=\"\(part.fileName)\"\r\n".utf8Data)
+            body.append("Content-Type: \(part.mimeType)\r\n\r\n".utf8Data)
+            body.append(part.data)
+            body.append("\r\n".utf8Data)
+        }
+        body.append("--\(boundary)--\r\n".utf8Data)
 
-        let (data, _) = try await rawRequest(.post, path, query: [:], body: body, contentType: "multipart/form-data; boundary=\(boundary)")
+        let (data, _) = try await authorizedRequest(.post, path, query: [:], body: body, contentType: "multipart/form-data; boundary=\(boundary)")
         return try decode(data)
+    }
+
+    // MARK: - Auth (renovação transparente de token)
+
+    /// Igual a `rawRequest`, mas anexa `Authorization: Bearer` e, se a resposta vier 401 (e a
+    /// rota não for `/auth/*`), tenta renovar o access token uma única vez e repete a chamada.
+    @discardableResult
+    private func authorizedRequest(
+        _ method: HTTPMethod,
+        _ path: String,
+        query: [String: String?],
+        body: Data?,
+        contentType: String?
+    ) async throws -> (Data, HTTPURLResponse) {
+        do {
+            return try await rawRequest(method, path, query: query, body: body, contentType: contentType, authToken: tokenStore.accessToken)
+        } catch APIError.server(status: 401, message: _) where !path.hasPrefix("/auth/") {
+            let newToken = try await refreshedAccessToken()
+            return try await rawRequest(method, path, query: query, body: body, contentType: contentType, authToken: newToken)
+        }
+    }
+
+    /// Garante que só existe uma renovação de token em voo por vez (chamadas concorrentes da
+    /// Home, por exemplo, não devem disparar várias `/auth/refresh` em paralelo).
+    private func refreshedAccessToken() async throws -> String {
+        try await refreshCoordinator.refreshedToken { [weak self] in
+            guard let self else { throw APIError.notAuthenticated }
+            return try await self.performRefresh()
+        }
+    }
+
+    private func performRefresh() async throws -> String {
+        guard let refreshToken = tokenStore.refreshToken else {
+            throw APIError.notAuthenticated
+        }
+        struct RefreshBody: Encodable { let refreshToken: String }
+        struct RefreshResponse: Decodable { let accessToken: String }
+        do {
+            let payload = try encode(RefreshBody(refreshToken: refreshToken))
+            let (data, _) = try await rawRequest(.post, "/auth/refresh", query: [:], body: payload, contentType: "application/json", authToken: nil)
+            let response: RefreshResponse = try decode(data)
+            tokenStore.accessToken = response.accessToken
+            return response.accessToken
+        } catch {
+            tokenStore.clear()
+            NotificationCenter.default.post(name: .filmJournalSessionExpired, object: nil)
+            throw APIError.notAuthenticated
+        }
     }
 
     // MARK: - Core
@@ -134,7 +178,7 @@ public final class APIClient {
         query: [String: String?],
         body: Data?,
         contentType: String?,
-        followRedirects: Bool = true
+        authToken: String?
     ) async throws -> (Data, HTTPURLResponse) {
         guard var components = URLComponents(url: config.baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: false) else {
             throw APIError.invalidURL
@@ -152,19 +196,15 @@ public final class APIClient {
         if let contentType {
             request.setValue(contentType, forHTTPHeaderField: "Content-Type")
         }
+        if let authToken {
+            request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        }
         request.httpBody = body
 
-        let delegate = followRedirects ? nil : NoRedirectDelegate()
         do {
-            let (data, response): (Data, URLResponse)
-            if let delegate {
-                let session = URLSession(configuration: session.configuration, delegate: delegate, delegateQueue: nil)
-                (data, response) = try await session.data(for: request)
-            } else {
-                (data, response) = try await session.data(for: request)
-            }
+            let (data, response) = try await session.data(for: request)
             guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
-            guard (200...299).contains(http.statusCode) || (!followRedirects && (300...399).contains(http.statusCode)) else {
+            guard (200...299).contains(http.statusCode) else {
                 if let payload = try? JSONCoding.decoder.decode(APIErrorPayload.self, from: data) {
                     throw APIError.server(status: http.statusCode, message: payload.error)
                 }
@@ -179,29 +219,27 @@ public final class APIClient {
     }
 }
 
-/// Resposta "vazia" para endpoints cujo corpo não interessa ao chamador.
-public struct EmptyResponse: Decodable {}
+/// Single-flight para `/auth/refresh`: se várias chamadas simultâneas topam com um 401,
+/// só a primeira dispara a renovação de verdade — as demais esperam o mesmo `Task`.
+private actor TokenRefreshCoordinator {
+    private var inFlight: Task<String, Error>?
 
-private final class NoRedirectDelegate: NSObject, URLSessionTaskDelegate {
-    func urlSession(
-        _ session: URLSession,
-        task: URLSessionTask,
-        willPerformHTTPRedirection response: HTTPURLResponse,
-        newRequest request: URLRequest,
-        completionHandler: @escaping (URLRequest?) -> Void
-    ) {
-        // O passo de login do NextAuth responde com um redirect (302); não seguimos porque só
-        // nos interessa o Set-Cookie da própria resposta.
-        completionHandler(nil)
+    func refreshedToken(_ operation: @escaping () async throws -> String) async throws -> String {
+        if let inFlight { return try await inFlight.value }
+        let task = Task { try await operation() }
+        inFlight = task
+        defer { inFlight = nil }
+        return try await task.value
     }
 }
 
-private extension CharacterSet {
-    static let urlQueryValueAllowed: CharacterSet = {
-        var allowed = CharacterSet.alphanumerics
-        allowed.insert(charactersIn: "-._~")
-        return allowed
-    }()
+/// Resposta "vazia" para endpoints cujo corpo não interessa ao chamador.
+public struct EmptyResponse: Decodable {}
+
+extension Notification.Name {
+    /// Postada quando a renovação do access token falha definitivamente (refresh token ausente,
+    /// expirado ou o backend recusou) — o app deve tratar isso como logout forçado.
+    public static let filmJournalSessionExpired = Notification.Name("FilmJournalSessionExpired")
 }
 
 private extension String {

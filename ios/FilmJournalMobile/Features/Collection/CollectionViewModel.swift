@@ -29,6 +29,10 @@ final class CollectionViewModel: ObservableObject {
                 movies = all
                     .filter { $0.favoriteRank != nil }
                     .sorted { ($0.favoriteRank ?? Int.max) < ($1.favoriteRank ?? Int.max) }
+            case .lists:
+                // Listas custom têm sua própria fonte de dados (`ListsHubViewModel`) — nada a
+                // carregar aqui.
+                break
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -45,10 +49,28 @@ final class CollectionViewModel: ObservableObject {
         case .watchlist: action = .watchlist(false)
         case .favorites: action = .favorite(false)
         case .top10: action = .top10(false)
+        case .lists: return
         }
         do {
             _ = try await api.movies.mutate(movieId: movie.id, action: action)
             movies.removeAll { $0.id == movie.id }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    /// Promove/rebaixa no Top 10 (`action: "favoriteRank"`) — o backend faz uma troca (swap) com
+    /// quem ocupava a posição de destino, igual ao `FavoritesManager` do web. Como duas posições
+    /// mudam de uma vez, recarregamos a aba inteira em vez de tentar reconciliar localmente.
+    func moveRank(_ movie: Movie, direction: Int, api: FilmJournalAPI) async {
+        guard let rank = movie.favoriteRank else { return }
+        let newRank = rank + direction
+        guard (1...10).contains(newRank) else { return }
+        mutatingMovieId = movie.id
+        defer { mutatingMovieId = nil }
+        do {
+            _ = try await api.movies.mutate(movieId: movie.id, action: .favoriteRank(newRank))
+            await load(tab: .top10, api: api)
         } catch {
             errorMessage = error.localizedDescription
         }

@@ -44,11 +44,6 @@ final class AppSettingsViewModel: ObservableObject {
         await save(SettingsUpdateRequest(allowHalfStars: value), api: api)
     }
 
-    func setShowAdultContent(_ value: Bool, api: FilmJournalAPI) async {
-        settings.showAdultContent = value
-        await save(SettingsUpdateRequest(showAdultContent: value), api: api)
-    }
-
     func setEmailNotifications(_ value: Bool, api: FilmJournalAPI) async {
         settings.emailNotifications = value
         await save(SettingsUpdateRequest(emailNotifications: value), api: api)

@@ -1,6 +1,6 @@
 import Foundation
 
-/// `/api/roulette/*` — sorteio de filmes com filtros persistidos.
+/// `/roulette/*` — sorteio de filmes com filtros persistidos.
 public final class RouletteService {
     private let client: APIClient
 
@@ -30,30 +30,30 @@ public final class RouletteService {
             "runtimeMax": runtimeParam,
             "count": String(count),
         ]
-        return try await client.request(.get, "/api/roulette/discover", query: query)
+        return try await client.request(.get, "/roulette/discover", query: query)
     }
 
     public func detail(movieId: Int) async throws -> RouletteMovieDetail.Detail {
-        let response: RouletteMovieDetail = try await client.request(.get, "/api/roulette/discover", query: ["movieId": String(movieId)])
+        let response: RouletteMovieDetail = try await client.request(.get, "/roulette/discover", query: ["movieId": String(movieId)])
         return response.movie
     }
 
     public func genres() async throws -> [RouletteGenre] {
-        let response: RouletteGenresResponse = try await client.request(.get, "/api/roulette/genres")
+        let response: RouletteGenresResponse = try await client.request(.get, "/roulette/genres")
         return response.genres
     }
 
     public func people(query: String) async throws -> [RoulettePeopleResponse.Person] {
-        let response: RoulettePeopleResponse = try await client.request(.get, "/api/roulette/people", query: ["q": query])
+        let response: RoulettePeopleResponse = try await client.request(.get, "/roulette/people", query: ["q": query])
         return response.people
     }
 
     public func prefs() async throws -> RoulettePrefs? {
-        let response: RoulettePrefsResponse = try await client.request(.get, "/api/roulette/prefs")
+        let response: RoulettePrefsResponse = try await client.request(.get, "/roulette/prefs")
         return response.prefs
     }
 
     public func savePrefs(_ prefs: RoulettePrefs) async throws {
-        try await client.requestDiscardingResponse(.put, "/api/roulette/prefs", body: prefs)
+        try await client.requestDiscardingResponse(.put, "/roulette/prefs", body: prefs)
     }
 }

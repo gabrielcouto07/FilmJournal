@@ -8,6 +8,15 @@ public struct TmdbExistingRef: Decodable, Sendable, Equatable {
     public let watchlist: Bool
     public let favorite: Bool?
     public let favoriteRank: Int?
+
+    public init(id: String, tmdbId: Int?, updatedAt: Date, watchlist: Bool, favorite: Bool?, favoriteRank: Int?) {
+        self.id = id
+        self.tmdbId = tmdbId
+        self.updatedAt = updatedAt
+        self.watchlist = watchlist
+        self.favorite = favorite
+        self.favoriteRank = favoriteRank
+    }
 }
 
 /// Item de busca/feed do TMDB (`TmdbMovieSearchResult`), com `existing` mesclado pelo backend.
@@ -41,6 +50,53 @@ public struct TmdbMovieSearchResult: Decodable, Sendable, Equatable, Identifiabl
         case popularity
         case genreIds = "genre_ids"
     }
+
+    /// Reconstrói o item com um `existing` novo — usado após uma ação rápida (watchlist/
+    /// favorito) para refletir o estado sem precisar refazer a busca.
+    public func withExisting(_ existing: TmdbExistingRef?) -> TmdbMovieSearchResult {
+        TmdbMovieSearchResult(
+            id: id,
+            title: title,
+            originalTitle: originalTitle,
+            releaseDate: releaseDate,
+            posterPath: posterPath,
+            backdropPath: backdropPath,
+            overview: overview,
+            voteAverage: voteAverage,
+            voteCount: voteCount,
+            popularity: popularity,
+            genreIds: genreIds,
+            existing: existing
+        )
+    }
+
+    public init(
+        id: Int,
+        title: String,
+        originalTitle: String?,
+        releaseDate: String?,
+        posterPath: String?,
+        backdropPath: String?,
+        overview: String?,
+        voteAverage: Double?,
+        voteCount: Int?,
+        popularity: Double?,
+        genreIds: [Int]?,
+        existing: TmdbExistingRef?
+    ) {
+        self.id = id
+        self.title = title
+        self.originalTitle = originalTitle
+        self.releaseDate = releaseDate
+        self.posterPath = posterPath
+        self.backdropPath = backdropPath
+        self.overview = overview
+        self.voteAverage = voteAverage
+        self.voteCount = voteCount
+        self.popularity = popularity
+        self.genreIds = genreIds
+        self.existing = existing
+    }
 }
 
 public struct TmdbSearchResponse: Decodable, Sendable {
@@ -56,12 +112,24 @@ public struct TmdbSearchResponse: Decodable, Sendable {
     }
 }
 
-public enum TmdbFeed: String, Sendable, CaseIterable {
+public enum TmdbFeed: String, Sendable, CaseIterable, Identifiable {
     case trending
     case popular
     case nowPlaying = "now-playing"
     case topRated = "top-rated"
     case upcoming
+
+    public var id: String { rawValue }
+
+    public var label: String {
+        switch self {
+        case .trending: return "Em alta"
+        case .popular: return "Popular"
+        case .nowPlaying: return "Nos cinemas"
+        case .topRated: return "Mais bem avaliados"
+        case .upcoming: return "Em breve"
+        }
+    }
 }
 
 /// `TmdbGenre` (usado em `genres` dos detalhes e em `/api/roulette/genres`).

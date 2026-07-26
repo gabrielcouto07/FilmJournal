@@ -18,6 +18,8 @@ public final class FilmJournalAPI {
     public let recommendations: RecommendationsService
     public let onboarding: OnboardingService
     public let importer: ImportService
+    public let lists: ListsService
+    public let dashboard: DashboardService
 
     public init(config: AppConfig) {
         let client = APIClient(config: config)
@@ -35,5 +37,7 @@ public final class FilmJournalAPI {
         self.recommendations = RecommendationsService(client: client)
         self.onboarding = OnboardingService(client: client)
         self.importer = ImportService(client: client)
+        self.lists = ListsService(client: client)
+        self.dashboard = DashboardService(client: client)
     }
 }

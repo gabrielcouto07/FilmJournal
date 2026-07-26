@@ -3,12 +3,6 @@ import Kit
 import CoordinatorKit
 
 /// Tela compartilhada por praticamente todo fluxo (Diário, Coleção, Busca, Descobrir, Roleta).
-///
-/// Particularidade da API: não existe um `GET /api/movies/:id`. Quando chegamos aqui só com um
-/// `tmdbId` (ex. resultado de busca) e o filme já existe no catálogo local, `GET /api/tmdb?id=`
-/// devolve `existing` com apenas `{id, watchlist, favoriteRank}` — sem `rating`/`watched`. Para
-/// ter o estado completo do usuário nesse caso, buscamos por título em `GET /api/movies?q=` e
-/// casamos pelo `id` local. É um contorno legítimo dado o que a API expõe hoje, não um bug.
 @MainActor
 final class FilmDetailViewModel: ObservableObject {
     @Published private(set) var movie: Movie?
@@ -17,6 +11,7 @@ final class FilmDetailViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var isMutating = false
     @Published var errorMessage: String?
+    @Published var editingLog: LogEntry?
 
     private var tmdbId: Int?
 
@@ -27,29 +22,39 @@ final class FilmDetailViewModel: ObservableObject {
         defer { isLoading = false }
         errorMessage = nil
 
-        if case .local(let movie) = target {
+        var resolvedId: String?
+        switch target {
+        case .local(let movie):
             self.movie = movie
+            resolvedId = movie.id
+            tmdbId = movie.tmdbId
+        case .movieId(let id):
+            resolvedId = id
+        case .tmdb(let id):
+            tmdbId = id
         }
-        tmdbId = target.tmdbId
-        guard let tmdbId else { return }
 
         do {
-            let response = try await api.tmdb.details(tmdbId: tmdbId)
-            tmdbDetails = response.movie
-            if movie == nil, let existing = response.existing {
-                let matches = try await api.movies.list(query: response.movie.title, limit: 10)
-                movie = matches.first { $0.id == existing.id }
+            if let resolvedId {
+                try await loadMovieDetail(id: resolvedId, api: api)
             }
-            if let movieId = movie?.id {
-                recentLogs = try await loadLogs(movieId: movieId, api: api)
+            if let tmdbId {
+                let response = try await api.tmdb.details(tmdbId: tmdbId)
+                tmdbDetails = response.movie
+                if movie == nil, let existing = response.existing {
+                    try await loadMovieDetail(id: existing.id, api: api)
+                }
             }
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    private func loadLogs(movieId: String, api: FilmJournalAPI) async throws -> [LogEntry] {
-        try await api.logs.list(limit: 200).filter { $0.movieId == movieId }
+    private func loadMovieDetail(id: String, api: FilmJournalAPI) async throws {
+        let response = try await api.movies.detail(id: id)
+        movie = response.movie
+        recentLogs = response.logs
+        tmdbId = response.movie.tmdbId ?? tmdbId
     }
 
     /// Garante que o filme existe no catálogo local antes de qualquer mutação — necessário
@@ -78,6 +83,16 @@ final class FilmDetailViewModel: ObservableObject {
         await mutate(api: api) { _ in .rating(rating) }
     }
 
+    /// Só o usuário `OWNER` pode chamar isso de fato (o backend rejeita para os demais) — a UI
+    /// esconde os botões correspondentes com base em `SessionController.currentUser?.isOwner`.
+    func setPoster(path: String, api: FilmJournalAPI) async {
+        await mutate(api: api) { _ in .poster(path) }
+    }
+
+    func setBackdrop(path: String, api: FilmJournalAPI) async {
+        await mutate(api: api) { _ in .backdrop(path) }
+    }
+
     private func mutate(api: FilmJournalAPI, action: (Movie) -> MovieCollectionAction) async {
         isMutating = true
         defer { isMutating = false }
@@ -90,16 +105,66 @@ final class FilmDetailViewModel: ObservableObject {
         }
     }
 
-    func logSession(rating: Double?, review: String?, watchedAt: Date?, api: FilmJournalAPI) async {
+    func logSession(_ result: LogEditorResult, api: FilmJournalAPI) async {
         isMutating = true
         defer { isMutating = false }
         do {
             let current = try await ensureLocalMovie(api: api)
-            let response = try await api.logs.create(CreateLogRequest(movieId: current.id, watchedAt: watchedAt, rating: rating, review: review))
+            let response = try await api.logs.create(CreateLogRequest(
+                movieId: current.id,
+                watchedAt: result.watchedAt,
+                rating: result.rating,
+                review: result.review,
+                rewatch: result.rewatch,
+                tags: result.tags
+            ))
             movie = response.movie
             recentLogs.insert(response.log, at: 0)
+            // `favorite` não é campo de `POST /logs` (é estado do filme, não da sessão) — como no
+            // web, uma segunda chamada aplica caso o usuário tenha marcado no formulário.
+            if response.movie.favorite != result.favorite {
+                await toggleFavoriteExplicit(result.favorite, api: api)
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    func deleteLog(_ log: LogEntry, api: FilmJournalAPI) async {
+        do {
+            try await api.logs.delete(id: log.id)
+            recentLogs.removeAll { $0.id == log.id }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func saveLogEdit(_ result: LogEditorResult, api: FilmJournalAPI) async {
+        guard let log = editingLog else { return }
+        isMutating = true
+        defer { isMutating = false }
+        do {
+            var request = UpdateLogRequest(id: log.id)
+            request.rating = .some(result.rating)
+            request.review = .some(result.review)
+            request.watchedAt = .some(DayString.string(from: result.watchedAt))
+            request.rewatch = result.rewatch
+            request.tags = .some(result.tags)
+            request.favorite = result.favorite
+            let updated = try await api.logs.update(request)
+            if let index = recentLogs.firstIndex(where: { $0.id == log.id }) {
+                recentLogs[index] = updated
+            }
+            if movie?.favorite != result.favorite {
+                await toggleFavoriteExplicit(result.favorite, api: api)
+            }
+            editingLog = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func toggleFavoriteExplicit(_ value: Bool, api: FilmJournalAPI) async {
+        await mutate(api: api) { _ in .favorite(value) }
     }
 }

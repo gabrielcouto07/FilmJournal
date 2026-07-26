@@ -1,6 +1,6 @@
 import Foundation
 
-/// Espelha `session.user` do NextAuth (ver callbacks em `src/auth.config.ts`).
+/// Espelha `AuthUser` (`api/src/plugins/jwt.ts`) — as claims embutidas no access token.
 public struct User: Decodable, Sendable, Identifiable, Equatable {
     public let id: String
     public let username: String
@@ -11,21 +11,7 @@ public struct User: Decodable, Sendable, Identifiable, Equatable {
     public var isOwner: Bool { role == "OWNER" }
 }
 
-/// Resposta de `GET /api/auth/session` — `{}` quando deslogado.
-public struct SessionResponse: Decodable, Sendable {
-    public struct SessionUser: Decodable, Sendable {
-        public let id: String
-        public let username: String
-        public let email: String?
-        public let displayName: String?
-        public let role: String
-    }
-
-    public let user: SessionUser?
-    public let expires: String?
-}
-
-/// Perfil completo (`PATCH /api/profile`), separado de `User` pois inclui bio/avatar.
+/// Perfil completo (`PATCH /profile`), separado de `User` pois inclui bio/avatar.
 public struct Profile: Decodable, Sendable, Equatable {
     public let displayName: String?
     public let bio: String?

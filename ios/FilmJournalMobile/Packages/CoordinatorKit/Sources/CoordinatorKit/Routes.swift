@@ -52,11 +52,15 @@ public enum AppTab: String, CaseIterable, Identifiable, Sendable {
 /// sobre o filme (favoritar, avaliar...), ele entra no catálogo local naquele momento.
 public enum FilmDetailTarget: Hashable, Sendable {
     case local(Movie)
+    /// Só temos o `id` local (ex. vindo de `GET /diary`, que devolve um resumo do filme, não o
+    /// `Movie` inteiro) — a tela de detalhe busca o resto via `MoviesService.detail(id:)`.
+    case movieId(String)
     case tmdb(Int)
 
     public var tmdbId: Int? {
         switch self {
         case .local(let movie): return movie.tmdbId
+        case .movieId: return nil
         case .tmdb(let id): return id
         }
     }
@@ -94,11 +98,13 @@ public enum CollectionTab: String, CaseIterable, Identifiable, Sendable {
     case favorites
     case top10
     case watchlist
+    case lists
     public var id: String { rawValue }
 }
 
 public enum CollectionRoute: Hashable, Sendable {
     case filmDetail(FilmDetailTarget)
+    case listDetail(id: String, name: String)
 }
 
 // MARK: - Busca + Descobrir (agrupados na aba "Explorar")

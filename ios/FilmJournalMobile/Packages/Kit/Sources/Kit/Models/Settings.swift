@@ -17,7 +17,6 @@ public struct AppSettings: Codable, Sendable, Equatable {
     public var dateFormat: DateFormatPreference
     public var defaultRatingScale: Int
     public var allowHalfStars: Bool
-    public var showAdultContent: Bool
     public var emailNotifications: Bool
 
     public static let `default` = AppSettings(
@@ -28,7 +27,6 @@ public struct AppSettings: Codable, Sendable, Equatable {
         dateFormat: .ddMMyyyy,
         defaultRatingScale: 5,
         allowHalfStars: true,
-        showAdultContent: false,
         emailNotifications: false
     )
 }
@@ -42,7 +40,7 @@ public struct SettingsUpdateResponse: Decodable, Sendable {
     public let message: String?
 }
 
-/// Corpo de `PATCH /api/settings` — todos os campos são opcionais (atualização parcial).
+/// Corpo de `PATCH /settings` — todos os campos são opcionais (atualização parcial).
 public struct SettingsUpdateRequest: Encodable, Sendable {
     public var theme: AppTheme?
     public var accentColor: String?
@@ -51,7 +49,6 @@ public struct SettingsUpdateRequest: Encodable, Sendable {
     public var dateFormat: DateFormatPreference?
     public var defaultRatingScale: Int?
     public var allowHalfStars: Bool?
-    public var showAdultContent: Bool?
     public var emailNotifications: Bool?
 
     public init(
@@ -62,7 +59,6 @@ public struct SettingsUpdateRequest: Encodable, Sendable {
         dateFormat: DateFormatPreference? = nil,
         defaultRatingScale: Int? = nil,
         allowHalfStars: Bool? = nil,
-        showAdultContent: Bool? = nil,
         emailNotifications: Bool? = nil
     ) {
         self.theme = theme
@@ -72,7 +68,6 @@ public struct SettingsUpdateRequest: Encodable, Sendable {
         self.dateFormat = dateFormat
         self.defaultRatingScale = defaultRatingScale
         self.allowHalfStars = allowHalfStars
-        self.showAdultContent = showAdultContent
         self.emailNotifications = emailNotifications
     }
 }

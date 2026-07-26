@@ -9,15 +9,32 @@ public final class SessionController: ObservableObject {
     @Published public private(set) var isRestoringSession = true
 
     private let auth: AuthService
+    private var expiryObserver: NSObjectProtocol?
 
     public init(auth: AuthService) {
         self.auth = auth
+        expiryObserver = NotificationCenter.default.addObserver(
+            forName: .filmJournalSessionExpired,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.currentUser = nil
+            }
+        }
+    }
+
+    deinit {
+        if let expiryObserver {
+            NotificationCenter.default.removeObserver(expiryObserver)
+        }
     }
 
     public var isAuthenticated: Bool { currentUser != nil }
 
-    /// Chamado na abertura do app: o cookie de sessão persiste em disco (`HTTPCookieStorage`),
-    /// então uma sessão válida sobrevive a um relançamento do app sem precisar logar de novo.
+    /// Chamado na abertura do app: os tokens JWT vivem no Keychain (`TokenStore`), então uma
+    /// sessão válida sobrevive a um relançamento do app sem precisar logar de novo — o
+    /// `APIClient` renova o access token via refresh token automaticamente se preciso.
     public func restoreSession() async {
         isRestoringSession = true
         currentUser = try? await auth.currentUser()
@@ -29,7 +46,7 @@ public final class SessionController: ObservableObject {
     }
 
     @discardableResult
-    public func register(_ request: RegisterRequest) async throws -> RegisterResponse {
+    public func register(_ request: RegisterRequest) async throws -> User {
         try await auth.register(request)
     }
 

@@ -12,7 +12,7 @@ struct ImportLetterboxdView: View {
         FJScreen("Importar") {
         Form {
             Section {
-                Text("Selecione o arquivo .zip exportado do Letterboxd (Settings → Import & Export → Export Data) para importar seu histórico de filmes.")
+                Text("Selecione o arquivo .zip exportado do Letterboxd (Settings → Import & Export → Export Data), ou os CSVs soltos de dentro dele (diary.csv, reviews.csv, ratings.csv, watched.csv, watchlist.csv, profile.csv, films.csv) para importar seu histórico de filmes.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -22,7 +22,7 @@ struct ImportLetterboxdView: View {
                     isPickingFile = true
                 } label: {
                     HStack {
-                        Text("Escolher arquivo .zip")
+                        Text("Escolher arquivo(s)")
                         if viewModel.isImporting {
                             Spacer()
                             ProgressView()
@@ -51,10 +51,14 @@ struct ImportLetterboxdView: View {
             }
         }
         }
-        .fileImporter(isPresented: $isPickingFile, allowedContentTypes: [.zip]) { result in
+        .fileImporter(
+            isPresented: $isPickingFile,
+            allowedContentTypes: [.zip, .commaSeparatedText],
+            allowsMultipleSelection: true
+        ) { result in
             switch result {
-            case .success(let url):
-                Task { await viewModel.importFile(from: url, api: api) }
+            case .success(let urls):
+                Task { await viewModel.importFiles(urls, api: api) }
             case .failure(let error):
                 viewModel.errorMessage = error.localizedDescription
             }

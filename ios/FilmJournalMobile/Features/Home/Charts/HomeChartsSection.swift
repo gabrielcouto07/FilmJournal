@@ -4,9 +4,8 @@ import DesignKit
 
 /// Espelha `TasteDashboard.tsx` do web (a parte de gráficos) — renderizado ao final da Home.
 ///
-/// Os dados vêm de `ChartsAnalytics.compute(from:)` (Kit), calculado no cliente a partir do
-/// diário (`GET /api/logs`), já que a API mobile ainda não tem um endpoint de estatísticas
-/// dedicado como o web.
+/// Os dados vêm de `ChartsAnalytics.compute(palate:stats:timeline:)` (Kit), que só remonta as
+/// respostas de `/palate`, `/stats` e `/timeline` — o cálculo em si acontece no servidor.
 ///
 /// Gráficos com rótulos curtos e altura fixa (décadas/duração, radar/notas, as duas linhas de
 /// evolução) ficam lado a lado em grade de 2 colunas para reduzir o quanto é preciso rolar;

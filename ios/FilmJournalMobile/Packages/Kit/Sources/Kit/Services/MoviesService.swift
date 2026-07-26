@@ -1,6 +1,6 @@
 import Foundation
 
-/// `/api/movies*` — catálogo local (já mesclado com o estado do usuário) e mutações de coleção.
+/// `/movies*` — catálogo local (já mesclado com o estado do usuário) e mutações de coleção.
 public final class MoviesService {
     private let client: APIClient
 
@@ -10,7 +10,7 @@ public final class MoviesService {
 
     /// Busca no catálogo local por título, ou lista a watchlist do usuário.
     public func list(query: String = "", watchlistOnly: Bool = false, limit: Int = 40) async throws -> [Movie] {
-        let response: MoviesListResponse = try await client.request(.get, "/api/movies", query: [
+        let response: MoviesListResponse = try await client.request(.get, "/movies", query: [
             "q": query.isEmpty ? nil : query,
             "watchlist": watchlistOnly ? "true" : nil,
             "limit": String(limit),
@@ -18,21 +18,26 @@ public final class MoviesService {
         return response.movies
     }
 
+    /// Filme + histórico completo de sessões — sem o limite de 200 registros de `GET /logs`.
+    public func detail(id: String) async throws -> MovieDetailResponse {
+        try await client.request(.get, "/movies/\(id)")
+    }
+
     /// Adiciona um filme ao catálogo/coleção a partir do `tmdbId` (busca metadados no TMDB).
     public func add(tmdbId: Int, watchlist: Bool? = nil) async throws -> MovieUpsertResponse {
-        try await client.request(.post, "/api/movies", body: AddMovieRequest(tmdbId: tmdbId, watchlist: watchlist))
+        try await client.request(.post, "/movies", body: AddMovieRequest(tmdbId: tmdbId, watchlist: watchlist))
     }
 
     /// Aplica uma ação de coleção (watchlist, favorito, Top 10, nota, arte alternativa).
     public func mutate(movieId: String, action: MovieCollectionAction) async throws -> MovieMutationResponse {
-        try await client.request(.patch, "/api/movies", body: MovieMutationRequest.from(movieId: movieId, action: action))
+        try await client.request(.patch, "/movies", body: MovieMutationRequest.from(movieId: movieId, action: action))
     }
 
     /// Resolve/atualiza o pôster de um filme (via `movieId` já salvo ou `title` livre).
     public func resolveArtwork(movieId: String? = nil, title: String? = nil) async throws -> String? {
         struct Request: Encodable { var movieId: String?; var title: String? }
         struct Response: Decodable { let posterUrl: String? }
-        let response: Response = try await client.request(.post, "/api/movies/artwork", body: Request(movieId: movieId, title: title))
+        let response: Response = try await client.request(.post, "/movies/artwork", body: Request(movieId: movieId, title: title))
         return response.posterUrl
     }
 
@@ -40,7 +45,7 @@ public final class MoviesService {
     public func enrich(movieIds: [String]? = nil, limit: Int? = nil) async throws -> (enriched: Int, requested: Int) {
         struct Request: Encodable { var movieIds: [String]?; var limit: Int? }
         struct Response: Decodable { let enriched: Int; let requested: Int }
-        let response: Response = try await client.request(.post, "/api/movies/enrich", body: Request(movieIds: movieIds, limit: limit))
+        let response: Response = try await client.request(.post, "/movies/enrich", body: Request(movieIds: movieIds, limit: limit))
         return (response.enriched, response.requested)
     }
 }

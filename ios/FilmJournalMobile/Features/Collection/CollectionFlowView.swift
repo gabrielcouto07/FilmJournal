@@ -11,6 +11,8 @@ struct CollectionFlowView: View {
             switch route {
             case .filmDetail(let target):
                 FilmDetailView(target: target)
+            case .listDetail(let id, let name):
+                ListDetailView(listId: id, listName: name)
             }
         }
     }

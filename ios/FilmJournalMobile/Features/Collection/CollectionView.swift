@@ -35,7 +35,9 @@ struct CollectionView: View {
 
     @ViewBuilder
     private var content: some View {
-        if viewModel.isLoading && viewModel.movies.isEmpty {
+        if selectedTab == .lists {
+            ListsHubView()
+        } else if viewModel.isLoading && viewModel.movies.isEmpty {
             LoadingStateView(message: "Carregando…")
         } else if let errorMessage = viewModel.errorMessage, viewModel.movies.isEmpty {
             ErrorStateView(message: errorMessage) {
@@ -50,6 +52,29 @@ struct CollectionView: View {
                 )
                 .frame(minHeight: 400)
             }
+            .refreshable {
+                await viewModel.load(tab: selectedTab, api: api)
+            }
+        } else if selectedTab == .top10 {
+            List {
+                ForEach(viewModel.movies) { movie in
+                    Top10Row(
+                        movie: movie,
+                        isMutating: viewModel.mutatingMovieId == movie.id,
+                        canMoveUp: (movie.favoriteRank ?? 1) > 1,
+                        canMoveDown: (movie.favoriteRank ?? viewModel.movies.count) < viewModel.movies.count
+                    ) {
+                        root.collectionRouter.push(.filmDetail(.local(movie)))
+                    } onMoveUp: {
+                        Task { await viewModel.moveRank(movie, direction: -1, api: api) }
+                    } onMoveDown: {
+                        Task { await viewModel.moveRank(movie, direction: 1, api: api) }
+                    } onRemove: {
+                        Task { await viewModel.remove(movie, from: selectedTab, api: api) }
+                    }
+                }
+            }
+            .listStyle(.plain)
             .refreshable {
                 await viewModel.load(tab: selectedTab, api: api)
             }
@@ -80,6 +105,7 @@ struct CollectionView: View {
         case .favorites: return "Favoritos"
         case .top10: return "Top 10"
         case .watchlist: return "Assistir depois"
+        case .lists: return "Listas"
         }
     }
 
@@ -88,6 +114,7 @@ struct CollectionView: View {
         case .favorites: return "heart"
         case .top10: return "star"
         case .watchlist: return "bookmark"
+        case .lists: return "rectangle.stack"
         }
     }
 
@@ -96,6 +123,7 @@ struct CollectionView: View {
         case .favorites: return "Marque filmes como favoritos na ficha do filme para vê-los aqui."
         case .top10: return "Escolha até 10 filmes favoritos na ficha do filme para montar seu Top 10."
         case .watchlist: return "Adicione filmes à sua watchlist na ficha do filme para vê-los aqui."
+        case .lists: return "Crie listas para organizar seus filmes do seu jeito."
         }
     }
 }
@@ -137,5 +165,64 @@ private struct MovieCell: View {
         }
         .buttonStyle(.plain)
         .disabled(isRemoving)
+    }
+}
+
+/// Linha do Top 10 com promote/demote (`favoriteRank`) — espelha as setas do `FavoritesManager`
+/// do web, que trocam de posição com quem ocupa o rank vizinho.
+private struct Top10Row: View {
+    let movie: Movie
+    let isMutating: Bool
+    let canMoveUp: Bool
+    let canMoveDown: Bool
+    let onTap: () -> Void
+    let onMoveUp: () -> Void
+    let onMoveDown: () -> Void
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack(spacing: Spacing.md) {
+            Text("\(movie.favoriteRank ?? 0)")
+                .font(.title3.bold())
+                .foregroundStyle(.secondary)
+                .frame(width: 28)
+
+            Button(action: onTap) {
+                HStack(spacing: Spacing.md) {
+                    RemotePosterImage(path: movie.effectivePosterPath, size: .posterSmall)
+                        .frame(width: 44, height: 66)
+                        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.small))
+                    Text(movie.title)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
+                }
+            }
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            if isMutating {
+                ProgressView()
+            } else {
+                VStack(spacing: Spacing.xs) {
+                    Button(action: onMoveUp) {
+                        Image(systemName: "chevron.up")
+                    }
+                    .disabled(!canMoveUp)
+                    Button(action: onMoveDown) {
+                        Image(systemName: "chevron.down")
+                    }
+                    .disabled(!canMoveDown)
+                }
+                .buttonStyle(.borderless)
+
+                Button(action: onRemove) {
+                    Image(systemName: "xmark.circle")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+        .padding(.vertical, Spacing.xs)
     }
 }

@@ -49,9 +49,16 @@ public struct Movie: Decodable, Sendable, Identifiable, Equatable, Hashable {
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
-/// Resposta de `GET /api/movies`.
+/// Resposta de `GET /movies`.
 public struct MoviesListResponse: Decodable, Sendable {
     public let movies: [Movie]
+}
+
+/// Resposta de `GET /movies/:id` — o filme mesclado com todo o histórico de sessões (sem o
+/// limite de 200 registros de `GET /logs`).
+public struct MovieDetailResponse: Decodable, Sendable {
+    public let movie: Movie
+    public let logs: [LogEntry]
 }
 
 /// Resposta de `POST /api/movies` (adicionar filme via `tmdbId`).

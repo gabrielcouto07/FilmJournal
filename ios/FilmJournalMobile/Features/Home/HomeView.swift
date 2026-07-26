@@ -56,13 +56,27 @@ struct HomeView: View {
                     if taste.profile.ratedFilms < 5 {
                         onboardingCTA
                     }
+                    if let verdict = viewModel.verdict {
+                        verdictHeader(verdict)
+                    }
                     profileHeader(taste.profile)
+
+                    if let sentence = viewModel.motifs?.sentence {
+                        Text(sentence)
+                            .font(.footnote)
+                            .italic()
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, Spacing.md)
+                    }
 
                     if !taste.becauseYouLoved.isEmpty {
                         recommendationSection(title: "Porque você amou...", items: taste.becauseYouLoved)
                     }
                     if !taste.directors.isEmpty {
                         directorsSection(taste.directors)
+                    }
+                    if !viewModel.directors.isEmpty {
+                        directorLoyaltySection(viewModel.directors)
                     }
                     if !taste.genreDiscovery.isEmpty {
                         recommendationSection(title: taste.genreDiscoveryLabel, items: taste.genreDiscovery)
@@ -110,6 +124,39 @@ struct HomeView: View {
         }
         .buttonStyle(.plain)
         .padding(.horizontal, Spacing.md)
+    }
+
+    @ViewBuilder
+    private func verdictHeader(_ verdict: Verdict) -> some View {
+        if let headline = verdict.headline {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(headline)
+                    .font(.title2.bold())
+                if let sentence = verdict.sentence {
+                    Text(sentence)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, Spacing.md)
+        }
+    }
+
+    private func directorLoyaltySection(_ directors: [DirectorLoyalty]) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text("Diretores mais vistos").font(.title3.bold()).padding(.horizontal, Spacing.md)
+            VStack(spacing: Spacing.xs) {
+                ForEach(directors.prefix(5)) { director in
+                    HStack {
+                        Text(director.name).font(.subheadline)
+                        Spacer()
+                        Text("\(director.count) filmes").font(.caption).foregroundStyle(.secondary)
+                        RatingStarsView(rating: director.averageRating)
+                    }
+                    .padding(.horizontal, Spacing.md)
+                }
+            }
+        }
     }
 
     private func profileHeader(_ profile: TasteProfile) -> some View {

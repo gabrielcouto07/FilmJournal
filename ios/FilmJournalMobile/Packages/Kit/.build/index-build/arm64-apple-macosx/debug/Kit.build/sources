@@ -3,9 +3,12 @@
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/FilmJournalAPI.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Auth.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Common.swift
+/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Dashboard.swift
+/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Diary.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Discover.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/GameScore.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Import.swift
+/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Lists.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/LogEntry.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Movie.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Models/Play.swift
@@ -18,10 +21,13 @@
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Networking/APIError.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Networking/HTTPMethod.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Networking/JSONCoding.swift
+/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Networking/TokenStore.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/AccountService.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/AuthService.swift
+/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/DashboardService.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/DiscoverService.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/ImportService.swift
+/Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/ListsService.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/LogsService.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/MoviesService.swift
 /Users/1784dtidigital/Documents/dev/pessoal-projects/FilmJournal/ios/FilmJournalMobile/Packages/Kit/Sources/Kit/Services/OnboardingService.swift

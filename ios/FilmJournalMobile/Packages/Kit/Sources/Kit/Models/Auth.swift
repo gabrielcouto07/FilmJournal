@@ -14,11 +14,6 @@ public struct RegisterRequest: Encodable, Sendable {
     }
 }
 
-public struct RegisterResponse: Decodable, Sendable {
-    public let id: String
-    public let username: String
-}
-
 public struct DeleteAccountRequest: Encodable, Sendable {
     public let confirm: String
     public let currentPassword: String
