@@ -1,6 +1,13 @@
 # Sistema
 .DS_Store
 
+# Xcode / Swift Package Manager — artefatos de build, nunca versionar
+ios/**/.build/
+ios/**/DerivedData/
+ios/**/xcuserdata/
+ios/**/Pods/
+ios/**/*.xcuserstate
+
 # Ferramentas locais de desenvolvimento — nunca versionar
 .claude/
 .codex/
