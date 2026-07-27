@@ -12,12 +12,10 @@ import { MIN_RATED_FOR_VERDICT, type Verdict } from "@/lib/analytics/verdict";
 
 export const metadata = { title: "Paladar cinematográfico · FilmJournal" };
 
-/** A página começa pelo perfil de gosto e deixa os detalhes para a rolagem. */
 export default async function HomePage() {
   const session = await getSessionUser();
-  // Visitantes veem a página pública; o diário continua privado.
+  // Visitante nunca vê o diário: cai na página pública.
   if (!session) return <PublicOverview />;
-  // Contas novas passam pela introdução antes de ver um perfil vazio.
   const { onboarded } = await apiGet<{ onboarded: boolean }>("/profile");
   if (!onboarded) redirect("/welcome");
   return <TasteFirstHome />;
@@ -55,7 +53,6 @@ async function TasteFirstHome() {
     <main className="page-shell space-y-12">
       <BackgroundEnrich />
 
-      {/* Resumo principal do perfil */}
       <section className="fade-up surface relative overflow-hidden rounded-[2rem] p-7 sm:p-12 lg:p-16">
         <div className="glass-gradient absolute inset-0 -z-10" />
         <p className="eyebrow">Seu paladar · O veredito</p>
@@ -92,7 +89,6 @@ async function TasteFirstHome() {
         )}
       </section>
 
-      {/* Detalhes do Paladar */}
       <div id="analises" className="fade-up fade-up-2 scroll-mt-24">
         <TasteDashboard palate={palate} stats={stats} timeline={timeline} motifs={motifs} />
       </div>

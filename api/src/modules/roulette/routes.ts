@@ -91,7 +91,6 @@ export default async function rouletteRoutes(fastify: FastifyInstance) {
   fastify.get<{ Querystring: RouletteDiscoverQuery }>("/roulette/discover", async (request, reply) => {
     const query = request.query;
 
-    // Detalhes completos do filme sorteado.
     const movieIdParam = Number(query.movieId);
     if (Number.isInteger(movieIdParam) && movieIdParam > 0) {
       try {
@@ -114,7 +113,6 @@ export default async function rouletteRoutes(fastify: FastifyInstance) {
       }
     }
 
-    // Monta uma amostra embaralhada com `count` filmes.
     const source = query.source ?? "popular";
     const genres = (query.genres ?? "").split(",").map((g) => g.trim()).filter(Boolean);
     const people = (query.people ?? "").split(",").map((p) => p.trim()).filter(Boolean);
@@ -124,7 +122,6 @@ export default async function rouletteRoutes(fastify: FastifyInstance) {
     const requestedCount = Number(query.count);
     const count = ALLOWED_COUNTS.includes(requestedCount) ? requestedCount : 8;
 
-    // Fontes pessoais exigem uma sessão ativa.
     if (source === "watchlist" || source === "blindspots") {
       const user = request.user;
       if (!user) return reply.status(401).send({ error: "Faça login para usar esta fonte." });
@@ -152,7 +149,6 @@ export default async function rouletteRoutes(fastify: FastifyInstance) {
           return reply.send({ movies: pool, totalResults: pool.length });
         }
 
-        // Na lista para assistir, o sorteio usa os filmes salvos pelo usuário.
         const genreIds = genres.map(Number).filter((id) => Number.isInteger(id) && id > 0);
         const rows = await prisma.userMovie.findMany({
           where: { userId: user.id, watchlist: true, movie: { tmdbId: { not: null } } },
@@ -197,7 +193,7 @@ export default async function rouletteRoutes(fastify: FastifyInstance) {
       "vote_count.gte": "50",
     };
     if (genres.length) discoverParams.with_genres = genres.join(",");
-    if (people.length) discoverParams.with_people = people.join("|"); // OR across cast + crew
+    if (people.length) discoverParams.with_people = people.join("|"); // OR entre elenco e equipe
     if (Number.isInteger(yearFrom) && yearFrom > 1800) discoverParams["primary_release_date.gte"] = `${yearFrom}-01-01`;
     if (Number.isInteger(yearTo) && yearTo > 1800) discoverParams["primary_release_date.lte"] = `${yearTo}-12-31`;
     if (Number.isInteger(runtimeMax) && runtimeMax > 0) discoverParams["with_runtime.lte"] = String(runtimeMax);

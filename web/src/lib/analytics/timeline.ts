@@ -1,32 +1,23 @@
-/** Calcula a evolução do gosto a partir do diário. */
-
 import { MIN_CROWD_VOTES, mean, normalizeCrowdRating, round } from "./palate";
 
-/** Mínimo de sessões nos dois anos comparados. */
+/** Os dois anos comparados precisam ter no mínimo isto para virar insight. */
 export const MIN_YEAR_SESSIONS = 3;
-/** Quantos gêneros aparecem no gráfico de evolução. */
 export const TOP_GENRES = 5;
 
-/** Evento do diário no formato usado pelas análises. */
 export type TimelineEntry = {
   watchedAt: Date | null;
   loggedAt: Date | null;
-  /** Nota do usuário ou `null`. */
   userRating: number | null;
-  /** Ano de lançamento ou `null`. */
   filmYear: number | null;
-  /** Nota do TMDB entre 0 e 10. */
   crowdRating: number | null;
-  /** Quantidade de votos no TMDB. */
   crowdVotes: number | null;
-  /** Gêneros do TMDB. */
   genres: string[];
 };
 
 export type GenreShare = {
   genre: string;
   count: number;
-  /** Participação do gênero entre os filmes daquele ano. */
+  /** Fração de 0 a 1 sobre os filmes do ano que têm gênero informado. */
   share: number;
 };
 
@@ -34,27 +25,21 @@ export type TimelineYear = {
   year: number;
   sessions: number;
   ratedCount: number;
-  /** Nota média do usuário no ano. */
   averageRating: number | null;
-  /** Diferença média para o público na escala de 0 a 5. */
+  /** Diferença média para o público, na escala de 0 a 5. */
   tasteLean: number | null;
   leanSampleSize: number;
-  /** Ano médio de lançamento dos filmes vistos. */
   averageFilmYear: number | null;
-  /** Participação dos gêneros, do mais visto para o menos visto. */
   genreShares: GenreShare[];
 };
 
 export type TimelineInsight = { year: number; sentences: string[] };
 
 export type Timeline = {
-  /** Anos em ordem crescente, apenas com registros datados. */
+  /** Ordem crescente e só com registros datados. */
   years: TimelineYear[];
-  /** Principais gêneros de todo o diário. */
   topGenres: string[];
-  /** Observações geradas para anos com mudanças relevantes. */
   insights: TimelineInsight[];
-  /** Total de eventos datados. */
   sampleSize: number;
 };
 
@@ -62,7 +47,6 @@ function entryDate(entry: TimelineEntry): Date | null {
   return entry.watchedAt ?? entry.loggedAt;
 }
 
-/** Agrupa o diário por ano e resume os sinais de gosto. */
 export function computeTimelineYears(entries: TimelineEntry[]): TimelineYear[] {
   const byYear = new Map<number, TimelineEntry[]>();
   for (const entry of entries) {
@@ -106,7 +90,6 @@ export function computeTimelineYears(entries: TimelineEntry[]): TimelineYear[] {
     });
 }
 
-/** Principais gêneros entre todos os registros datados. */
 export function computeTopGenres(entries: TimelineEntry[], limit = TOP_GENRES): string[] {
   const counts = new Map<string, number>();
   for (const entry of entries) {
@@ -124,7 +107,7 @@ export function computeTopGenres(entries: TimelineEntry[], limit = TOP_GENRES): 
 
 type InsightCandidate = { score: number; sentence: string };
 
-/** Compara anos vizinhos e descreve as mudanças mais fortes quando há dados suficientes. */
+/** Compara cada ano com o anterior e guarda só as mudanças mais fortes. */
 export function computeInsights(years: TimelineYear[]): TimelineInsight[] {
   const insights: TimelineInsight[] = [];
 
@@ -135,7 +118,6 @@ export function computeInsights(years: TimelineYear[]): TimelineInsight[] {
 
     const candidates: InsightCandidate[] = [];
 
-    // Gênero cuja participação mais mudou.
     if (prev.genreShares.length && curr.genreShares.length) {
       const prevShares = new Map(prev.genreShares.map((item) => [item.genre, item.share]));
       const currShares = new Map(curr.genreShares.map((item) => [item.genre, item.share]));
@@ -156,7 +138,6 @@ export function computeInsights(years: TimelineYear[]): TimelineInsight[] {
       }
     }
 
-    // Mudança na época dos filmes vistos.
     if (prev.averageFilmYear != null && curr.averageFilmYear != null) {
       const delta = curr.averageFilmYear - prev.averageFilmYear;
       if (Math.abs(delta) >= 5) {
@@ -169,7 +150,6 @@ export function computeInsights(years: TimelineYear[]): TimelineInsight[] {
       }
     }
 
-    // Mudança na generosidade das notas.
     if (prev.averageRating != null && curr.averageRating != null) {
       const delta = curr.averageRating - prev.averageRating;
       if (Math.abs(delta) >= 0.25) {
@@ -182,7 +162,6 @@ export function computeInsights(years: TimelineYear[]): TimelineInsight[] {
       }
     }
 
-    // Mudança na distância para o público.
     if (prev.tasteLean != null && curr.tasteLean != null) {
       const delta = curr.tasteLean - prev.tasteLean;
       if (Math.abs(delta) >= 0.2) {
@@ -207,7 +186,6 @@ export function computeInsights(years: TimelineYear[]): TimelineInsight[] {
   return insights;
 }
 
-/** Calcula toda a evolução do gosto em uma chamada. */
 export function computeTimeline(entries: TimelineEntry[]): Timeline {
   const years = computeTimelineYears(entries);
   return {

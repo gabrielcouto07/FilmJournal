@@ -1,8 +1,6 @@
 import SwiftUI
 import DesignKit
 
-/// Envelope visual dos gráficos da Home — espelha `Card` em `TasteDashboard.tsx` do web
-/// (eyebrow dourado + título + conteúdo, sobre um "surface" translúcido).
 struct ChartCard<Content: View>: View {
     let eyebrow: String
     let heading: String
@@ -34,10 +32,8 @@ struct ChartCard<Content: View>: View {
             Spacer(minLength: 0)
         }
         .padding(Spacing.md)
-        // Quando dois cards dividem uma `HStack` (ver `HomeChartsSection`), o mais curto estica
-        // até a altura do mais alto em vez de deixar as caixas com tamanhos diferentes; fora de
-        // uma `HStack` (cards em largura cheia) isto não tem efeito, já que o `ScrollView` propõe
-        // altura livre e cada card fica do tamanho do seu próprio conteúdo.
+        // `maxHeight` faz dois cards lado a lado numa `HStack` ficarem da mesma altura;
+        // em largura cheia não muda nada, o `ScrollView` já propõe altura livre.
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Color.fjSurface2)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
@@ -48,7 +44,6 @@ struct ChartCard<Content: View>: View {
     }
 }
 
-/// Espelha `Insufficient` do web — placeholder para gráficos sem dados suficientes.
 struct InsufficientDataView: View {
     var message = "Dados insuficientes ainda."
 

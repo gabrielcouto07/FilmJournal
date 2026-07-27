@@ -13,7 +13,6 @@ const TABS: Array<{ id: CollectionTab; label: string }> = [
   { id: "assistir", label: "▸ Para assistir" },
 ];
 
-// Reúne favoritos e a fila para assistir em uma única página com abas.
 export default function CollectionHub({
   favorites,
   watchlist,

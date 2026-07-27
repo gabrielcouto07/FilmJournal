@@ -3,10 +3,7 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Diário — sessões (`DiaryEntry`) já registradas pelo usuário, com busca, filtros, ordenação e
-/// 3 modos de visualização (lista/pôsteres/calendário). Espelha
-/// `web/src/components/DiaryExplorer.tsx`. O registro de uma *nova* sessão continua acontecendo
-/// de dentro de `FilmDetailView` (botão "+"); aqui só editamos/excluímos sessões existentes.
+/// Só edita/exclui sessões existentes; registrar uma nova é pela ficha do filme.
 struct DiaryView: View {
     @Environment(\.filmJournalAPI) private var api
     @EnvironmentObject private var root: RootCoordinator
@@ -232,8 +229,6 @@ private struct DiaryEntryRow: View {
     }
 }
 
-/// Grade simples de 7 colunas por mês — cada dia com sessão mostra a capa do primeiro filme
-/// assistido naquele dia (um indicador de contagem aparece quando há mais de um).
 private struct DiaryMonthCalendar: View {
     let group: DiaryViewModel.MonthGroup
     let onSelect: (DiaryEntry) -> Void

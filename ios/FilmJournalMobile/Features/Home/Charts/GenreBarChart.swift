@@ -3,9 +3,6 @@ import Charts
 import Kit
 import DesignKit
 
-/// Versão em barras horizontais da distribuição de gêneros — mesma base de dados do
-/// `GenreRadar` do web (`computeGenres`), mas sem exigir desenho customizado. Ver
-/// `GenreRadarChart.swift` para a versão fiel ao radar do web (mais pesada, comentada por padrão).
 struct GenreBarChart: View {
     let data: [GenreCount]
 

@@ -1,9 +1,5 @@
 import Foundation
 
-/// Espelha `api/src/lib/dashboard-data.ts`/`analytics/{palate,timeline,motifs,verdict}.ts` —
-/// os mesmos dados que alimentam `TasteDashboard.tsx` no web, computados no servidor (nada
-/// disso é recalculado no cliente, ao contrário do que a Home fazia antes com `ChartsAnalytics`).
-
 // MARK: - /stats
 
 public struct StatsRatingBucket: Decodable, Sendable, Equatable {

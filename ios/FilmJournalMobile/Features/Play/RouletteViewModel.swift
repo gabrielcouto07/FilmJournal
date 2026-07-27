@@ -1,9 +1,7 @@
 import Foundation
 import Kit
 
-/// Sorteio de filme com filtros persistidos. Diferente do jogo, a Roleta não guarda um "estado
-/// de rodada" no servidor: cada "girada" busca um pool inteiro (`pool.movies`) e a experiência de
-/// "sortear outro" apenas avança localmente pela lista já carregada, sem nova chamada de rede.
+// Cada girada busca um pool inteiro; "sortear outro" só avança na lista local, sem ida à rede.
 @MainActor
 final class RouletteViewModel: ObservableObject {
     @Published var source: RouletteSource = .popular
@@ -71,7 +69,7 @@ final class RouletteViewModel: ObservableObject {
         do {
             peopleSuggestions = try await api.roulette.people(query: trimmed)
         } catch is CancellationError {
-            // Busca anterior cancelada pelo debounce.
+            // Cancelamento do debounce não é erro.
         } catch {
             peopleSuggestions = []
         }
@@ -86,9 +84,8 @@ final class RouletteViewModel: ObservableObject {
         peopleSuggestions = []
     }
 
-    /// `RoulettePerson` (tipo do Kit) só expõe `init(from: Decoder)` fora do módulo — não há
-    /// inicializador memberwise público. Contornamos isso decodificando um JSON equivalente em
-    /// vez de tentar chamar um `init` que não existe publicamente.
+    // `RoulettePerson` não tem init memberwise público, só `init(from: Decoder)` — daí a volta
+    // pelo JSON para montar um.
     private static func decodeRoulettePerson(id: Int, name: String) -> RoulettePerson? {
         guard let data = try? JSONSerialization.data(withJSONObject: ["id": id, "name": name]) else { return nil }
         return try? JSONDecoder().decode(RoulettePerson.self, from: data)

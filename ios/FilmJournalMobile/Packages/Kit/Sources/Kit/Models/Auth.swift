@@ -46,7 +46,7 @@ public struct ChangePasswordRequest: Encodable, Sendable {
 
 public struct ChangePasswordResponse: Decodable, Sendable {
     public let message: String?
-    /// E-mail mascarado (ex.: `"ga••••@dominio.com"`) para onde o código de confirmação foi enviado.
+    /// Já vem mascarado pelo backend (ex.: `"ga••••@dominio.com"`).
     public let email: String?
 }
 

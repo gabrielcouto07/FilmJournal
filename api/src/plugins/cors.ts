@@ -5,8 +5,8 @@ import { env } from "../config/env.js";
 
 const allowed = env.CORS_ORIGIN.split(",").map((origin) => origin.trim()).filter(Boolean);
 
-// Em desenvolvimento o Next pode trocar de porta (3000 ocupada → 3001);
-// aceitar qualquer localhost evita o navegador cair em "Failed to fetch".
+// Em dev o front pode trocar de porta (3000 ocupada → 3001); aceitar qualquer
+// localhost evita o navegador cair em "Failed to fetch".
 const LOCALHOST = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
 export default fp(async (fastify: FastifyInstance) => {

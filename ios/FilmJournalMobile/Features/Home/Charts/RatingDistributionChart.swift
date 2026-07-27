@@ -2,8 +2,6 @@ import SwiftUI
 import Kit
 import DesignKit
 
-/// Espelha a "Distribuição de notas" em `TasteDashboard.tsx` — o web usa barras de progresso
-/// simples (não Recharts) para esta seção, então reproduzimos o mesmo desenho aqui.
 struct RatingDistributionChart: View {
     let data: [RatingBucket]
 

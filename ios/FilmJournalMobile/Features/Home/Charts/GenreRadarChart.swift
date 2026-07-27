@@ -2,11 +2,7 @@ import SwiftUI
 import Kit
 import DesignKit
 
-/// Espelha `GenreRadar` em `PalateCharts.tsx` — o Swift Charts framework não tem um tipo de
-/// radar/polar nativo, então este é um desenho customizado via `Canvas`.
-///
-/// Mais pesado que os outros gráficos (matemática de polígono à mão); seu uso na Home fica
-/// comentado por padrão em `HomeChartsSection.swift` — descomente lá para testar.
+// Swift Charts não tem gráfico polar, então o radar é desenhado à mão no `Canvas`.
 struct GenreRadarChart: View {
     let data: [GenreCount]
 
@@ -61,8 +57,7 @@ struct GenreRadarChart: View {
                     )
                 }
             }
-            // Quadrado que acompanha a largura disponível — evita sobrar espaço vertical quando
-            // o gráfico divide a linha com outro card (a largura, não uma altura fixa, manda).
+            // Quadrado pela largura disponível, não por altura fixa: evita sobra vertical no card.
             .aspectRatio(1, contentMode: .fit)
         }
     }

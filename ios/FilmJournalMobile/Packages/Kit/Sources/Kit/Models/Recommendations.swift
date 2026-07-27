@@ -1,6 +1,5 @@
 import Foundation
 
-/// Espelha os tipos de `src/lib/recommendations.ts` — a home "Paladar" e a tela Descobrir.
 public struct ExistingRecommendationMovie: Decodable, Sendable, Equatable {
     public let id: String
     public let watchlist: Bool
@@ -58,7 +57,6 @@ public struct TasteProfile: Decodable, Sendable, Equatable {
     public let topGenres: [TasteGenreStat]
 }
 
-/// Resposta de `GET /api/recommendations`.
 public struct TasteData: Decodable, Sendable {
     public let generatedAt: String
     public let cacheTtlHours: Int

@@ -3,8 +3,6 @@ import Charts
 import Kit
 import DesignKit
 
-/// Espelha "Ritmo de visualização" em `TasteDashboard.tsx` — sessões do diário por mês,
-/// nos últimos 18 meses com registro.
 struct MonthlyActivityChart: View {
     let data: [MonthBucket]
 

@@ -2,10 +2,7 @@ import Foundation
 import Kit
 import CoordinatorKit
 
-/// Limitação real da API (`GET /api/movies`): só existe filtro server-side para `watchlist`
-/// (`watchlistOnly: true`, já ordenado por data de adição). Não há filtro server-side para
-/// "só favoritos" ou "só Top 10" — por isso essas duas abas buscam o catálogo inteiro (paginado
-/// em até 200 itens) e filtram no cliente. Não é um bug, é como a API foi desenhada hoje.
+// A API só filtra `watchlist` no servidor; favoritos e Top 10 puxam o catálogo e filtram no cliente.
 @MainActor
 final class CollectionViewModel: ObservableObject {
     @Published private(set) var movies: [Movie] = []
@@ -30,8 +27,7 @@ final class CollectionViewModel: ObservableObject {
                     .filter { $0.favoriteRank != nil }
                     .sorted { ($0.favoriteRank ?? Int.max) < ($1.favoriteRank ?? Int.max) }
             case .lists:
-                // Listas custom têm sua própria fonte de dados (`ListsHubViewModel`) — nada a
-                // carregar aqui.
+                // Listas custom carregam pelo `ListsHubViewModel`.
                 break
             }
         } catch {
@@ -39,8 +35,6 @@ final class CollectionViewModel: ObservableObject {
         }
     }
 
-    /// Remove o filme da aba atual (otimista) — atualiza o item com o `Movie` retornado quando
-    /// possível, ou simplesmente o retira da lista local.
     func remove(_ movie: Movie, from tab: CollectionTab, api: FilmJournalAPI) async {
         mutatingMovieId = movie.id
         defer { mutatingMovieId = nil }
@@ -59,9 +53,7 @@ final class CollectionViewModel: ObservableObject {
         }
     }
 
-    /// Promove/rebaixa no Top 10 (`action: "favoriteRank"`) — o backend faz uma troca (swap) com
-    /// quem ocupava a posição de destino, igual ao `FavoritesManager` do web. Como duas posições
-    /// mudam de uma vez, recarregamos a aba inteira em vez de tentar reconciliar localmente.
+    // O backend troca de posição com o vizinho, então dois itens mudam: recarrega a aba inteira.
     func moveRank(_ movie: Movie, direction: Int, api: FilmJournalAPI) async {
         guard let rank = movie.favoriteRank else { return }
         let newRank = rank + direction

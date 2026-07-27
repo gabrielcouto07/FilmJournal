@@ -2,9 +2,7 @@ import SwiftUI
 import Kit
 import DesignKit
 
-/// Resultado do formulário — sempre representa o estado completo do form (a chamada de rede,
-/// feita pelo chamador, decide o que enviar). Espelha os campos de
-/// `web/src/components/LogEditor.tsx`.
+/// Estado completo do formulário; quem chama decide o que vai pra rede.
 struct LogEditorResult {
     var rating: Double?
     var review: String?
@@ -14,9 +12,7 @@ struct LogEditorResult {
     var favorite: Bool
 }
 
-/// Formulário de sessão (registrar ou editar) — reaproveitado pela Ficha do Filme (criação) e
-/// pelo Diário (edição de uma sessão já existente). Campos: data, nota (com "Limpar"), favorito,
-/// rewatch, crítica e tags — mesmo conjunto do `LogEditor` do web.
+/// Formulário de sessão usado tanto na criação (Ficha do Filme) quanto na edição (Diário).
 struct LogEditorSheet: View {
     enum Mode {
         case create

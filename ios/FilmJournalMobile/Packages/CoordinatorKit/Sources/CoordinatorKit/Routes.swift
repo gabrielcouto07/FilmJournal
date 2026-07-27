@@ -1,15 +1,12 @@
 import Foundation
 import Kit
 
-/// Estado geral da raiz do app — decide qual "mundo" mostrar (ver `RootCoordinator`).
 public enum RootFlow: Equatable, Sendable {
     case loading
     case auth
     case main
 }
 
-/// Abas principais do app — espelham a navegação de topo do FilmJournal web
-/// (`/`, `/diary`, `/collection`, `/search`+`/discover`, `/play`, `/profile`).
 public enum AppTab: String, CaseIterable, Identifiable, Sendable {
     case home
     case diary
@@ -43,17 +40,9 @@ public enum AppTab: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-/// Referência a um filme para abrir a ficha de detalhe.
-///
-/// `.local` carrega o `Movie` já mesclado com o estado do usuário (evita um round-trip: a
-/// maioria das telas navega a partir de uma lista que já buscou o filme). `.tmdb` é usado
-/// quando só temos o `tmdbId` (ex. resultado de busca/feed do TMDB, ainda fora do catálogo) —
-/// a tela de detalhe busca os dados via `TMDBService.details(tmdbId:)` e, se o usuário agir
-/// sobre o filme (favoritar, avaliar...), ele entra no catálogo local naquele momento.
+/// `.local` já traz o `Movie` e evita um round-trip; nos outros casos a tela busca o resto.
 public enum FilmDetailTarget: Hashable, Sendable {
     case local(Movie)
-    /// Só temos o `id` local (ex. vindo de `GET /diary`, que devolve um resumo do filme, não o
-    /// `Movie` inteiro) — a tela de detalhe busca o resto via `MoviesService.detail(id:)`.
     case movieId(String)
     case tmdb(Int)
 
@@ -75,10 +64,8 @@ public enum AuthRoute: Hashable, Sendable {
 
 // MARK: - Home ("Paladar")
 
-/// Onboarding não é um fluxo separado com `Router` próprio: a API não expõe se o usuário já
-/// passou por ele (`AppSettings` não inclui `onboardedAt`), então ele é oferecido como uma ação
-/// explícita a partir da Home (ex. CTA "Complete seu Paladar") e empurrado na própria pilha
-/// da aba — por isso os dois passos (`onboardingWelcome`/`onboardingPickFavorites`) vivem aqui.
+/// O onboarding não tem `Router` próprio porque a API não expõe se o usuário já passou por ele:
+/// é um CTA da Home empurrado na pilha da própria aba.
 public enum HomeRoute: Hashable, Sendable {
     case filmDetail(FilmDetailTarget)
     case directorSpotlight(name: String)

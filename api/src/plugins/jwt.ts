@@ -25,7 +25,7 @@ declare module "fastify" {
   }
 }
 
-/** Auth stateless com JWT: access token via Bearer + refresh token, igual para web e ios. */
+/** Auth stateless: access token via Bearer + refresh token. */
 export default fp(async (fastify: FastifyInstance) => {
   fastify.decorate("signAccessToken", (user: AuthUser): string => {
     const claims: AccessTokenClaims = { ...user, type: "access" };
@@ -58,7 +58,7 @@ export default fp(async (fastify: FastifyInstance) => {
         request.user = { id: payload.id, username: payload.username, displayName: payload.displayName, role: payload.role, email: payload.email };
       }
     } catch {
-      // Invalid/expired token: leave request.user null, let route guards reject.
+      // Token inválido ou expirado: deixa request.user nulo e quem recusa é o guard da rota.
     }
   });
 });

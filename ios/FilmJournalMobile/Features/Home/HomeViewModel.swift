@@ -1,8 +1,6 @@
 import Foundation
 import Kit
 
-/// Carrega e mantém o "Paladar" — recomendações (`GET /recommendations`) e a análise de gosto
-/// (`/palate`, `/stats`, `/timeline`, `/motifs`), todos computados no servidor.
 @MainActor
 final class HomeViewModel: ObservableObject {
     @Published private(set) var taste: TasteData?

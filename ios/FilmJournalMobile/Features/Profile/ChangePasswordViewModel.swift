@@ -9,7 +9,6 @@ final class ChangePasswordViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var errorMessage: String?
     @Published var successMessage: String?
-    /// E-mail mascarado retornado pelo passo 1, ex.: "ga••••@dominio.com".
     @Published private(set) var maskedEmail: String?
 
     var canRequestChange: Bool {
@@ -20,7 +19,7 @@ final class ChangePasswordViewModel: ObservableObject {
         confirmationCode.trimmingCharacters(in: .whitespaces).count == 6
     }
 
-    /// Passo 1: envia senha atual + nova senha, dispara código de 6 dígitos por e-mail.
+    // A senha só troca depois do código de 6 dígitos; aqui só dispara o e-mail.
     func requestChange(api: FilmJournalAPI) async -> Bool {
         errorMessage = nil
         successMessage = nil
@@ -41,7 +40,6 @@ final class ChangePasswordViewModel: ObservableObject {
         }
     }
 
-    /// Passo 2: confirma o código de 6 dígitos recebido por e-mail.
     func confirmChange(api: FilmJournalAPI) async -> Bool {
         errorMessage = nil
         successMessage = nil

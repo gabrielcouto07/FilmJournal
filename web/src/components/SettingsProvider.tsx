@@ -31,17 +31,14 @@ function apply(settings: AppSettings) {
   const theme = resolveTheme(settings.theme);
   root.setAttribute("data-theme", theme);
   root.style.colorScheme = theme;
-  // Aplica a cor de destaque e suas variações em toda a interface.
   applyAccent(root, settings.accentColor);
 }
 
 export function SettingsProvider({ initialSettings, children }: { initialSettings: AppSettings; children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(initialSettings);
 
-  // Reaplica quando a preferência muda para atualizar a tela na hora.
   useEffect(() => { apply(settings); }, [settings]);
 
-  // Segue o sistema quando essa opção estiver ativa.
   useEffect(() => {
     if (settings.theme !== "system" || typeof window === "undefined" || !window.matchMedia) return;
     const media = window.matchMedia("(prefers-color-scheme: light)");

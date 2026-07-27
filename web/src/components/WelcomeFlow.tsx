@@ -36,7 +36,6 @@ const PILLARS = [
   },
 ];
 
-// Etapas: escolha inicial, pilares do perfil e seleção de favoritos.
 const SEED_STEP = PILLARS.length + 1;
 
 export default function WelcomeFlow({ displayName }: { displayName: string }) {

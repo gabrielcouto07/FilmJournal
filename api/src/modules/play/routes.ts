@@ -25,14 +25,8 @@ const MIN_CAST = 3;
 const MIN_VOTES_MINE = 100;
 const MIN_VOTES_POPULAR = 1000;
 const PICK_ATTEMPTS = 6;
-/** Páginas de `top_rated` disponíveis para o sorteio diário. */
 const DAILY_PAGES = 20;
-/**
- * Quantas páginas de "mais votados" o modo Populares amostra. Ordenando por
- * número de votos, ~15 páginas ≈ os 300 filmes mais assistidos do mundo: mistura
- * épocas (clássicos entram porque acumulam votos) e cults de grande público,
- * enquanto o piso de votos/nota corta o que quase ninguém conhece.
- */
+/** ~15 páginas de `vote_count.desc` ≈ os 300 filmes mais vistos do mundo, misturando épocas. */
 const POPULAR_PAGES = 15;
 /** Nota mínima no modo Populares — evita "famoso porém ruim", mantém os cults. */
 const MIN_RATING_POPULAR = 6;
@@ -51,7 +45,6 @@ function shufflePick<T>(items: T[]): T[] {
   return copy;
 }
 
-/** Monta o perfil do filme ou retorna `null` quando faltam pistas de elenco. */
 async function profileFor(tmdbId: number): Promise<{ profile: MovieProfile; posterPath: string | null; keywords: string[]; tagline: string | null } | null> {
   const details = await getTmdbMovie(tmdbId);
   const profile = profileFromDetails(details);
@@ -80,17 +73,15 @@ async function buildMineRound(userId: string, excludeIds: number[]): Promise<Hyb
       if (!found) continue;
       return { target: found.profile, posterPath: found.posterPath, keywords: found.keywords, tagline: found.tagline, source: "mine", exp: Date.now() + TOKEN_TTL_MS };
     } catch {
-      continue; // TMDB hiccup on this candidate — try the next one
+      continue; // falha do TMDB neste candidato; tenta o próximo
     }
   }
   return null;
 }
 
 async function buildPopularRound(excludeIds: number[]): Promise<HybridRoundPayload | null> {
-  // "Popular" = amplamente assistido em qualquer época, não só o hype do momento.
-  // `/movie/popular` do TMDB pondera lançamentos recentes; ordenar o Discover por
-  // `vote_count.desc` traz os títulos que mais gente viu no mundo (inclui antigos
-  // e cults consagrados). O piso de votos + nota mantém tudo reconhecível.
+  // "Popular" = muito assistido em qualquer época, não o hype do momento: o
+  // `/movie/popular` do TMDB pondera lançamentos, então usamos `vote_count.desc`.
   const page = 1 + Math.floor(Math.random() * POPULAR_PAGES);
   const feed = await discoverTmdbMovies({
     sort_by: "vote_count.desc",
@@ -113,7 +104,6 @@ async function buildPopularRound(excludeIds: number[]): Promise<HybridRoundPaylo
   return null;
 }
 
-/** Escolhe o filme do dia de forma estável a partir da data e do `top_rated`. */
 async function buildDailyRound(): Promise<HybridRoundPayload | null> {
   const seed = dailySeed(dailyKey(new Date()));
   const page = 1 + (seed % DAILY_PAGES);
@@ -135,7 +125,6 @@ async function buildDailyRound(): Promise<HybridRoundPayload | null> {
   return null;
 }
 
-/** Reúne palpite, dica e desistência sem expor a resposta no tráfego comum. */
 const guessSchema = z.object({
   token: z.string().min(1),
   action: z.enum(["guess", "hint", "giveup"]),
@@ -160,7 +149,6 @@ function answerFrom(round: HybridRoundPayload) {
   };
 }
 
-/** Pistas liberadas para o próximo palpite. */
 function cluesFor(round: HybridRoundPayload, nextGuessNumber: number) {
   const reveals = revealOrder(round.target.cast);
   const previouslyVisible = actorsVisible(nextGuessNumber - 1, reveals.length);
@@ -179,8 +167,7 @@ const GAME = "hybrid";
 const scoreSchema = z.object({
   source: z.enum(["mine", "popular", "daily"]),
   score: z.number().int().min(0).max(100_000),
-  /** No Cine-Detetive, indica quantos palpites foram usados. */
-  rounds: z.number().int().min(1).max(20),
+  rounds: z.number().int().min(1).max(20), // no Cine-Detetive, palpites usados
 });
 
 type Suggestion = { tmdbId: number; title: string; year: number | null };
@@ -207,7 +194,6 @@ export default async function playRoutes(fastify: FastifyInstance) {
         });
       }
 
-      // Envia só a primeira pista; as demais chegam conforme os palpites.
       const reveals = revealOrder(payload.target.cast);
       const visible = actorsVisible(1, reveals.length);
       return reply.send({
@@ -250,7 +236,6 @@ export default async function playRoutes(fastify: FastifyInstance) {
       const guessedDetails = await getTmdbMovie(parsed.data.tmdbId);
       const guessProfile = profileFromDetails(guessedDetails);
       const grade = gradeGuess(guessProfile, round.target);
-      // Compara o cartão do palpite com o filme secreto.
       const guessCard = { title: guessProfile.title, year: guessProfile.year, posterPath: guessedDetails.poster_path ?? null };
 
       if (grade.correct) {
@@ -301,12 +286,7 @@ export default async function playRoutes(fastify: FastifyInstance) {
     return reply.send({ improved, bestScore: improved ? score : current!.bestScore });
   });
 
-  /**
-   * Autocomplete do jogo. Sugere filmes conforme o usuário digita (prefixo/trecho).
-   * O TMDb casa títulos em qualquer idioma, então funciona digitando em inglês ou
-   * em português; os resultados voltam com o título em pt-BR. Em "mine" prioriza a
-   * biblioteca do usuário e completa com o TMDb para nunca ficar sem sugestões.
-   */
+  /** Em "mine" prioriza a biblioteca do usuário e completa com o TMDb para nunca ficar sem sugestões. */
   fastify.get<{ Querystring: { q?: string; source?: string } }>("/play/search", { preHandler: requireAuth }, async (request, reply) => {
     const user = request.user!;
     const query = (request.query.q ?? "").trim();
@@ -359,7 +339,7 @@ export default async function playRoutes(fastify: FastifyInstance) {
 
       return reply.send({ suggestions: suggestions.slice(0, 8) });
     } catch {
-      return reply.send({ suggestions: [] }); // autocomplete is best-effort
+      return reply.send({ suggestions: [] });
     }
   });
 }

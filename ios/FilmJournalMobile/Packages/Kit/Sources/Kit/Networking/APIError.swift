@@ -1,6 +1,6 @@
 import Foundation
 
-/// Espelha o formato `{ error: "mensagem" }` devolvido por todas as rotas do FilmJournal.
+/// Formato `{ error: "mensagem" }` devolvido por todas as rotas.
 public struct APIErrorPayload: Decodable {
     public let error: String
 }
@@ -33,7 +33,7 @@ public enum APIError: Error, LocalizedError, Equatable {
         }
     }
 
-    /// Status HTTP quando a falha vier do servidor; útil para tratar 401/403/404/409 no chamador.
+    /// `nil` quando a falha não vem do servidor.
     public var statusCode: Int? {
         if case .server(let status, _) = self { return status }
         return nil

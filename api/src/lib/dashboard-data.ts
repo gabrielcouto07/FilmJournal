@@ -6,12 +6,11 @@ import { computeTimeline, type Timeline, type TimelineEntry } from "./analytics/
 import { computeMotifSummary, type MotifFilm, type MotifSummary } from "./analytics/motifs.js";
 import type { CardMovie } from "./types.js";
 
-/** Camada de leitura das rotas dashboard/diary/watchlist/favorites/stats, com cache por etiquetas. */
 export const CATALOG_TAG = "catalog";
 export const userTag = (userId: string) => `user:${userId}`;
 const REVALIDATE_SECONDS = 300;
 
-/** Shares cache config and logs HIT/MISS for diagnostics. */
+/** Centraliza a config de cache e loga HIT/MISS para diagnóstico. */
 function timedRead<T>(label: string, version: string, userId: string, compute: () => Promise<T>): Promise<T> {
   const start = performance.now();
   let computeMs: number | null = null;
@@ -58,8 +57,6 @@ function toCard(movie: Movie, um?: UserState | null): CardMovie {
     favoriteRank: um?.favoriteRank ?? null,
   };
 }
-
-// Home page
 
 export type DashboardData = {
   featured: null | {
@@ -163,8 +160,6 @@ export function getDashboardData(userId: string): Promise<DashboardData> {
   });
 }
 
-// Diary
-
 export type DiaryItem = {
   id: string;
   watchedAt: string | null;
@@ -220,8 +215,6 @@ export function getDiaryData(userId: string): Promise<DiaryData> {
   });
 }
 
-// Watchlist
-
 export type WatchlistMovie = {
   id: string; title: string; year: number | null; releaseDate: string | null; runtime: number | null;
   genres: string | null; overview: string | null; posterPath: string | null; preferredPosterPath: string | null;
@@ -251,8 +244,6 @@ export function getWatchlistData(userId: string): Promise<WatchlistMovie[]> {
   });
 }
 
-// Favorites
-
 export type FavoriteMovie = { id: string; title: string; year: number | null; posterPath: string | null; preferredPosterPath: string | null; favoriteRank: number | null; favorite: boolean; genres: string | null };
 
 export function getFavoritesData(userId: string): Promise<FavoriteMovie[]> {
@@ -272,7 +263,7 @@ export function getFavoritesData(userId: string): Promise<FavoriteMovie[]> {
         favorite: um.favorite,
         genres: um.movie.genres,
       }));
-      // Ranked favorites come first; the rest are alphabetical.
+      // Favoritos com ranking vêm primeiro; o resto é alfabético.
       movies.sort((a, b) => {
         if (a.favoriteRank !== null && b.favoriteRank !== null) return a.favoriteRank - b.favoriteRank;
         if (a.favoriteRank !== null) return -1;
@@ -282,8 +273,6 @@ export function getFavoritesData(userId: string): Promise<FavoriteMovie[]> {
       return movies;
   });
 }
-
-// Stats
 
 export type StatsData = {
   sessions: number;
@@ -316,13 +305,12 @@ function countValues(values: Array<string | null>): Array<[string, number]> {
 }
 
 export function getStatsData(userId: string): Promise<StatsData> {
-  // Genres, directors, and top ratings are now computed by Palate.
   return timedRead("stats", "stats-v2", userId, async (): Promise<StatsData> => {
       const currentYear = new Date().getUTCFullYear();
       const yearStart = new Date(Date.UTC(currentYear, 0, 1));
 
       const [logs, watchedCount, yearLogs] = await Promise.all([
-        // These charts only use log-entry fields.
+        // Estes gráficos só usam campos do próprio log.
         prisma.logEntry.findMany({
           where: { userId },
           select: { rating: true, review: true, rewatch: true, watchedAt: true, loggedAt: true },
@@ -352,7 +340,6 @@ export function getStatsData(userId: string): Promise<StatsData> {
       });
       const monthSeries = [...months.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-18).map(([key, count]) => ({ key, count }));
 
-      // Year in review.
       const yearRated = yearLogs.filter((log) => log.rating != null);
       const yearMonths = new Map<string, number>();
       yearLogs.forEach((log) => {
@@ -388,9 +375,6 @@ export function getStatsData(userId: string): Promise<StatsData> {
   });
 }
 
-// Palate
-
-/** Loads rated films and hands the calculations off to the pure Palate module. */
 export function getPalateData(userId: string): Promise<Palate> {
   return timedRead("palate", "palate-v1", userId, async (): Promise<Palate> => {
       const rows = await prisma.userMovie.findMany({
@@ -426,9 +410,6 @@ export function getPalateData(userId: string): Promise<Palate> {
   });
 }
 
-// Timeline
-
-/** Loads the diary and computes how taste evolved over time. */
 export function getTimelineData(userId: string): Promise<Timeline> {
   return timedRead("timeline", "timeline-v1", userId, async (): Promise<Timeline> => {
       const logs = await prisma.logEntry.findMany({
@@ -460,9 +441,6 @@ export function getTimelineData(userId: string): Promise<Timeline> {
   });
 }
 
-// Recurring motifs
-
-/** Summarizes recurring themes across the user's highest-rated films. */
 export function getMotifsData(userId: string): Promise<MotifSummary> {
   return timedRead("motifs", "motifs-v1", userId, async (): Promise<MotifSummary> => {
       const rows = await prisma.userMovie.findMany({

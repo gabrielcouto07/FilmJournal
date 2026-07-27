@@ -19,7 +19,6 @@ final class ListsHubViewModel: ObservableObject {
         }
     }
 
-    /// Retorna `true` em sucesso (a view fecha a sheet de criação nesse caso).
     func createList(name: String, description: String?, api: FilmJournalAPI) async -> Bool {
         isCreating = true
         defer { isCreating = false }

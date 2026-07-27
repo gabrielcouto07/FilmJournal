@@ -58,7 +58,6 @@ export default function MovieSearch() {
   }, [activeFeed, feedCache, notify, query]);
 
   async function act(result: SearchResult, action: "open"|"watchlist"|"favorite"|"log") {
-    // Filmes novos entram no catálogo antes de abrir a página de detalhes.
     if ((action === "open" || action === "log") && result.existing) { router.push(`/film/${result.existing.id}${action === "log" ? "?log=1" : ""}`); return; }
     const token = `${result.id}:${action}`; setPending(token);
     try {

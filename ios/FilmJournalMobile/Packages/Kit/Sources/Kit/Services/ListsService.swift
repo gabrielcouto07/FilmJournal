@@ -8,8 +8,7 @@ public final class ListsService {
         self.client = client
     }
 
-    /// `movieId`, quando informado, preenche `MovieList.containsMovie` para cada lista — é o
-    /// que alimenta o botão "Adicionar à lista" na ficha do filme.
+    /// Passar `movieId` preenche `MovieList.containsMovie` em cada lista.
     public func all(movieId: String? = nil) async throws -> [MovieList] {
         let response: ListsResponse = try await client.request(.get, "/lists", query: ["movieId": movieId])
         return response.lists
@@ -36,7 +35,7 @@ public final class ListsService {
         try await client.requestDiscardingResponse(.delete, "/lists/\(id)")
     }
 
-    /// Devolve `true` se o filme já estava na lista (idempotente, não é erro — ver rota original).
+    /// `true` se o filme já estava na lista; repetir não é erro.
     @discardableResult
     public func addMovie(listId: String, movieId: String) async throws -> Bool {
         let response: ListMovieMutationResponse = try await client.request(

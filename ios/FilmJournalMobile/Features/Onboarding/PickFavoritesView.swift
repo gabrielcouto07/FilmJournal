@@ -3,8 +3,7 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Segundo passo do onboarding — busca no TMDB e seleção de até 5 filmes favoritos com nota,
-/// enviados via `POST /api/onboarding` (ver `OnboardingViewModel`).
+/// Segundo passo do onboarding: escolher até 5 favoritos com nota.
 struct PickFavoritesView: View {
     @Environment(\.filmJournalAPI) private var api
     @EnvironmentObject private var root: RootCoordinator

@@ -8,7 +8,6 @@ public enum DateFormatPreference: String, Codable, Sendable, CaseIterable {
     case yyyyMMdd = "yyyy-MM-dd"
 }
 
-/// Espelha `AppSettings` (`src/lib/settings.ts`).
 public struct AppSettings: Codable, Sendable, Equatable {
     public var theme: AppTheme
     public var accentColor: String
@@ -40,7 +39,7 @@ public struct SettingsUpdateResponse: Decodable, Sendable {
     public let message: String?
 }
 
-/// Corpo de `PATCH /settings` — todos os campos são opcionais (atualização parcial).
+/// Atualização parcial: só os campos preenchidos são enviados.
 public struct SettingsUpdateRequest: Encodable, Sendable {
     public var theme: AppTheme?
     public var accentColor: String?

@@ -1,14 +1,12 @@
 import Foundation
 
-/// Resposta de `POST /api/import/letterboxd` — a forma exata de `summary`/`errors` é best-effort
-/// (o backend não expõe um tipo fixo); mantemos como JSON flexível para não travar em mudanças.
+/// `summary`/`errors` ficam como JSON livre: o backend não garante uma forma fixa.
 public struct LetterboxdImportResponse: Decodable, Sendable {
     public let ok: Bool
     public let summary: JSONValue?
     public let errors: JSONValue?
 }
 
-/// Valor JSON dinâmico — usado só onde a API não tem uma forma tipada fixa e documentada.
 public enum JSONValue: Decodable, Sendable {
     case string(String)
     case number(Double)

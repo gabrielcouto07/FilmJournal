@@ -3,8 +3,7 @@ import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import type { FastifyInstance } from "fastify";
 
-// Publishes the OpenAPI contract at /docs (UI) and /docs/json — the source of
-// truth both `web` and `ios` generate/validate their API clients against.
+// Contrato OpenAPI em /docs e /docs/json: é a fonte da verdade dos clientes da API.
 export default fp(async (fastify: FastifyInstance) => {
   await fastify.register(swagger, {
     openapi: {

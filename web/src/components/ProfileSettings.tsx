@@ -121,8 +121,7 @@ function ProfileTab({ user, notify }: { user: ProfileUser; notify: Notify }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Falha ao salvar.");
       notify("Perfil atualizado.", "success");
-      // Re-renderiza os Server Components (o layout relê o usuário e repassa a
-      // nova foto ao SiteHeader), então a 'bolinha' do cabeçalho atualiza na hora.
+      // Re-renderiza os Server Components: o layout relê o usuário e a bolinha do cabeçalho troca na hora.
       router.refresh();
     } catch (err) {
       notify(err instanceof Error ? err.message : "Falha ao salvar.", "error");

@@ -3,17 +3,12 @@ import Charts
 import Kit
 import DesignKit
 
-/// Espelha `RatingLeanTrend` em `EvolutionCharts.tsx` — nota média (esquerda) e distância do
-/// público (direita), ano a ano. O Swift Charts framework não tem eixo Y duplo nativo como o
-/// Recharts, então a linha "distância do público" (-2..2) é remapeada para a escala 0–5 apenas
-/// para desenho — os valores reais aparecem na legenda/anotações, não no eixo.
-///
-/// Um dos gráficos de evolução mais pesados/aproximados; seu uso na Home fica comentado por
-/// padrão em `HomeChartsSection.swift` — descomente lá para testar.
+/// Nota média e distância do público, ano a ano.
 struct RatingLeanTrendChart: View {
     let years: [TimelineYear]
 
-    /// Remapeia -2...2 para 0...5 só para posicionar a linha tracejada no mesmo gráfico.
+    // Swift Charts não tem eixo Y duplo: a distância do público (-2...2) é remapeada para 0...5
+    // só para desenhar na mesma escala. Os valores reais só aparecem nas anotações.
     private func mappedLean(_ lean: Double) -> Double { 2.5 + lean * 1.25 }
 
     var body: some View {

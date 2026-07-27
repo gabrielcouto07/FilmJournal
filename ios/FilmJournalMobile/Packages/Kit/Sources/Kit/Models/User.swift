@@ -1,6 +1,6 @@
 import Foundation
 
-/// Espelha `AuthUser` (`api/src/plugins/jwt.ts`) — as claims embutidas no access token.
+/// As claims embutidas no access token.
 public struct User: Decodable, Sendable, Identifiable, Equatable {
     public let id: String
     public let username: String
@@ -11,7 +11,6 @@ public struct User: Decodable, Sendable, Identifiable, Equatable {
     public var isOwner: Bool { role == "OWNER" }
 }
 
-/// Perfil completo (`PATCH /profile`), separado de `User` pois inclui bio/avatar.
 public struct Profile: Decodable, Sendable, Equatable {
     public let displayName: String?
     public let bio: String?

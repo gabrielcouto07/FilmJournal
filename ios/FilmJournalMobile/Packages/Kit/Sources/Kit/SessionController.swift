@@ -1,8 +1,7 @@
 import Foundation
 import Combine
 
-/// Estado de sessão observável — a raiz de navegação do app decide login vs. app principal
-/// observando `currentUser`. Não depende de SwiftUI, só de Combine (disponível em todo Apple OS).
+/// A raiz de navegação decide login vs. app principal olhando `currentUser`.
 @MainActor
 public final class SessionController: ObservableObject {
     @Published public private(set) var currentUser: User?
@@ -32,9 +31,7 @@ public final class SessionController: ObservableObject {
 
     public var isAuthenticated: Bool { currentUser != nil }
 
-    /// Chamado na abertura do app: os tokens JWT vivem no Keychain (`TokenStore`), então uma
-    /// sessão válida sobrevive a um relançamento do app sem precisar logar de novo — o
-    /// `APIClient` renova o access token via refresh token automaticamente se preciso.
+    /// Chamar na abertura: os tokens ficam no Keychain, então a sessão sobrevive ao relançamento.
     public func restoreSession() async {
         isRestoringSession = true
         currentUser = try? await auth.currentUser()

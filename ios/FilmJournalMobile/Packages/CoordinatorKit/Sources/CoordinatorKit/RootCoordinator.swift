@@ -1,8 +1,8 @@
 import Foundation
 import Combine
 
-/// Coordinator de topo — dono da aba selecionada e de um `Router` independente por aba, para
-/// que trocar de aba preserve a pilha de navegação de cada uma (como no `UITabBarController`).
+/// Coordinator de topo: um `Router` independente por aba, para que trocar de aba preserve a
+/// pilha de navegação de cada uma.
 @MainActor
 public final class RootCoordinator: ObservableObject {
     @Published public var selectedTab: AppTab = .home
@@ -17,8 +17,7 @@ public final class RootCoordinator: ObservableObject {
 
     public init() {}
 
-    /// Volta todas as pilhas ao topo — útil ao deslogar, para não deixar telas autenticadas
-    /// "penduradas" quando o usuário logar de novo.
+    /// Chamar ao deslogar, senão telas autenticadas ficam penduradas no próximo login.
     public func resetAllStacks() {
         homeRouter.popToRoot()
         diaryRouter.popToRoot()

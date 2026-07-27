@@ -3,8 +3,7 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Pontos cegos do acervo — sugestões de filmes para preencher lacunas de década, país, idioma
-/// ou gênero (`GET /api/discover`).
+/// Pontos cegos do acervo: sugestões para lacunas de década, país, idioma ou gênero.
 struct DiscoverView: View {
     let initialDimension: GapDimension?
 

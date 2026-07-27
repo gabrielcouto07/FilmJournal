@@ -2,11 +2,7 @@ import SwiftUI
 import Kit
 import DesignKit
 
-/// Botão "Adicionar à lista" reaproveitável na ficha do filme. Espelha
-/// `web/src/components/AddToListButton.tsx`: abre uma folha com as listas do usuário
-/// (`GET /lists?movieId=`) e marca quais já contêm o filme; tocar numa lista sem o filme chama
-/// `POST /lists/:listId/movies` (idempotente — não há como "remover" por aqui, só na tela da
-/// lista, igual ao componente original).
+/// Só adiciona o filme a uma lista; remover é na tela da lista.
 struct AddToListButton: View {
     let movieId: String
 

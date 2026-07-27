@@ -3,8 +3,7 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Aba "Listas" da Coleção — coleções nomeadas e livres (`/lists`), distintas de
-/// Favoritos/Top10/Watchlist. Espelha `web/src/app/collection/lists/page.tsx`.
+/// Listas nomeadas pelo usuário, separadas de Favoritos/Top10/Watchlist.
 struct ListsHubView: View {
     @Environment(\.filmJournalAPI) private var api
     @EnvironmentObject private var root: RootCoordinator

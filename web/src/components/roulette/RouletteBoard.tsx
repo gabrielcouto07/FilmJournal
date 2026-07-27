@@ -8,7 +8,6 @@ import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import ArtworkImage from "@/components/ArtworkImage";
 import { useToast } from "@/components/ToastProvider";
 
-// Tipos das respostas da API da roleta
 type Genre = { id: number; name: string };
 type Person = { id: number; name: string; department: string | null; knownFor: string[] };
 type PoolMovie = {
@@ -48,14 +47,14 @@ const COUNT_OPTIONS = [4, 8, 16];
 const RUNTIME_MAX = 240;
 
 // A faixa parte do centro da tela; `xFor(i)` alinha o item ao marcador fixo.
-const ITEM_W = 150; // poster width in px
+const ITEM_W = 150;
 const ITEM_GAP = 16;
-const STRIDE = ITEM_W + ITEM_GAP; // distance between consecutive item centres
-const TARGET_BASE = 6; // pool repetition the spin lands on (defines runway)
-const RESET_BASE = 2; // repetition each spin instantly resets to before running
-const REPEATS = TARGET_BASE + 3; // total pool copies rendered into the strip
+const STRIDE = ITEM_W + ITEM_GAP;
+const TARGET_BASE = 6; // repetição do pool onde o giro para; define o tamanho da pista
+const RESET_BASE = 2; // repetição para onde a faixa salta antes de cada giro
+const REPEATS = TARGET_BASE + 3;
 const SPIN_MS = 5000;
-const STAGE_H = ITEM_W * 1.5 + 44; // reel stage height; keeps frame + strip co-centred
+const STAGE_H = ITEM_W * 1.5 + 44;
 const xFor = (i: number) => -(i * STRIDE + ITEM_W / 2);
 
 function tmdbImage(path: string | null, size: "w342" | "w780" | "w1280"): string | null {
@@ -81,7 +80,6 @@ export default function RouletteBoard() {
   const { notify } = useToast();
   const router = useRouter();
 
-  // Filtros
   const [source, setSource] = useState<Source>("popular");
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>([]);
@@ -97,7 +95,6 @@ export default function RouletteBoard() {
   const peopleEnabled = source === "popular";
   const runtimeEnabled = source !== "blindspots";
 
-  // Estado da roleta
   const [pool, setPool] = useState<PoolMovie[]>([]);
   const [building, setBuilding] = useState(false);
   const [spinning, setSpinning] = useState(false);
@@ -124,7 +121,6 @@ export default function RouletteBoard() {
 
   useEffect(() => setMounted(true), []);
 
-  // Carrega os gêneros uma vez para montar os filtros.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -141,7 +137,6 @@ export default function RouletteBoard() {
     };
   }, []);
 
-  // Recupera os últimos filtros usados.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -198,7 +193,6 @@ export default function RouletteBoard() {
     if (pool.length) controls.set({ x: xFor(RESET_BASE * pool.length) });
   }, [poolKey, pool.length, controls]);
 
-  // Fecha o resultado com Escape.
   useEffect(() => {
     if (!showReveal) return;
     const onKey = (event: KeyboardEvent) => {
@@ -340,7 +334,6 @@ export default function RouletteBoard() {
     window.setTimeout(() => setShowReveal(true), 260);
   }, [pool, spinning, winnerIndex, controls, fetchWinnerDetail]);
 
-  // Salva o filme do TMDB no catálogo antes de abrir sua página.
   const openMovie = useCallback(
     async (movie: { id: number; title: string }) => {
       if (openingId) return;
@@ -401,7 +394,6 @@ export default function RouletteBoard() {
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[21rem_1fr]">
-        {/* Filtros */}
         <aside className="surface h-fit rounded-[2rem] border border-white/[0.05] p-6">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-lg font-black text-white">Filtros</h2>
@@ -411,7 +403,6 @@ export default function RouletteBoard() {
           </div>
 
           <div className="space-y-6">
-            {/* Fonte dos filmes */}
             <div className="space-y-2">
               <span className="block text-xs font-black uppercase tracking-wider text-slate-500">De onde sortear</span>
               <div className="space-y-1.5">
@@ -439,7 +430,6 @@ export default function RouletteBoard() {
               )}
             </div>
 
-            {/* Gêneros */}
             <div className="space-y-2">
               <span className="block text-xs font-black uppercase tracking-wider text-slate-500">Gênero(s)</span>
               <div className="flex max-h-44 flex-wrap gap-1.5 overflow-y-auto pr-1">
@@ -461,7 +451,6 @@ export default function RouletteBoard() {
               </div>
             </div>
 
-            {/* Pessoas, disponível apenas no TMDB */}
             <div className={`space-y-2 ${peopleEnabled ? "" : "hidden"}`}>
               <label htmlFor="people-search" className="block text-xs font-black uppercase tracking-wider text-slate-500">
                 Ator(es) / Diretor
@@ -508,7 +497,6 @@ export default function RouletteBoard() {
               </div>
             </div>
 
-            {/* Período de lançamento */}
             <div className="space-y-2">
               <span className="block text-xs font-black uppercase tracking-wider text-slate-500">Período de lançamento</span>
               <div className="flex items-center gap-2">
@@ -523,7 +511,6 @@ export default function RouletteBoard() {
               </div>
             </div>
 
-            {/* Duração, disponível quando a fonte informa esse dado */}
             <div className={`space-y-2 ${runtimeEnabled ? "" : "hidden"}`}>
               <label htmlFor="runtime-range" className="flex justify-between text-xs font-black uppercase tracking-wider text-slate-500">
                 <span>Duração máxima</span>
@@ -532,7 +519,6 @@ export default function RouletteBoard() {
               <input id="runtime-range" type="range" min={60} max={RUNTIME_MAX} step={10} value={runtimeMax} disabled={filtersDisabled} onChange={(e) => setRuntimeMax(Number(e.target.value))} className="w-full accent-amber-300" />
             </div>
 
-            {/* Quantidade */}
             <div className="space-y-2">
               <label htmlFor="count-select" className="block text-xs font-black uppercase tracking-wider text-slate-500">Quantidade de filmes na roleta</label>
               <select id="count-select" value={count} disabled={filtersDisabled} onChange={(e) => setCount(Number(e.target.value))} className="field [color-scheme:dark]">
@@ -548,7 +534,6 @@ export default function RouletteBoard() {
           </div>
         </aside>
 
-        {/* Seleção e giro */}
         <section className="space-y-8">
           <div className="surface-subtle flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/[0.04] p-5">
             <p className="text-sm font-bold text-white">
@@ -565,14 +550,12 @@ export default function RouletteBoard() {
             )}
           </div>
 
-          {/* Faixa da roleta */}
           {!building && pool.length > 0 && (
             <div className="surface relative overflow-hidden rounded-[2rem] border border-white/[0.06] px-4 py-8">
               <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_45%,rgb(var(--accent-300)/0.12),transparent_55%)]" />
 
               {/* A altura fixa mantém a faixa alinhada ao marcador. */}
               <div className="relative mx-auto" style={{ height: STAGE_H }}>
-                {/* Marcador */}
                 <div
                   className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-2 border-amber-300"
                   style={{
@@ -584,7 +567,6 @@ export default function RouletteBoard() {
                     transition: "box-shadow .5s var(--ease-out)",
                   }}
                 />
-                {/* Ponteiros */}
                 <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2" style={{ marginTop: -(ITEM_W * 1.5 + 12) / 2 - 14 }}>
                   <span className="block h-0 w-0 border-x-[9px] border-t-[12px] border-x-transparent border-t-amber-300" />
                 </div>
@@ -592,7 +574,6 @@ export default function RouletteBoard() {
                   <span className="block h-0 w-0 border-x-[9px] border-b-[12px] border-x-transparent border-b-amber-300" />
                 </div>
 
-                {/* Faixa com esmaecimento nas bordas */}
                 <div
                   className="absolute inset-0 overflow-hidden"
                   style={{
@@ -640,7 +621,6 @@ export default function RouletteBoard() {
             </div>
           )}
 
-          {/* Resultado compacto após fechar a revelação */}
           <AnimatePresence>
             {hasResult && winner && !showReveal && (
               <motion.div
@@ -663,7 +643,6 @@ export default function RouletteBoard() {
             )}
           </AnimatePresence>
 
-          {/* Carregamento da seleção */}
           {building && (
             <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(130px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]">
               {Array.from({ length: count }).map((_, index) => (
@@ -672,7 +651,6 @@ export default function RouletteBoard() {
             </div>
           )}
 
-          {/* Lista de candidatos; cada cartão abre o filme */}
           {!building && pool.length > 0 && (
             <div>
               <p className="mb-3 text-xs font-black uppercase tracking-wider text-slate-500">
@@ -784,7 +762,6 @@ export default function RouletteBoard() {
                     {backdrop && <div className="absolute inset-0 -z-10 bg-cover bg-center opacity-25" style={{ backgroundImage: `url(${backdrop})` }} />}
                     <div className="glass-gradient absolute inset-0 -z-10" />
 
-                    {/* Brilho da revelação */}
                     <div className="pointer-events-none absolute left-1/2 top-24 -z-0 h-0 w-0">
                       {Array.from({ length: 12 }).map((_, i) => {
                         const angle = (i / 12) * Math.PI * 2;

@@ -1,11 +1,6 @@
 import Foundation
 
-/// Filme do catálogo local, já mesclado com o estado do usuário atual (`UserMovie`).
-///
-/// Importante: `Movie` é um catálogo **compartilhado** entre usuários — o estado pessoal
-/// (visto, favorito, nota, watchlist, posição no Top 10) vem sempre mesclado pelo backend a
-/// partir de `UserMovie`, nunca é parte "fixa" do filme. Só o usuário `OWNER` pode alterar
-/// `preferredPosterPath`/`preferredBackdropPath` (afeta o catálogo inteiro).
+/// Filme do catálogo compartilhado, já mesclado com o estado pessoal do usuário atual.
 public struct Movie: Decodable, Sendable, Identifiable, Equatable, Hashable {
     public let id: String
     public let tmdbId: Int?
@@ -33,7 +28,6 @@ public struct Movie: Decodable, Sendable, Identifiable, Equatable, Hashable {
     public let createdAt: Date
     public let updatedAt: Date
 
-    // Estado pessoal mesclado (`UserMovie`) — sempre presente nas respostas da API.
     public let rating: Double?
     public let watched: Bool
     public let favorite: Bool
@@ -41,7 +35,6 @@ public struct Movie: Decodable, Sendable, Identifiable, Equatable, Hashable {
     public let watchlistAddedAt: Date?
     public let favoriteRank: Int?
 
-    /// Caminho de pôster efetivo: prioriza a escolha manual do dono do catálogo.
     public var effectivePosterPath: String? { preferredPosterPath ?? posterPath }
     public var effectiveBackdropPath: String? { preferredBackdropPath ?? backdropPath }
 
@@ -49,26 +42,22 @@ public struct Movie: Decodable, Sendable, Identifiable, Equatable, Hashable {
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
-/// Resposta de `GET /movies`.
 public struct MoviesListResponse: Decodable, Sendable {
     public let movies: [Movie]
 }
 
-/// Resposta de `GET /movies/:id` — o filme mesclado com todo o histórico de sessões (sem o
-/// limite de 200 registros de `GET /logs`).
+/// Traz o histórico completo de sessões, sem o limite de 200 registros de `GET /logs`.
 public struct MovieDetailResponse: Decodable, Sendable {
     public let movie: Movie
     public let logs: [LogEntry]
 }
 
-/// Resposta de `POST /api/movies` (adicionar filme via `tmdbId`).
 public struct MovieUpsertResponse: Decodable, Sendable {
     public let movie: Movie
     public let created: Bool
     public let message: String?
 }
 
-/// Resposta comum das ações de `PATCH /api/movies`.
 public struct MovieMutationResponse: Decodable, Sendable {
     public let movie: Movie
     public let message: String?
@@ -84,7 +73,6 @@ public struct AddMovieRequest: Encodable, Sendable {
     }
 }
 
-/// Ação suportada por `PATCH /api/movies` — ver `body.action` na rota original.
 public enum MovieCollectionAction: Sendable {
     case watchlist(Bool)
     case favorite(Bool)
@@ -132,8 +120,7 @@ struct MovieMutationRequest: Encodable {
     }
 }
 
-/// Encoder de valores heterogêneos (`Bool`, `String`, `Double?`) usados no campo `value` do
-/// endpoint de mutações de coleção.
+/// Apaga o tipo de um `Encodable` para encaixar valores heterogêneos num mesmo campo JSON.
 public struct AnyEncodable: Encodable {
     private let encodeClosure: (Encoder) throws -> Void
 

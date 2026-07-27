@@ -3,8 +3,6 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Coleção — Favoritos / Top 10 / Watchlist. `CollectionTab` já existe em `CoordinatorKit`
-/// (usado também pelas rotas), então reaproveitamos em vez de duplicar um enum local.
 struct CollectionView: View {
     @Environment(\.filmJournalAPI) private var api
     @EnvironmentObject private var root: RootCoordinator
@@ -168,8 +166,6 @@ private struct MovieCell: View {
     }
 }
 
-/// Linha do Top 10 com promote/demote (`favoriteRank`) — espelha as setas do `FavoritesManager`
-/// do web, que trocam de posição com quem ocupa o rank vizinho.
 private struct Top10Row: View {
     let movie: Movie
     let isMutating: Bool

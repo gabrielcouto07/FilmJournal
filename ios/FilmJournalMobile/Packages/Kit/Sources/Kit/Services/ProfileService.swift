@@ -1,6 +1,5 @@
 import Foundation
 
-/// `PATCH /profile`.
 public final class ProfileService {
     private let client: APIClient
 

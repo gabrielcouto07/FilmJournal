@@ -6,14 +6,11 @@ import Kit
 final class EditProfileViewModel: ObservableObject {
     @Published var displayName = ""
     @Published var bio = ""
-    /// URL remota do avatar atual (mostrada até o usuário escolher uma nova foto).
     @Published private(set) var currentAvatarUrl: String?
-    /// Preview local da foto recém-escolhida (antes de virar data URL) — `nil` = não trocou.
     @Published private(set) var pickedAvatarPreview: UIImage?
     private var pickedAvatarDataURL: String?
 
-    /// `AsyncImage`/`URLSession` não carregam `data:` URIs — quando o avatar atual foi salvo
-    /// como base64 (upload anterior, do próprio app ou do web), decodificamos aqui na mão.
+    // `AsyncImage` não carrega `data:` URI, então avatar em base64 é decodificado na mão.
     var currentAvatarImage: UIImage? {
         guard let currentAvatarUrl, currentAvatarUrl.hasPrefix("data:"),
               let commaIndex = currentAvatarUrl.firstIndex(of: ",") else { return nil }
@@ -34,9 +31,7 @@ final class EditProfileViewModel: ObservableObject {
         }
     }
 
-    /// Recorta a foto num canvas quadrado (cover-fit, igual ao `fileToSquareDataUrl` do web) e
-    /// codifica como JPEG base64 — a API aceita `data:image/...;base64,...` ou uma URL `https://`,
-    /// nunca multipart.
+    // A API de avatar aceita data URL ou `https://`, nunca multipart — daí o JPEG em base64.
     func setPickedImage(data: Data) {
         guard let image = UIImage(data: data) else { return }
         pickedAvatarPreview = image
@@ -57,8 +52,7 @@ final class EditProfileViewModel: ObservableObject {
         let trimmedName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedBio = bio.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // `bio`/`avatarUrl` são `String??`: `nil` (nível externo) = não altere; só enviamos um
-        // valor quando o usuário de fato mudou algo.
+        // `String??`: `nil` externo = não altere o campo; `.some(nil)` = limpe.
         let bioUpdate: String?? = trimmedBio.isEmpty ? .some(nil) : .some(trimmedBio)
         let avatarUpdate: String?? = pickedAvatarDataURL.map { .some($0) } ?? nil
 
@@ -93,8 +87,8 @@ final class EditProfileViewModel: ObservableObject {
             image.draw(in: CGRect(origin: origin, size: scaledSize))
         }
 
-        // Limite do backend: `z.string().max(300_000)` no valor inteiro (incluindo o prefixo
-        // `data:image/jpeg;base64,`) — reduz a qualidade se, por algum motivo, ainda estourar.
+        // O backend recusa acima de 300_000 caracteres (prefixo incluído), então cai a qualidade
+        // até caber.
         for candidateQuality in stride(from: quality, through: 0.3, by: -0.15) {
             guard let jpegData = squared.jpegData(compressionQuality: candidateQuality) else { continue }
             let dataURL = "data:image/jpeg;base64,\(jpegData.base64EncodedString())"

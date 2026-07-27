@@ -22,7 +22,7 @@ async function findAndPromoteOwner(username: string) {
   });
 }
 
-/** Looks up the primary account; with no config, public pages show an empty diary. */
+/** Sem APP_OWNER_USERNAME configurado, as páginas públicas ficam com o diário vazio. */
 export async function getOwnerUser() {
   const ownerUsername = getConfiguredOwnerUsername();
   if (!ownerUsername) return null;
@@ -30,7 +30,6 @@ export async function getOwnerUser() {
   return findAndPromoteOwner(ownerUsername);
 }
 
-/** Looks up or creates the primary account during initial setup. */
 export async function ensureOwnerUser() {
   const ownerUsername = getConfiguredOwnerUsername();
   if (!ownerUsername) return null;
@@ -45,7 +44,7 @@ export async function ensureOwnerUser() {
 
   const emailKey = createHash("sha256").update(ownerUsername).digest("hex").slice(0, 16);
 
-  // Upsert avoids a conflict between concurrent boots without overwriting an existing password.
+  // Upsert evita conflito entre boots simultâneos sem sobrescrever a senha existente.
   return prisma.user.upsert({
     where: { username: ownerUsername },
     update: { role: "OWNER" },

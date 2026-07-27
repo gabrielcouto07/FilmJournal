@@ -109,7 +109,6 @@ export default async function logsRoutes(fastify: FastifyInstance) {
 
     const ownerId = request.user?.id || "";
 
-    // O estado do usuário já vem na mesma consulta.
     const logs = await prisma.logEntry.findMany({
       where: { userId: ownerId },
       include: { movie: { include: { userMovies: { where: { userId: ownerId } } } } },
@@ -177,7 +176,6 @@ export default async function logsRoutes(fastify: FastifyInstance) {
           },
         });
 
-        // Atualiza o estado do filme para o usuário.
         const updatedUserMovie = await transaction.userMovie.upsert({
           where: { userId_movieId: { userId: user.id, movieId: movie.id } },
           create: {
@@ -249,7 +247,6 @@ export default async function logsRoutes(fastify: FastifyInstance) {
         },
       });
 
-      // Atualiza o estado do filme para o usuário.
       const updateData: { favorite?: boolean; rating?: number | null } = {};
       if (typeof body.favorite === "boolean") updateData.favorite = body.favorite;
       if (body.rating !== undefined) updateData.rating = rating;
@@ -295,7 +292,6 @@ export default async function logsRoutes(fastify: FastifyInstance) {
     }
   });
 
-  /** Importa um ZIP do Letterboxd ou seus CSVs separados para o diário do usuário. */
   fastify.post("/import/letterboxd", { preHandler: requireAuth }, async (request, reply) => {
     const user = request.user!;
 
@@ -358,7 +354,6 @@ export default async function logsRoutes(fastify: FastifyInstance) {
         return reply.status(400).send({ error: "Não foi possível ler o .zip. Verifique se é o export do Letterboxd." });
       }
     } else {
-      // Aceita o nome completo do CSV ou o nome sem extensão.
       let totalBytes = 0;
       for (const known of KNOWN_FILES) {
         const buffer = csvBuffers.get(known);
@@ -381,7 +376,6 @@ export default async function logsRoutes(fastify: FastifyInstance) {
 
     try {
       const summary = await importLetterboxdForUser(user.id, files);
-      // Limpa o cache para mostrar o conteúdo importado na hora.
       revalidateTag(userTag(user.id));
       revalidateTag(CATALOG_TAG);
       return reply.send({ ok: true, summary, errors });

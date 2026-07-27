@@ -1,7 +1,6 @@
 import Foundation
 
-/// Ponto único de acesso a todos os services — injete uma instância no app (via
-/// `@Environment`/DI) e alcance qualquer rota da API do FilmJournal a partir dela.
+/// Ponto único de acesso a todos os services; injete uma instância no app.
 public final class FilmJournalAPI {
     public let client: APIClient
 

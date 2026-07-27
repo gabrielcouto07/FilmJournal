@@ -3,7 +3,6 @@ import Charts
 import Kit
 import DesignKit
 
-/// Espelha `DecadeHistogram` em `PalateCharts.tsx` — filmes avaliados agrupados por década.
 struct DecadeHistogramChart: View {
     let data: [DecadeBucket]
 

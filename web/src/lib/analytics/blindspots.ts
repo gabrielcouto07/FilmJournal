@@ -11,7 +11,7 @@ export const DIMENSION_LABELS: Record<GapDimension, string> = {
   genre: "Gênero",
 };
 
-/** Nomes usados nas frases que explicam cada indicação. */
+/** Versão para o meio de uma frase; DIMENSION_LABELS é para a interface. */
 const DIMENSION_NOUNS: Record<GapDimension, string> = {
   decade: "década",
   country: "país",
@@ -19,18 +19,16 @@ const DIMENSION_NOUNS: Record<GapDimension, string> = {
   genre: "gênero",
 };
 
-/** Campos do filme usados no cálculo de cobertura. */
 export type CoverageFilm = {
   year: number | null;
   countries: string[]; // ISO 3166-1
   originalLanguage: string | null; // ISO 639-1
-  genreIds: number[]; // TMDB genre ids
+  genreIds: number[];
 };
 
-/** Faixa de uma dimensão com um trecho pronto para montar a explicação. */
 export type DomainBucket = { key: string; label: string; phrase: string };
 
-/** Países em uma ordem útil para priorizar lacunas sem cobertura. */
+/** A ordem importa: as primeiras entradas viram lacuna primeiro. */
 export const COUNTRY_DOMAIN: DomainBucket[] = [
   { key: "US", label: "Estados Unidos", phrase: "dos Estados Unidos" },
   { key: "FR", label: "França", phrase: "da França" },
@@ -54,7 +52,6 @@ export const COUNTRY_DOMAIN: DomainBucket[] = [
   { key: "AU", label: "Austrália", phrase: "da Austrália" },
 ];
 
-/** Principais idiomas no formato ISO usado pelo TMDB. */
 export const LANGUAGE_DOMAIN: DomainBucket[] = [
   { key: "en", label: "Inglês", phrase: "em inglês" },
   { key: "fr", label: "Francês", phrase: "em francês" },
@@ -74,7 +71,6 @@ export const LANGUAGE_DOMAIN: DomainBucket[] = [
   { key: "pl", label: "Polonês", phrase: "em polonês" },
 ];
 
-/** Décadas dos anos 1930 até a atual. */
 export function decadeDomain(currentYear: number): DomainBucket[] {
   const latest = Math.floor(currentYear / 10) * 10;
   const buckets: DomainBucket[] = [];
@@ -84,21 +80,17 @@ export function decadeDomain(currentYear: number): DomainBucket[] {
   return buckets;
 }
 
-/** Gêneros que não ajudam a apontar lacunas de gosto. */
+/** 10770 é "filme de TV": não diz nada sobre gosto. */
 const GENRE_STOPLIST = new Set([10770]);
 
-/** Gêneros disponíveis na lista traduzida do TMDB. */
 export function genreDomain(genres: Array<{ id: number; name: string }>): DomainBucket[] {
   return genres
     .filter((genre) => !GENRE_STOPLIST.has(genre.id))
     .map((genre) => ({ key: String(genre.id), label: genre.name, phrase: `de ${genre.name}` }));
 }
 
-// Cobertura
-
 export type Coverage = Map<string, number>;
 
-/** Conta os filmes do usuário em cada faixa de uma dimensão. */
 export function computeCoverage(films: CoverageFilm[], dimension: GapDimension): Coverage {
   const coverage: Coverage = new Map();
   const add = (key: string | null | undefined) => {
@@ -120,9 +112,7 @@ export function computeCoverage(films: CoverageFilm[], dimension: GapDimension):
   return coverage;
 }
 
-// Lacunas
-
-/** Limite para considerar uma faixa muito abaixo da média do usuário. */
+/** Abaixo desta fração da média do usuário, a faixa conta como lacuna. */
 export const GAP_RATIO = 0.25;
 const MAX_GAPS_PER_DIMENSION = 6;
 
@@ -131,16 +121,14 @@ export type GapBucket = {
   key: string;
   label: string;
   phrase: string;
-  /** Filmes do usuário nesta faixa. */
   count: number;
-  /** Média do usuário nas faixas cobertas da dimensão. */
+  /** Média só entre as faixas com pelo menos um filme. */
   averageBucketSize: number;
 };
 
 /** Chaves de dispensa seguem o formato `country:JP` ou `country:*`. */
 export const dismissalKey = (dimension: GapDimension, gapKey: string) => `${dimension}:${gapKey}`;
 
-/** Encontra lacunas, priorizando faixas vazias e depois as menos cobertas. */
 export function findGaps(options: {
   dimension: GapDimension;
   domain: DomainBucket[];
@@ -176,8 +164,6 @@ export function findGaps(options: {
   return [...zero, ...thin].slice(0, MAX_GAPS_PER_DIMENSION);
 }
 
-// Indicações
-
 /** Candidato do TMDB, geralmente ainda fora do catálogo local. */
 export type CandidateMovie = {
   tmdbId: number;
@@ -186,9 +172,9 @@ export type CandidateMovie = {
   posterPath: string | null;
   backdropPath: string | null;
   overview: string | null;
-  rating: number | null; // TMDB vote_average, 0–10
+  rating: number | null; // vote_average do TMDB, escala 0–10
   voteCount: number | null;
-  genreIds: number[]; // lets the roulette apply its genre filter to blind-spot pools
+  genreIds: number[]; // a roleta filtra os pools de pontos cegos por gênero
 };
 
 export type BlindSpotPick = {
@@ -196,13 +182,10 @@ export type BlindSpotPick = {
   dimension: GapDimension;
   gapKey: string;
   gapLabel: string;
-  /** Quantidade de filmes do usuário nesta faixa. */
   coverage: number;
-  /** Explicação criada com os mesmos dados que apontaram a lacuna. */
   rationale: string;
 };
 
-/** Monta a justificativa com os números que geraram a lacuna. */
 export function buildRationale(gap: GapBucket, totalFilms: number, movie: CandidateMovie): string {
   const yearPart = movie.year ? ` (${movie.year})` : "";
   const ratingPart = movie.rating != null ? `, nota ${movie.rating.toFixed(1)} no TMDB,` : "";
@@ -234,10 +217,10 @@ export function assemblePicks(options: {
     for (const queue of queues) {
       if (picks.length >= maxPicks) break;
       const gap = queue.gaps.shift();
-      if (!gap) continue; // this queue is drained; others may still have gaps
+      if (!gap) continue; // esta fila esgotou, mas as outras ainda podem ter lacunas
       const pool = candidates.get(dismissalKey(gap.dimension, gap.key)) ?? [];
       const movie = pool.find((candidate) => !usedMovies.has(candidate.tmdbId));
-      if (!movie) continue; // candidate-less gap consumed — its dimension retries with the next gap on the next lap
+      if (!movie) continue; // lacuna sem candidato foi consumida; a dimensão tenta a próxima na volta seguinte
       usedMovies.add(movie.tmdbId);
       picks.push({
         movie,

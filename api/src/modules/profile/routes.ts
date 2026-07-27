@@ -36,7 +36,6 @@ const onboardingSchema = z.object({
 });
 
 export default async function profileRoutes(fastify: FastifyInstance) {
-  /** Perfil completo do usuário logado (o token JWT só carrega o essencial). */
   fastify.get("/profile", { preHandler: requireAuth }, async (request, reply) => {
     const [user, onboarded] = await Promise.all([
       prisma.user.findUnique({
@@ -76,7 +75,6 @@ export default async function profileRoutes(fastify: FastifyInstance) {
     },
   );
 
-  /** Finaliza a introdução, salva os favoritos escolhidos e marca a conta como pronta. */
   fastify.post<{ Body: { seeds?: unknown } }>(
     "/onboarding",
     { preHandler: requireAuth },

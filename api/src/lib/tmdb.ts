@@ -108,8 +108,7 @@ async function tmdbFetchUncached<T>(url: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-// Next.js's fetch-cache option (`next: { revalidate }`) doesn't exist outside
-// Next — this is its replacement, same 6h TTL, keyed by the exact request URL.
+// Cache de 6h com chave na URL exata da requisição.
 const tmdbFetchCached = unstableCache(tmdbFetchUncached, ["tmdb-fetch"], { revalidate: TMDB_CACHE_TTL_SECONDS });
 
 async function tmdbFetch<T>(path: string, params: Record<string, string>, refresh = false): Promise<T> {
@@ -130,8 +129,8 @@ export async function searchTmdbMovies(query: string, year?: number, page = 1, l
     page: String(Math.min(Math.max(page, 1), 500)),
   };
   if (year) params.year = String(year);
-  // TMDb matches titles across every language regardless of this param — it only
-  // changes which localized title comes back. pt-BR returns Brazilian titles.
+  // O TMDb casa títulos em qualquer idioma independente deste param; ele só muda
+  // qual título localizado volta. pt-BR devolve os títulos brasileiros.
   if (language) params.language = language;
 
   const result = await tmdbFetch<TmdbSearchResponse>("/search/movie", params);
@@ -152,7 +151,6 @@ export async function searchTmdbMovie(title: string, year?: number | null): Prom
   return choose((await searchTmdbMovies(title)).results);
 }
 
-/** Busca em uma chamada todos os dados usados no enriquecimento do filme. */
 export function getTmdbMovie(tmdbId: number): Promise<TmdbMovieDetails> {
   if (!Number.isInteger(tmdbId) || tmdbId <= 0) {
     throw new TmdbError("A valid TMDb movie id is required.", 400);
@@ -206,8 +204,6 @@ export async function getTmdbPersonDirectedMovies(personId: number, refresh = fa
     .sort((left, right) => (right.vote_average ?? 0) - (left.vote_average ?? 0));
 }
 
-// Funções da roleta com resultados do TMDB em PT-BR
-
 export async function getTmdbGenres(language = "pt-BR"): Promise<TmdbGenre[]> {
   const response = await tmdbFetch<{ genres: TmdbGenre[] }>("/genre/movie/list", { language });
   return response.genres;
@@ -225,7 +221,6 @@ export async function searchTmdbPeople(query: string, language = "pt-BR"): Promi
   return response.results.slice(0, 8);
 }
 
-/** Detalhes completos do filme no idioma pedido. */
 export async function getTmdbMovieLocalized(tmdbId: number, language = "pt-BR"): Promise<TmdbMovieDetails> {
   if (!Number.isInteger(tmdbId) || tmdbId <= 0) throw new TmdbError("A valid TMDb movie id is required.", 400);
   return tmdbFetch<TmdbMovieDetails>(`/movie/${tmdbId}`, { language });

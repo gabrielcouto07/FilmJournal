@@ -1,9 +1,6 @@
 import Foundation
 
-/// Item de `GET /diary` — mais leve que `LogEntry` (sem `userId`/`sourceType`/timestamps de
-/// auditoria) e com um resumo do filme em vez do `Movie` inteiro, já que essa rota existe só
-/// para alimentar a tela do Diário (busca/filtros/agrupamento por mês são feitos no cliente,
-/// tanto no web quanto aqui — ver `web/src/components/DiaryExplorer.tsx`).
+/// Versão enxuta de `LogEntry`, com um resumo do filme em vez do `Movie` inteiro.
 public struct DiaryEntry: Decodable, Sendable, Identifiable, Equatable {
     public let id: String
     public let watchedAt: Date?

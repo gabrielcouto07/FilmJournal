@@ -2,7 +2,6 @@
 
 export type AccentShades = Record<number, string>;
 
-// Tons claros misturam branco; tons escuros misturam preto.
 const STOPS: Array<[level: number, toward: "white" | "black", amount: number]> = [
   [50, "white", 0.85],
   [100, "white", 0.72],
@@ -27,7 +26,7 @@ function mixChannel(base: number, toward: number, amount: number): number {
   return Math.round(base * (1 - amount) + toward * amount);
 }
 
-/** Gera a escala de destaque no formato RGB usado pelas variáveis CSS. */
+/** Devolve os canais soltos ("r g b"), formato que as variáveis CSS esperam. */
 export function accentShades(baseHex: string): AccentShades {
   const [r, g, b] = parseHex(baseHex);
   const shades: AccentShades = {};
@@ -38,18 +37,17 @@ export function accentShades(baseHex: string): AccentShades {
   return shades;
 }
 
-/** Concrete color strings (usable as SVG fill/stroke) derived from the accent. */
+/** Cores já resolvidas, prontas para fill/stroke de SVG. */
 export function accentPalette(baseHex: string) {
   const s = accentShades(baseHex);
   return {
-    base: baseHex,                 // the chosen accent (≈ level 300)
-    soft: `rgb(${s[200]})`,        // lighter tint
-    deep: `rgb(${s[500]})`,        // darker shade
-    faint: `rgb(${s[200]} / 0.28)` // translucent tint for muted marks
+    base: baseHex,                 // a cor escolhida equivale ao nível 300
+    soft: `rgb(${s[200]})`,
+    deep: `rgb(${s[500]})`,
+    faint: `rgb(${s[200]} / 0.28)`
   };
 }
 
-/** Aplica a cor e seus tons ao elemento raiz. */
 export function applyAccent(root: HTMLElement, baseHex: string): void {
   root.style.setProperty("--accent", baseHex);
   const shades = accentShades(baseHex);

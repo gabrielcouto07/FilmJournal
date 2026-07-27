@@ -11,7 +11,7 @@ public struct GameScore: Decodable, Sendable, Equatable {
     public let bestRounds: Int
 }
 
-/// Resposta de `GET /api/play/score` — uma entrada por fonte, ausente se nunca jogada.
+/// Uma entrada por fonte; fontes nunca jogadas não aparecem.
 public struct GameScoresResponse: Decodable, Sendable {
     public let scores: [String: GameScore]
 

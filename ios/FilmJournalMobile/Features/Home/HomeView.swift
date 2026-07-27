@@ -3,7 +3,6 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Home "Paladar" — dashboard de análise de gosto e recomendações (`GET /api/recommendations`).
 struct HomeView: View {
     @Environment(\.filmJournalAPI) private var api
     @EnvironmentObject private var root: RootCoordinator
@@ -235,10 +234,8 @@ struct HomeView: View {
             Text("Pontos cegos de resenha").font(.title3.bold()).padding(.horizontal, Spacing.md)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: Spacing.md) {
-                    // `TasteBlindSpot.id` é o `movieId` local (não o `tmdbId`), e `FilmDetailTarget`
-                    // só aceita `Movie` completo ou `tmdbId` — nenhum dos dois está disponível aqui.
-                    // Não há endpoint para resolver movieId -> tmdbId, então esses itens ficam sem
-                    // ação de toque por ora (limitação aceita, não um bug).
+                    // Cards sem toque: `FilmDetailTarget` precisa de `Movie` ou `tmdbId`, e daqui
+                    // só temos o `movieId` local — não existe endpoint para resolver um no outro.
                     ForEach(blindSpots) { item in
                         BlindSpotCard(item: item)
                     }

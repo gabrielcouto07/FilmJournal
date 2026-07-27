@@ -1,7 +1,6 @@
 import Foundation
 
-/// Espelha `COUNTRY_NAMES` em `PalateCharts.tsx` do web — países conhecidos; os demais aparecem
-/// pelo código ISO.
+/// Países traduzidos; o que não estiver aqui aparece pelo código ISO.
 enum CountryNames {
     private static let names: [String: String] = [
         "US": "Estados Unidos", "GB": "Reino Unido", "FR": "França", "JP": "Japão", "KR": "Coreia do Sul",

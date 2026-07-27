@@ -1,10 +1,7 @@
 import Foundation
 import Security
 
-/// Guarda o par access/refresh token no Keychain (sobrevive a relançamentos do app, igual ao
-/// cookie de sessão que a versão anterior usava). O backend atual é stateless (JWT Bearer,
-/// "igual para web e ios" — ver `api/src/plugins/jwt.ts`), então não há sessão no servidor:
-/// tudo que precisamos persistir localmente são esses dois tokens.
+/// Guarda o par access/refresh token no Keychain, que sobrevive a relançamentos do app.
 public final class TokenStore {
     public static let shared = TokenStore()
 

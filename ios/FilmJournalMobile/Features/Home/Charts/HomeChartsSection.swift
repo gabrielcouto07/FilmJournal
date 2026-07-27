@@ -2,15 +2,6 @@ import SwiftUI
 import Kit
 import DesignKit
 
-/// Espelha `TasteDashboard.tsx` do web (a parte de gráficos) — renderizado ao final da Home.
-///
-/// Os dados vêm de `ChartsAnalytics.compute(palate:stats:timeline:)` (Kit), que só remonta as
-/// respostas de `/palate`, `/stats` e `/timeline` — o cálculo em si acontece no servidor.
-///
-/// Gráficos com rótulos curtos e altura fixa (décadas/duração, radar/notas, as duas linhas de
-/// evolução) ficam lado a lado em grade de 2 colunas para reduzir o quanto é preciso rolar;
-/// os que precisam de largura (rótulos longos, muitas categorias, ou o scatter de consenso)
-/// continuam em largura cheia — igual ao web faz com `country`/`month series`.
 struct HomeChartsSection: View {
     let charts: ChartsData
 
@@ -62,8 +53,7 @@ struct HomeChartsSection: View {
                 }
             }
 
-            // MARK: Gráficos mais pesados — radar customizado via Canvas e séries por ano; cada
-            // um já tem sua própria checagem de dado mínimo abaixo (`InsufficientDataView`).
+            // MARK: Gráficos mais pesados — radar via Canvas e séries por ano
 
             ChartCard(eyebrow: "Você contra a maré", heading: "Você e o consenso") {
                 if charts.contrarian.isEmpty {

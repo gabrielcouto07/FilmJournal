@@ -3,7 +3,6 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Detalhe de uma lista custom. Espelha `web/src/app/collection/lists/[listId]/page.tsx`.
 struct ListDetailView: View {
     let listId: String
     let listName: String

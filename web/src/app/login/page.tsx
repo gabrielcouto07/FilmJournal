@@ -16,11 +16,9 @@ export default function LoginPage() {
     if (new URLSearchParams(window.location.search).get("tab") === "register") setTab("register");
   }, []);
 
-  // Dados do login
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Dados do cadastro
   const [regUsername, setRegUsername] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
@@ -80,14 +78,12 @@ export default function LoginPage() {
         <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-amber-500/10 blur-[50px]" />
 
         <div className="relative">
-          {/* Marca */}
           <div className="flex justify-center mb-6">
             <span className="grid h-12 w-12 place-items-center rounded-full border border-amber-300/30 bg-amber-300/10">
               <span className="h-3.5 w-3.5 rounded-full bg-amber-300 shadow-[0_0_15px_rgb(var(--accent-300)/0.95)]" />
             </span>
           </div>
 
-          {/* Abas */}
           <div className="flex rounded-2xl border border-white/[0.07] bg-white/[0.03] p-1 mb-8">
             {(["login", "register"] as Tab[]).map((t) => (
               <button

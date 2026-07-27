@@ -1,8 +1,6 @@
 import Foundation
 
-/// Autenticação contra o backend `api/` — JWT stateless via `Authorization: Bearer`
-/// (`api/src/plugins/jwt.ts`, "igual para web e ios"). Sem cookie, sem CSRF, sem NextAuth: um
-/// `POST /auth/login` já devolve `{accessToken, refreshToken, user}` diretamente.
+/// `/auth/*` — login/registro devolvem o par de tokens, que fica no `TokenStore`.
 public final class AuthService {
     private let client: APIClient
     private let tokenStore: TokenStore
@@ -23,8 +21,7 @@ public final class AuthService {
         return response.user
     }
 
-    /// `GET /auth/me` — devolve o usuário do access token guardado, ou lança se não houver
-    /// sessão válida (o `APIClient` já tenta renovar via refresh token antes de desistir).
+    /// `nil` quando não há sessão aproveitável; o `APIClient` já tentou renovar antes disso.
     public func currentUser() async throws -> User? {
         guard tokenStore.accessToken != nil || tokenStore.refreshToken != nil else { return nil }
         do {
@@ -35,7 +32,7 @@ public final class AuthService {
         }
     }
 
-    /// `POST /auth/register` já autentica a conta nova (mesma resposta do login).
+    /// Já deixa a conta nova autenticada, sem precisar de um login em seguida.
     @discardableResult
     public func register(_ request: RegisterRequest) async throws -> User {
         let response: AuthResponse = try await client.request(.post, "/auth/register", body: request)
@@ -43,8 +40,7 @@ public final class AuthService {
         return response.user
     }
 
-    /// Sem endpoint de logout no backend (JWT stateless não tem sessão para invalidar) — só
-    /// descarta os tokens locais.
+    /// Só descarta os tokens locais: não há sessão no servidor para invalidar.
     public func logout() async throws {
         tokenStore.clear()
     }

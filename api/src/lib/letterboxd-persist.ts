@@ -35,7 +35,7 @@ async function runWriteBatches(operations: Prisma.PrismaPromise<unknown>[]) {
   }
 }
 
-/** Resolve os filmes em lote e deixa o enriquecimento do TMDB para depois. */
+/** Resolve em lote; o enriquecimento pelo TMDB fica para depois. */
 async function resolveMovies(films: LetterboxdFilm[]): Promise<Map<string, Movie>> {
   const uris = films.map((film) => film.letterboxdUri).filter((uri): uri is string => Boolean(uri));
   const titles = films.map((film) => film.name);
@@ -133,7 +133,6 @@ export async function importLetterboxdForUser(userId: string, files: LetterboxdF
     else summary.moviesCreated += 1;
   }
 
-  // Estado da coleção do usuário
   const [existingUserMovies, occupiedFavoriteRanks] = await Promise.all([
     prisma.userMovie.findMany({ where: { userId, movieId: { in: movieIds } } }),
     prisma.userMovie.findMany({
@@ -186,7 +185,6 @@ export async function importLetterboxdForUser(userId: string, files: LetterboxdF
     summary.userMoviesCreated = result.count;
   }
 
-  // Sessões registradas pelo usuário
   const existingLogs = await prisma.logEntry.findMany({ where: { userId, movieId: { in: movieIds } } });
   const logsByMovie = new Map<string, typeof existingLogs>();
   for (const log of existingLogs) logsByMovie.set(log.movieId, [...(logsByMovie.get(log.movieId) ?? []), log]);

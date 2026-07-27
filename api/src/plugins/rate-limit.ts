@@ -2,8 +2,7 @@ import fp from "fastify-plugin";
 import rateLimit from "@fastify/rate-limit";
 import type { FastifyInstance } from "fastify";
 
-// Global outer bound; per-route limits (login, register, imports) use
-// ../lib/rate-limit.ts's Postgres-backed limiter for tighter, keyed windows.
+// Limite global; login, registro e importação usam o limitador em Postgres de ../lib/rate-limit.ts.
 export default fp(async (fastify: FastifyInstance) => {
   await fastify.register(rateLimit, {
     max: 300,

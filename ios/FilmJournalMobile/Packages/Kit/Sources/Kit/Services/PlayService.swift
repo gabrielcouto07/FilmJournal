@@ -1,9 +1,7 @@
 import Foundation
 
-/// `/play/*` — o jogo "Cine-Detetive" (estilo Wordle) e seu placar.
-///
-/// A rodada não guarda estado no servidor: a resposta certa vem embutida, cifrada, no `token`
-/// devolvido por `startRound`. Cada chamada de `guess`/`hint`/`giveUp` reenvia esse mesmo token.
+/// A rodada não guarda estado no servidor: a resposta vem cifrada no `token` de `startRound`,
+/// que as chamadas seguintes reenviam.
 public final class PlayService {
     private let client: APIClient
 

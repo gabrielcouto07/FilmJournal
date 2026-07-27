@@ -14,7 +14,6 @@ import type { TimelineYear } from "@/lib/analytics/timeline";
 import { useSettings } from "@/components/SettingsProvider";
 import { accentPalette } from "@/lib/accent";
 
-/** Mantém o mesmo visual dos outros gráficos do Paladar. */
 const C = {
   blue: "#74b9ff",
   violet: "#b48ef1",
@@ -43,9 +42,7 @@ function ChartTooltip({ title, rows }: { title: string; rows: TooltipRow[] }) {
   );
 }
 
-// Nota e diferença para o público por ano
-
-/** Nota média à esquerda e distância do público à direita. */
+/** Eixo da esquerda: nota média. Eixo da direita: distância do público. */
 export function RatingLeanTrend({ years }: { years: TimelineYear[] }) {
   const accent = accentPalette(useSettings().settings.accentColor);
   return (
@@ -80,9 +77,6 @@ export function RatingLeanTrend({ years }: { years: TimelineYear[] }) {
   );
 }
 
-// Época dos filmes por ano
-
-/** Ano médio de lançamento dos filmes vistos em cada período. */
 export function EraDrift({ years }: { years: TimelineYear[] }) {
   const accent = accentPalette(useSettings().settings.accentColor);
   const values = years.map((year) => year.averageFilmYear).filter((value): value is number => value != null);
@@ -116,11 +110,8 @@ export function EraDrift({ years }: { years: TimelineYear[] }) {
   );
 }
 
-// Participação dos gêneros por ano
-
 type GenreDriftRow = { year: number; [genre: string]: number | null };
 
-/** Participação dos principais gêneros em cada ano. */
 export function GenreShareDrift({ years, genres }: { years: TimelineYear[]; genres: string[] }) {
   const accent = accentPalette(useSettings().settings.accentColor);
   const GENRE_COLORS = [accent.base, C.blue, accent.soft, C.violet, C.neutral];

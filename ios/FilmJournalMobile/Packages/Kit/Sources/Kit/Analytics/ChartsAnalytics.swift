@@ -1,9 +1,6 @@
 import Foundation
 
-/// Monta `ChartsData` a partir dos endpoints de análise do servidor (`/palate`, `/stats`,
-/// `/timeline`) — os mesmos que alimentam `TasteDashboard.tsx` no web. Substitui o cálculo
-/// client-side que existia antes (limitado a 200 registros de `GET /logs`, sem `verdict`,
-/// `motifs` nem ranking de diretores).
+/// Junta as respostas de `/palate`, `/stats` e `/timeline` num único `ChartsData`.
 public enum ChartsAnalytics {
     public static func compute(palate: PalateData, stats: StatsData, timeline: TimelineData) -> ChartsData {
         ChartsData(
@@ -34,7 +31,7 @@ public enum ChartsAnalytics {
     }
 }
 
-// MARK: - Tipos de dados (consumidos pelas views em Features/Home/Charts)
+// MARK: - Tipos de dados
 
 public struct DecadeBucket: Sendable, Equatable, Identifiable {
     public let decade: Int
@@ -57,9 +54,8 @@ public struct GenreCount: Sendable, Equatable, Identifiable {
 
 public struct RuntimeBucket: Sendable, Equatable, Identifiable {
     public let label: String
-    /// Limite mínimo em minutos.
     public let min: Int
-    /// Limite máximo; `nil` deixa a última faixa aberta.
+    /// Em minutos; `nil` na última faixa, que fica aberta.
     public let max: Int?
     public var count: Int
     /// Marca a faixa mais comum.
@@ -109,9 +105,8 @@ public struct MonthBucket: Sendable, Equatable, Identifiable {
     public var id: String { key }
 }
 
-/// Pacote completo de dados para os gráficos da Home.
 public struct ChartsData: Sendable, Equatable {
-    /// Filmes avaliados que entram no Paladar (`PalateData.totalFilms`).
+    /// Conta só os filmes avaliados.
     public let totalFilms: Int
     public let decades: [DecadeBucket]
     public let countries: [CountryCount]

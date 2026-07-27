@@ -1,16 +1,6 @@
 import Foundation
 
-/// Client HTTP central do app. Fala com o backend `api/` (Fastify) do FilmJournal.
-///
-/// Autenticação é **JWT stateless via `Authorization: Bearer`** (`api/src/plugins/jwt.ts`,
-/// "igual para web e ios") — não há mais cookie de sessão do NextAuth. O `access token` é
-/// anexado em toda requisição autenticada; em um 401 (exceto nas próprias rotas de `/auth/*`)
-/// tentamos renovar uma única vez via `refresh token` antes de repassar o erro. Os tokens vivem
-/// no Keychain via `TokenStore` (ver arquivo irmão), não em `HTTPCookieStorage`.
-///
-/// As rotas do backend não têm prefixo `/api` (ex. `/movies`, `/logs`, `/auth/login`) — isso
-/// mudou na separação frontend/backend (commit `26c5c92`); todo `Service` deste pacote já
-/// chama os paths sem esse prefixo.
+/// Client HTTP central do app, com auth JWT Bearer e renovação transparente em 401.
 public final class APIClient {
     public let config: AppConfig
     private let session: URLSession
@@ -27,7 +17,6 @@ public final class APIClient {
 
     // MARK: - JSON requests
 
-    /// GET (ou qualquer método sem corpo) decodificando a resposta.
     @discardableResult
     public func request<Response: Decodable>(
         _ method: HTTPMethod,
@@ -38,7 +27,6 @@ public final class APIClient {
         return try decode(data)
     }
 
-    /// Requisição com corpo JSON codificado a partir de um `Encodable`.
     @discardableResult
     public func request<Body: Encodable, Response: Decodable>(
         _ method: HTTPMethod,
@@ -51,7 +39,6 @@ public final class APIClient {
         return try decode(data)
     }
 
-    /// Igual ao anterior, mas descarta o corpo da resposta — útil quando só o status importa.
     public func requestDiscardingResponse<Body: Encodable>(
         _ method: HTTPMethod,
         _ path: String,
@@ -101,7 +88,6 @@ public final class APIClient {
         try await upload(path, parts: [(fieldName: fileFieldName, fileName: fileName, mimeType: mimeType, data: fileData)])
     }
 
-    /// Variante com múltiplos arquivos (ex. CSVs soltos do Letterboxd, um campo por arquivo).
     public func upload<Response: Decodable>(
         _ path: String,
         parts: [(fieldName: String, fileName: String, mimeType: String, data: Data)]
@@ -123,8 +109,7 @@ public final class APIClient {
 
     // MARK: - Auth (renovação transparente de token)
 
-    /// Igual a `rawRequest`, mas anexa `Authorization: Bearer` e, se a resposta vier 401 (e a
-    /// rota não for `/auth/*`), tenta renovar o access token uma única vez e repete a chamada.
+    /// Em 401 fora de `/auth/*`, renova o access token uma única vez e repete a chamada.
     @discardableResult
     private func authorizedRequest(
         _ method: HTTPMethod,
@@ -141,8 +126,6 @@ public final class APIClient {
         }
     }
 
-    /// Garante que só existe uma renovação de token em voo por vez (chamadas concorrentes da
-    /// Home, por exemplo, não devem disparar várias `/auth/refresh` em paralelo).
     private func refreshedAccessToken() async throws -> String {
         try await refreshCoordinator.refreshedToken { [weak self] in
             guard let self else { throw APIError.notAuthenticated }
@@ -219,8 +202,8 @@ public final class APIClient {
     }
 }
 
-/// Single-flight para `/auth/refresh`: se várias chamadas simultâneas topam com um 401,
-/// só a primeira dispara a renovação de verdade — as demais esperam o mesmo `Task`.
+/// Single-flight: se várias chamadas topam num 401 juntas, só a primeira renova e as outras
+/// esperam o mesmo `Task`.
 private actor TokenRefreshCoordinator {
     private var inFlight: Task<String, Error>?
 
@@ -237,8 +220,7 @@ private actor TokenRefreshCoordinator {
 public struct EmptyResponse: Decodable {}
 
 extension Notification.Name {
-    /// Postada quando a renovação do access token falha definitivamente (refresh token ausente,
-    /// expirado ou o backend recusou) — o app deve tratar isso como logout forçado.
+    /// Renovação do token falhou de vez — o app deve tratar como logout forçado.
     public static let filmJournalSessionExpired = Notification.Name("FilmJournalSessionExpired")
 }
 

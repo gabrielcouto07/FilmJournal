@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 
-// Navegação principal; rotas antigas apenas redirecionam para estas áreas.
+// As rotas antigas (/watchlist, /favorites, /roulette) só redirecionam para estas.
 const navigation = [
   { href: "/", label: "Paladar" },
   { href: "/diary", label: "Diário" },
@@ -18,7 +18,6 @@ function initialsOf(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "FJ";
 }
 
-// Foto de perfil redonda; cai nas iniciais do usuário quando não há imagem.
 function ProfileAvatar({ avatarUrl, name, active }: { avatarUrl: string | null; name: string; active: boolean }) {
   return (
     <span

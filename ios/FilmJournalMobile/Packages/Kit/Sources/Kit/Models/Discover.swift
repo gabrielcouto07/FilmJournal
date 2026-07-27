@@ -1,6 +1,6 @@
 import Foundation
 
-/// As 4 dimensões usadas para achar "pontos cegos" no acervo (`src/lib/analytics/blindspots.ts`).
+/// As dimensões usadas para achar "pontos cegos" no acervo.
 public enum GapDimension: String, Codable, Sendable, CaseIterable {
     case decade
     case country
@@ -8,7 +8,6 @@ public enum GapDimension: String, Codable, Sendable, CaseIterable {
     case genre
 }
 
-/// Filme candidato vindo do TMDB para preencher um ponto cego (`CandidateMovie`).
 public struct CandidateMovie: Decodable, Sendable, Equatable {
     public let tmdbId: Int
     public let title: String
@@ -21,7 +20,6 @@ public struct CandidateMovie: Decodable, Sendable, Equatable {
     public let genreIds: [Int]
 }
 
-/// Uma sugestão de "ponto cego" (`BlindSpotPick`).
 public struct BlindSpotPick: Decodable, Sendable, Equatable, Identifiable {
     public let movie: CandidateMovie
     public let dimension: GapDimension
@@ -33,7 +31,6 @@ public struct BlindSpotPick: Decodable, Sendable, Equatable, Identifiable {
     public var id: String { "\(dimension.rawValue)-\(gapKey)-\(movie.tmdbId)" }
 }
 
-/// Resposta de `GET /api/discover?dimension=`.
 public struct DiscoverData: Decodable, Sendable {
     public let totalFilms: Int
     public let focus: String // "decade" | "country" | "language" | "genre" | "auto"

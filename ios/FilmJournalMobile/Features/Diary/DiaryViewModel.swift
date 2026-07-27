@@ -1,8 +1,7 @@
 import Foundation
 import Kit
 
-/// Espelha os filtros/ordenação de `web/src/components/DiaryExplorer.tsx` — tudo client-side,
-/// já que `GET /diary` não aceita nenhum parâmetro de busca/filtro (ver `DashboardService`).
+// Busca, filtro e ordenação são client-side: `GET /diary` não aceita parâmetro nenhum.
 @MainActor
 final class DiaryViewModel: ObservableObject {
     enum SortMode: String, CaseIterable, Identifiable {
@@ -153,8 +152,6 @@ final class DiaryViewModel: ObservableObject {
         }
     }
 
-    /// Usado pelas views `list`/`calendar` — a ordem de sessões dentro de cada mês respeita
-    /// `sortMode`, igual ao web.
     var groupedByMonth: [MonthGroup] {
         var groups: [String: [DiaryEntry]] = [:]
         var order: [String] = []

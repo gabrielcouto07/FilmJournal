@@ -7,8 +7,7 @@ final class ImportLetterboxdViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published private(set) var result: LetterboxdImportResponse?
 
-    /// Nome do arquivo (minúsculo) -> campo aceito pelo backend, igual a `csvFieldAliases`
-    /// (bare name, sem extensão; `likes/films.csv` vira `films`).
+    /// Nome do arquivo em minúsculo -> campo multipart aceito pelo backend.
     private static let knownFileNames: [String: String] = [
         "diary.csv": "diary",
         "reviews.csv": "reviews",
@@ -19,8 +18,7 @@ final class ImportLetterboxdViewModel: ObservableObject {
         "films.csv": "films",
     ]
 
-    /// Um único `.zip` continua indo pelo caminho de arquivo único (comportamento pré-existente).
-    /// Qualquer outra seleção é tratada como CSVs soltos, um campo multipart por arquivo.
+    /// Um `.zip` sozinho sobe inteiro; qualquer outra seleção vira CSVs soltos, um campo por arquivo.
     func importFiles(_ urls: [URL], api: FilmJournalAPI) async {
         errorMessage = nil
         result = nil

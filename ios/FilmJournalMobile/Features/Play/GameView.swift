@@ -3,9 +3,7 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Jogo "Cine-Detetive" (estilo Wordle) — adivinhe o filme secreto a partir de pistas de
-/// elenco/pôster/ano/gênero/diretor/estúdio/nota, reveladas conforme os palpites avançam.
-/// Toda a lógica de regras roda no backend; esta tela só orquestra as chamadas.
+/// Cine-Detetive: adivinhe o filme secreto pelas pistas, estilo Wordle.
 struct GameView: View {
     @Environment(\.filmJournalAPI) private var api
     @EnvironmentObject private var root: RootCoordinator

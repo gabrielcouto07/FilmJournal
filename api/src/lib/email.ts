@@ -1,10 +1,8 @@
 import { Resend } from "resend";
 
-// Sender address. Resend allows "onboarding@resend.dev" for testing without a
-// verified domain; in production verify a domain and set EMAIL_FROM.
+// Sem domínio verificado o Resend só aceita "onboarding@resend.dev"; em produção defina EMAIL_FROM.
 const FROM = process.env.EMAIL_FROM ?? "FilmJournal <onboarding@resend.dev>";
 
-/** Sends an email via Resend. Throws a clear error when the service isn't configured. */
 export async function sendEmail({ to, subject, html, text }: { to: string; subject: string; html: string; text?: string }): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -17,7 +15,6 @@ export async function sendEmail({ to, subject, html, text }: { to: string; subje
   }
 }
 
-/** Email containing the confirmation code for a password change. */
 export async function sendPasswordCodeEmail(to: string, code: string, name: string): Promise<void> {
   const subject = "Seu código para alterar a senha · FilmJournal";
   const html = `

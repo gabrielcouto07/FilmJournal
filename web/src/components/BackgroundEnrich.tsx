@@ -16,7 +16,7 @@ export default function BackgroundEnrich({ movieIds, when = true }: { movieIds?:
     apiFetch("/movies/enrich", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => { if (data && data.enriched > 0) router.refresh(); })
-      .catch(() => { /* metadata is best-effort */ });
+      .catch(() => { /* enriquecer é opcional: falhar aqui não afeta a página */ });
   }, [when, movieIds, router]);
 
   return null;

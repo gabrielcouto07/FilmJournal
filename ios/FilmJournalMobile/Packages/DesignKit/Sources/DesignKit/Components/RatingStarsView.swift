@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// Exibição somente-leitura de nota em meia-estrela (0.5–5.0) — mesma escala usada em toda a
-/// API (`Rating` em `Kit`). Edição interativa fica a critério da UI final.
+/// Exibição somente-leitura de nota em meia-estrela, na escala 0.5–5.0 usada pela API.
 public struct RatingStarsView: View {
     private let rating: Double?
     private let maxStars: Int

@@ -3,9 +3,7 @@ import Charts
 import Kit
 import DesignKit
 
-/// Espelha `EraDrift` em `EvolutionCharts.tsx` — ano médio de lançamento dos filmes assistidos,
-/// por ano do diário. Só faz sentido com diário em 2+ anos; ver nota em `HomeChartsSection.swift`
-/// sobre por que fica comentado por padrão junto dos outros gráficos de evolução.
+/// Ano médio de lançamento dos filmes assistidos, por ano do diário.
 struct EraDriftChart: View {
     let years: [TimelineYear]
 

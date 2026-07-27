@@ -3,9 +3,6 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Ficha do filme — tela compartilhada por Diário, Coleção, Busca, Descobrir e Roleta.
-/// Layout intencionalmente simples (sem estilização fina): a UI final é responsabilidade do
-/// restante do time; aqui garantimos que os dados e as ações já funcionam de ponta a ponta.
 struct FilmDetailView: View {
     let target: FilmDetailTarget
 
@@ -222,8 +219,7 @@ private struct LogRow: View {
     }
 }
 
-/// Sheet de escolha de pôster/capa alternativos (`GET /tmdb?id=` já traz `images` — sem chamada
-/// extra). Restrito ao usuário `OWNER`, único que pode alterar a arte do catálogo compartilhado.
+/// Só o `OWNER` troca a arte, porque o catálogo de filmes é compartilhado entre todos.
 private struct ArtworkPickerSheet: View {
     enum Kind: String, Identifiable {
         case poster

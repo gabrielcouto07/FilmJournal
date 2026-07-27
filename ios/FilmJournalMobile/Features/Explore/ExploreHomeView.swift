@@ -2,9 +2,7 @@ import SwiftUI
 import CoordinatorKit
 import DesignKit
 
-/// Raiz da aba "Explorar" — agrupa Busca (`/search`) e Descobrir/pontos cegos (`/discover`).
-/// Apresentada como sheet a partir de `HomeView` (não é mais uma aba do `TabView`), então
-/// precisa do próprio botão de fechar — swipe-to-dismiss sozinho não é óbvio o bastante.
+// Vem como sheet da Home, daí o botão de fechar próprio: swipe-to-dismiss sozinho não é óbvio.
 struct ExploreHomeView: View {
     @EnvironmentObject private var root: RootCoordinator
     @Environment(\.dismiss) private var dismiss

@@ -1,7 +1,6 @@
 import Foundation
 
-/// Coleção nomeada e livre do usuário (`/lists`) — distinta de Favoritos/Top10/Watchlist, que
-/// são estados fixos por filme. Um usuário pode ter quantas quiser.
+/// Coleção nomeada e livre do usuário, distinta de Favoritos/Top10/Watchlist.
 public struct MovieList: Decodable, Sendable, Identifiable, Equatable {
     public let id: String
     public let name: String
@@ -12,7 +11,7 @@ public struct MovieList: Decodable, Sendable, Identifiable, Equatable {
     public let movieCount: Int
     /// Só vem preenchido em `GET /lists` (as 4 capas mais recentes) — vazio em outras respostas.
     public let previewMovies: [MovieListPreviewItem]
-    /// Só é significativo quando a consulta passou `movieId` (ver `ListsService.all(movieId:)`).
+    /// Só é significativo quando a consulta passou `movieId`.
     public let containsMovie: Bool?
 
     private enum CodingKeys: String, CodingKey {
@@ -56,8 +55,7 @@ public struct MovieListMoviePreview: Decodable, Sendable, Equatable {
     public var effectivePosterPath: String? { preferredPosterPath ?? posterPath }
 }
 
-/// Item de `GET /lists/:listId` — mesma posição/data de `MovieListPreviewItem`, mas com o
-/// `Movie` inteiro (não o resumo usado nas capas de `GET /lists`).
+/// Como `MovieListPreviewItem`, mas com o `Movie` inteiro em vez do resumo.
 public struct MovieListDetailItem: Decodable, Sendable, Identifiable, Equatable {
     public let movieId: String
     public let position: Int?

@@ -2,7 +2,7 @@ import { prisma } from "./prisma.js";
 
 type Options = { max: number; windowMs: number };
 
-// Falls back to in-memory limiting when the rate-limit table isn't reachable.
+// Se a tabela de rate limit não responder, cai para o limite em memória.
 const memory = new Map<string, { count: number; resetAt: number }>();
 
 function memoryLimited(key: string, { max, windowMs }: Options): boolean {
@@ -17,7 +17,6 @@ function memoryLimited(key: string, { max, windowMs }: Options): boolean {
   return false;
 }
 
-/** Returns `true` when the key has exceeded the limit within the window. */
 export async function isRateLimited(key: string, options: Options): Promise<boolean> {
   const now = new Date();
   try {
@@ -29,7 +28,7 @@ export async function isRateLimited(key: string, options: Options): Promise<bool
         create: { key, count: 1, resetAt },
         update: { count: 1, resetAt },
       });
-      // Best-effort cleanup of stale windows; failure here shouldn't fail the request.
+      // Limpeza best-effort de janelas velhas; falhar aqui não pode derrubar a requisição.
       prisma.rateLimit.deleteMany({ where: { resetAt: { lt: new Date(now.getTime() - 24 * 60 * 60 * 1000) } } }).catch(() => {});
       return false;
     }

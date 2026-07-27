@@ -14,7 +14,6 @@ function metadataWithoutIdentity(metadata: ReturnType<typeof toMovieMetadata>) {
   return shared;
 }
 
-/** Monta os campos e relações de análise a partir dos detalhes do TMDB. */
 export function relationalEnrichmentData(details: TmdbMovieDetails) {
   const director = details.credits?.crew.find((person) => person.job === "Director") ?? null;
   const genres = details.genres ?? [];
@@ -38,7 +37,7 @@ export function relationalEnrichmentData(details: TmdbMovieDetails) {
   } satisfies Prisma.MovieUpdateInput;
 }
 
-/** Cria gêneros e palavras-chave em lote antes de ligar as relações. */
+/** Precisa rodar antes de ligar as relações: os IDs têm que existir primeiro. */
 export async function ensureTaxonomyRows(detailsList: TmdbMovieDetails[]): Promise<void> {
   const genres = new Map<number, string>();
   const keywords = new Map<number, string>();
@@ -54,7 +53,6 @@ export async function ensureTaxonomyRows(detailsList: TmdbMovieDetails[]): Promi
   }
 }
 
-/** Cria ou atualiza um filme do catálogo com todos os dados do TMDB. */
 export async function upsertEnrichedMovie(tmdbId: number): Promise<{ movie: Movie; created: boolean }> {
   const details = await getTmdbMovie(tmdbId);
   const metadata = toMovieMetadata(details);
@@ -114,5 +112,3 @@ export async function enrichMovieMetadata(movieId: string): Promise<Movie | null
     throw error;
   }
 }
-
-// O enriquecimento roda depois da tela abrir, pela rota de metadados.

@@ -24,7 +24,7 @@ const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 function mapCsvName(name: string): string | null {
   const lower = name.toLowerCase();
   if (KNOWN_CSVS.has(lower)) return lower;
-  if (lower === "films.csv") return "likes/films.csv"; // the export only ships films.csv inside likes/
+  if (lower === "films.csv") return "likes/films.csv"; // no export do Letterboxd, films.csv só existe dentro de likes/
   return null;
 }
 

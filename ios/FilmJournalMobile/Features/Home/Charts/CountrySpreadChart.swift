@@ -3,7 +3,6 @@ import Charts
 import Kit
 import DesignKit
 
-/// Espelha `CountrySpread` em `PalateCharts.tsx` — barras horizontais por país de origem.
 struct CountrySpreadChart: View {
     let data: [CountryCount]
 

@@ -30,7 +30,7 @@ const passwordConfirmSchema = z.object({
 const CODE_TTL_MS = 10 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
-/** Mascara o e-mail para exibição (ex.: "ga••••••@dominio.com"). */
+/** Ex.: "ga••••••@dominio.com". */
 function maskEmail(email: string): string {
   const [name, domain] = email.split("@");
   if (!domain) return email;
@@ -100,17 +100,12 @@ export default async function accountRoutes(fastify: FastifyInstance) {
     },
   );
 
-  /**
-   * Passo 1 da troca de senha: confere a senha atual, guarda a nova (hash) + um
-   * código de 6 dígitos (hash) e envia o código por e-mail. A troca só acontece
-   * no passo 2 (.../password/confirm), depois que o usuário informa o código.
-   */
+  /** Passo 1: valida a senha atual e envia o código; a troca só acontece em /account/password/confirm. */
   fastify.post<{ Body: { currentPassword?: unknown; newPassword?: unknown } }>(
     "/account/password",
     { preHandler: requireAuth },
     async (request, reply) => {
       const user = request.user!;
-      // Desacelera tentativas repetidas contra a senha atual.
       if (await isRateLimited(`pwd:${user.id}`, { max: 5, windowMs: 10 * 60 * 1000 })) {
         return reply.status(429).send({ error: "Muitas tentativas. Aguarde alguns minutos." });
       }
@@ -150,11 +145,7 @@ export default async function accountRoutes(fastify: FastifyInstance) {
     },
   );
 
-  /**
-   * Passo 2 da troca de senha: confere o código enviado por e-mail e, se válido,
-   * aplica a nova senha guardada no passo 1. Expira, limita tentativas e apaga o
-   * pendente ao concluir.
-   */
+  /** Passo 2: confere o código do e-mail e aplica a senha guardada no passo 1. */
   fastify.post<{ Body: { code?: unknown } }>(
     "/account/password/confirm",
     { preHandler: requireAuth },

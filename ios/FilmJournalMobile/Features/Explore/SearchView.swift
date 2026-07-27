@@ -3,9 +3,7 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Busca de filmes no TMDB (`GET /tmdb?q=`) e, quando a busca está vazia, os 5 feeds ao vivo
-/// (trending/popular/nos cinemas/mais bem avaliados/em breve) com ações rápidas inline —
-/// espelha `web/src/components/MovieSearch.tsx`.
+/// Busca no TMDB; com a busca vazia, mostra os feeds ao vivo.
 struct SearchView: View {
     @Environment(\.filmJournalAPI) private var api
     @EnvironmentObject private var root: RootCoordinator

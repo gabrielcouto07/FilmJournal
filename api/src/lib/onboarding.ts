@@ -1,6 +1,5 @@
 import { prisma } from "./prisma.js";
 
-/** Define se a conta ainda precisa passar pela introdução. */
 export async function needsOnboarding(userId: string): Promise<boolean> {
   const settings = await prisma.userSettings.findUnique({
     where: { userId },
@@ -18,7 +17,6 @@ export async function needsOnboarding(userId: string): Promise<boolean> {
   return false;
 }
 
-/** Marca que a conta já concluiu ou não precisa mais da introdução. */
 export async function markOnboarded(userId: string): Promise<void> {
   await prisma.userSettings.upsert({
     where: { userId },

@@ -1,7 +1,4 @@
-// Minimal in-process TTL cache replacing Next.js's `unstable_cache`, which was
-// tied to the Next.js request/route cache and isn't available outside it.
-// Same call shape (fn, keyParts, { revalidate, tags }) so ported call sites
-// barely change, including tag-based invalidation via `revalidateTag`.
+// Cache TTL em processo com a mesma assinatura do `unstable_cache` do Next.
 
 type CacheOptions = { revalidate: number; tags?: string[] };
 
@@ -25,7 +22,6 @@ export function unstableCache<Args extends unknown[], T>(
   };
 }
 
-/** Evicts every cached entry tagged with `tag` — mirrors Next's `revalidateTag`. */
 export function revalidateTag(tag: string): void {
   for (const [key, entry] of store) {
     if (entry.tags.includes(tag)) store.delete(key);

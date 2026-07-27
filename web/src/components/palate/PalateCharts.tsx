@@ -28,7 +28,6 @@ import type {
 import { useSettings } from "@/components/SettingsProvider";
 import { accentPalette } from "@/lib/accent";
 
-/** Tema dos gráficos, com cores diferentes para notas acima e abaixo do público. */
 const C = {
   blue: "#74b9ff",
   neutral: "#6b655c",
@@ -67,9 +66,6 @@ function ChartTooltip({ title, rows }: { title: string; rows: TooltipRow[] }) {
   );
 }
 
-// Comparação com o público
-
-/** A cor varia conforme a distância da linha de consenso. */
 function contrarianColor(delta: number, gold: string): string {
   if (delta >= 0.5) return gold;
   if (delta <= -0.5) return C.blue;
@@ -137,8 +133,6 @@ export function ContrarianScatter({ points }: { points: ContrarianPoint[] }) {
   );
 }
 
-// Filmes por década
-
 export function DecadeHistogram({ data }: { data: DecadeBucket[] }) {
   const accent = accentPalette(useSettings().settings.accentColor);
   return (
@@ -159,8 +153,6 @@ export function DecadeHistogram({ data }: { data: DecadeBucket[] }) {
     </ResponsiveContainer>
   );
 }
-
-// Filmes por país
 
 export function CountrySpread({ data }: { data: CountryCount[] }) {
   const accent = accentPalette(useSettings().settings.accentColor);
@@ -192,8 +184,6 @@ export function CountrySpread({ data }: { data: CountryCount[] }) {
   );
 }
 
-// Gêneros
-
 export function GenreRadar({ data }: { data: GenreCount[] }) {
   const accent = accentPalette(useSettings().settings.accentColor);
   return (
@@ -214,8 +204,6 @@ export function GenreRadar({ data }: { data: GenreCount[] }) {
     </ResponsiveContainer>
   );
 }
-
-// Duração
 
 export function RuntimeDistribution({ data }: { data: RuntimeBucket[] }) {
   const accent = accentPalette(useSettings().settings.accentColor);
@@ -240,7 +228,6 @@ export function RuntimeDistribution({ data }: { data: RuntimeBucket[] }) {
             );
           }}
         />
-        {/* A faixa mais comum recebe destaque. */}
         <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={54} isAnimationActive={false}>
           {data.map((bucket) => (
             <Cell key={bucket.label} fill={bucket.sweetSpot ? accent.base : accent.faint} />

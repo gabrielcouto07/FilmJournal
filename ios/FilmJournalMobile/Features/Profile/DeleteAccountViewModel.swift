@@ -14,7 +14,7 @@ final class DeleteAccountViewModel: ObservableObject {
         confirmationText == Self.confirmationKeyword && !currentPassword.isEmpty
     }
 
-    /// Retorna `true` quando a conta foi excluída com sucesso (caller deve deslogar e resetar a navegação).
+    /// Em caso de `true`, o caller precisa deslogar e resetar a navegação.
     func deleteAccount(api: FilmJournalAPI) async -> Bool {
         errorMessage = nil
         guard canDelete else {

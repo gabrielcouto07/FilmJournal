@@ -1,8 +1,5 @@
 import SwiftUI
 
-/// Estados genéricos de tela (carregando/vazio/erro) — placeholders estruturais para as telas
-/// pré-prontas, já na paleta "cinema" do web (`fjText`/`fjTextSoft`/`fjMuted`/`fjDanger`). O
-/// layout fino continua sendo responsabilidade do restante da UI.
 public struct LoadingStateView: View {
     private let message: String?
 

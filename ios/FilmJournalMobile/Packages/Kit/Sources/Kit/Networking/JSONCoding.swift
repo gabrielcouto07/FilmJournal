@@ -1,7 +1,6 @@
 import Foundation
 
-/// Codificação/decodificação compartilhada por todo o client — casa com o formato do Prisma
-/// (`DateTime` serializado em ISO 8601 com milissegundos, ex. "2024-01-15T10:30:00.000Z").
+/// Datas em ISO 8601 com milissegundos, como o backend serializa (ex. "2024-01-15T10:30:00.000Z").
 enum JSONCoding {
     static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -37,7 +36,7 @@ enum JSONCoding {
     }()
 }
 
-/// Datas "AAAA-MM-DD" (sem hora) usadas em campos como `watchedAt` no corpo das requisições.
+/// Datas "AAAA-MM-DD" sem hora, em UTC, para campos como `watchedAt`.
 public enum DayString {
     private static let formatter: DateFormatter = {
         let formatter = DateFormatter()

@@ -1,14 +1,8 @@
 import SwiftUI
 import CoordinatorKit
 
-/// Barra de abas principal — cada aba tem seu próprio `Router` (ver `RootCoordinator`), então
-/// trocar de aba preserva a navegação da aba anterior.
-///
-/// Só 4 abas de propósito (Paladar, Diário, Coleção, Perfil) — o iOS agrupa automaticamente
-/// abas além da 4ª numa aba "Mais" (um `UINavigationController` extra do sistema), o que
-/// aninhava dois `NavigationStack` para Jogar/Perfil (5ª e 6ª aba) e duplicava o botão de
-/// voltar. Explorar e Jogar continuam existindo — acessíveis via botão em `HomeView`,
-/// apresentados como sheet — sem entrar nesse limite.
+// No máximo 4 abas: o iOS joga da 5ª em diante numa aba "Mais", que aninha um
+// `UINavigationController` extra e duplica o botão de voltar. Explorar e Jogar viram sheet na Home.
 struct MainTabView: View {
     @EnvironmentObject private var root: RootCoordinator
 

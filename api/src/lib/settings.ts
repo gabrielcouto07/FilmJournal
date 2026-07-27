@@ -42,7 +42,7 @@ function coerce(row: UserSettings): AppSettings {
   };
 }
 
-/** Lê as preferências e usa os padrões quando ainda não há dados ou migração. */
+/** Cai nos padrões quando a linha (ou a própria tabela) ainda não existe. */
 export async function getUserSettings(userId: string | null | undefined): Promise<AppSettings> {
   if (!userId) return DEFAULT_SETTINGS;
   try {

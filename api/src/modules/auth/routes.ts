@@ -69,7 +69,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     try {
       const data = registerSchema.parse(request.body);
       const user = await register(data);
-      // Auto-login: a conta recém-criada já sai autenticada, igual ao /auth/login.
+      // Auto-login: a conta recém-criada já sai autenticada.
       const accessToken = fastify.signAccessToken(user);
       const refreshToken = fastify.signRefreshToken(user.id);
       return reply.status(201).send({ accessToken, refreshToken, user });

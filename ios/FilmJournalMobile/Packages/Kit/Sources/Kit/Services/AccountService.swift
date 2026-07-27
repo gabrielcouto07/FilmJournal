@@ -8,7 +8,7 @@ public final class AccountService {
         self.client = client
     }
 
-    /// Exclui a conta atual. Bloqueado pelo backend para o usuário `OWNER`.
+    /// O backend bloqueia isso para o usuário `OWNER`.
     public func deleteAccount(currentPassword: String) async throws -> String? {
         let response: MessageResponse = try await client.request(.delete, "/account", body: DeleteAccountRequest(currentPassword: currentPassword))
         return response.message

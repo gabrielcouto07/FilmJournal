@@ -1,19 +1,11 @@
-/** Encontra temas recorrentes nas palavras-chave dos filmes mais bem avaliados. */
-
 import { round } from "./palate";
 
-/** Mínimo de filmes bem avaliados para gerar temas. */
 export const MIN_HIGHLY_RATED = 8;
-/** Quantas vezes uma palavra-chave precisa aparecer para virar tema. */
 export const MIN_MOTIF_COUNT = 3;
-/** Mínimo de temas para montar uma frase útil. */
 export const MIN_MOTIFS = 2;
-/** Quantos temas aparecem na frase. */
 export const MOTIF_LIMIT = 3;
 
-/** Filme avaliado com suas palavras-chave do TMDB. */
 export type MotifFilm = {
-  /** Nota do usuário entre 0 e 5. */
   userRating: number;
   keywords: string[];
 };
@@ -21,28 +13,23 @@ export type MotifFilm = {
 export type Motif = { keyword: string; label: string; count: number };
 
 export type MotifSummary = {
-  /** Corte usado para considerar um filme bem avaliado. */
+  /** Nota a partir da qual o filme conta como bem avaliado. */
   threshold: number;
   highlyRatedCount: number;
   motifs: Motif[];
-  /** Frase do painel ou `null` quando faltam dados. */
   sentence: string | null;
 };
 
 /** Palavras genéricas que não dizem muito sobre o gosto do usuário. */
 const STOPLIST = new Set(
   [
-    // Cenas após os créditos
     "aftercreditsstinger", "duringcreditsstinger", "aftercreditsscene", "duringcreditsscene", "postcreditsscene",
-    // Origem da obra
     "based on novel or book", "based on novel", "based on book", "based on comic", "based on comic book",
     "based on young adult novel", "based on true story", "based on a true story", "based on real events",
     "based on video game", "based on manga", "based on tv series", "based on play or musical",
     "based on short story", "based on toy", "live action remake", "live action adaptation",
-    // Dados de produção
     "woman director", "sequel", "prequel", "remake", "reboot", "spin off", "spinoff", "franchise",
     "independent film", "3d", "3d animation", "imax", "anthology", "short film", "found footage",
-    // Adjetivos genéricos do TMDB
     "adoring", "amused", "angry", "anxious", "bold", "calm", "cheerful", "comforting", "complex",
     "curious", "dramatic", "empowering", "energetic", "enthusiastic", "excited", "feel good",
     "gripping", "intense", "lighthearted", "playful", "romantic", "suspenseful", "tender",
@@ -155,7 +142,6 @@ export function isStopKeyword(keyword: string): boolean {
   return STOPLIST.has(normalize(keyword).replace(/[\s-]+/g, ""));
 }
 
-/** Nome em PT-BR quando houver tradução. */
 export function keywordLabel(keyword: string): string {
   return KEYWORD_PT[normalize(keyword)] ?? normalize(keyword);
 }
@@ -168,7 +154,6 @@ export function highlyRatedThreshold(ratings: number[]): number {
   return round(Math.min(4.5, q3), 1);
 }
 
-/** Conta temas nos filmes mais bem avaliados. */
 export function computeMotifs(films: MotifFilm[], limit = MOTIF_LIMIT): Motif[] {
   const threshold = highlyRatedThreshold(films.map((film) => film.userRating));
   const top = films.filter((film) => film.userRating >= threshold);
@@ -193,13 +178,11 @@ export function computeMotifs(films: MotifFilm[], limit = MOTIF_LIMIT): Motif[] 
     .map(([keyword, count]) => ({ keyword, label: keywordLabel(keyword), count }));
 }
 
-/** Formata uma lista em PT-BR com "e" no último item. */
 function listPt(items: string[]): string {
   if (items.length <= 1) return items[0] ?? "";
   return `${items.slice(0, -1).join(", ")} e ${items[items.length - 1]}`;
 }
 
-/** Monta o resumo completo ou retorna frase vazia quando faltam dados. */
 export function computeMotifSummary(films: MotifFilm[]): MotifSummary {
   const threshold = highlyRatedThreshold(films.map((film) => film.userRating));
   const highlyRatedCount = films.filter((film) => film.userRating >= threshold).length;

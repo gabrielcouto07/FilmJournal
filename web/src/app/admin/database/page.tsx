@@ -47,7 +47,6 @@ export default async function DatabaseReviewPage() {
         <Link href="/admin" className="mt-4 inline-flex text-xs font-bold text-amber-300">← Voltar ao Admin</Link>
       </section>
 
-      {/* Seção 1 — Resumo Geral */}
       <section>
         <h2 className="section-heading mb-4">Seção 1 — Resumo Geral</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -60,7 +59,6 @@ export default async function DatabaseReviewPage() {
         </div>
       </section>
 
-      {/* Seção 2 — Integridade dos Dados */}
       <section>
         <h2 className="section-heading mb-4">Seção 2 — Integridade dos Dados</h2>
         <div className="surface overflow-hidden rounded-2xl">
@@ -92,7 +90,6 @@ export default async function DatabaseReviewPage() {
         </div>
       </section>
 
-      {/* Seção 3 — Estrutura do Banco */}
       <section>
         <h2 className="section-heading mb-4">Seção 3 — Estrutura do Banco</h2>
         <div className="space-y-5">
@@ -126,7 +123,6 @@ export default async function DatabaseReviewPage() {
         </div>
       </section>
 
-      {/* Seção 4 — Prontidão para Múltiplos Usuários */}
       <section>
         <h2 className="section-heading mb-4">Seção 4 — Prontidão para Múltiplos Usuários</h2>
         <div className="surface rounded-2xl divide-y divide-white/[0.05]">

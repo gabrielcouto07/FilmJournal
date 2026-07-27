@@ -30,7 +30,7 @@ async function setFavoriteRank(userId: string, movieId: string, rank: number | n
 
     if (userMovie.favoriteRank === rank) return userMovie;
 
-    // Release the current position before reshuffling the ranking.
+    // Libera a posição atual antes de remexer no ranking.
     await transaction.userMovie.update({
       where: { userId_movieId: { userId, movieId } },
       data: { favoriteRank: null },
@@ -98,7 +98,6 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
         favoriteRank: um.favoriteRank,
       }));
     } else {
-      // The user's state is already returned by this same query.
       const rawMovies = await prisma.movie.findMany({
         where: query ? { title: { contains: query } } : {},
         include: {
@@ -131,7 +130,6 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
     return reply.send({ movies });
   });
 
-  /** Ficha completa do filme: metadados + estado do usuário + histórico de sessões. */
   fastify.get<{ Params: { id: string } }>("/movies/:id", { preHandler: requireAuth }, async (request, reply) => {
     const userId = request.user!.id;
     const movie = await prisma.movie.findUnique({
@@ -172,10 +170,8 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
       }
 
       try {
-        // Persist the TMDB metadata and the relations used by analytics.
         const { movie, created } = await upsertEnrichedMovie(tmdbId);
 
-        // Create or update the movie's link to the user.
         const userMovie = await prisma.userMovie.upsert({
           where: { userId_movieId: { userId: user.id, movieId: movie.id } },
           create: {
@@ -201,7 +197,7 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
         };
 
         revalidateTag(userTag(user.id));
-        // The catalog is shared, so clear the pages that display this movie.
+        // O catálogo é compartilhado: limpa as páginas que mostram este filme.
         revalidateTag(CATALOG_TAG);
         return reply.status(created ? 201 : 200).send({
           movie: mergedMovie,
@@ -288,7 +284,7 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
           favoriteRank: userMovie?.favoriteRank ?? null,
         };
 
-        revalidateTag(CATALOG_TAG); // shared catalog artwork affects every user's cached pages
+        revalidateTag(CATALOG_TAG);
         return reply.send({ movie: mergedMovie, message: `${body.action === "poster" ? "Pôster" : "Fundo"} atualizado em todo o seu arquivo.` });
       }
 
@@ -431,7 +427,6 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
     return lastAttempt !== undefined && Date.now() - lastAttempt < NO_CHANGE_COOLDOWN_MS;
   }
 
-  /** Backfills metadata in the background and reports whether pages need refreshing. */
   fastify.post<{ Body: { movieIds?: unknown; limit?: unknown } }>(
     "/movies/enrich",
     { preHandler: requireAuth },
@@ -441,11 +436,11 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
 
       let ids: string[];
       if (Array.isArray(body.movieIds)) {
-        // The movie page always gets a fresh attempt.
+        // IDs explícitos (página do filme) sempre ganham uma nova tentativa.
         ids = body.movieIds.filter((value): value is string => typeof value === "string").slice(0, 20);
       } else {
         const limit = Math.min(Math.max(Number(body.limit) || 12, 1), 20);
-        // Fetch extra candidates so we can skip the ones still on cooldown.
+        // Busca candidatos extras para poder descartar os que ainda estão em cooldown.
         const candidates = await prisma.userMovie.findMany({
           where: { userId: user.id, movie: { OR: [{ tmdbId: null }, { posterPath: null }, { genres: null }, { directors: null }, { originalLanguage: null }] } },
           select: { movieId: true },
@@ -475,7 +470,6 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
 
       request.log.info(`[enrich] requested=${ids.length} enriched=${enriched} in ${Math.round(performance.now() - start)}ms`);
 
-      // Clear the cache for pages showing the updated metadata.
       if (enriched > 0) revalidateTag(CATALOG_TAG);
       return reply.send({ enriched, requested: ids.length });
     },
@@ -506,7 +500,7 @@ export default async function moviesRoutes(fastify: FastifyInstance) {
         const movie = await enrichMovieMetadata(owned.id);
         const posterUrl = getPosterUrl(movie?.preferredPosterPath ?? movie?.posterPath);
         if (!posterUrl) return reply.status(404).send({ error: "O TMDB não encontrou uma capa para este filme." });
-        revalidateTag(CATALOG_TAG); // enrichment updates the shared catalog
+        revalidateTag(CATALOG_TAG);
         return reply.send({ posterUrl });
       } catch (error) {
         request.log.error(error, "[movies/artwork]");

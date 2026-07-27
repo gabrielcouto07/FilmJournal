@@ -1,8 +1,6 @@
 import Foundation
 
-/// `GET /tmdb` — proxy do backend para o TMDB, já mesclado com `existing` do catálogo
-/// local. Preferimos este endpoint a chamar o TMDB direto: ele já respeita `showAdultContent`
-/// das settings do usuário e evita distribuir a chave do TMDB no app.
+/// Via o proxy do backend, nunca o TMDB direto: a chave do TMDB não vai no app.
 public final class TMDBService {
     private let client: APIClient
 

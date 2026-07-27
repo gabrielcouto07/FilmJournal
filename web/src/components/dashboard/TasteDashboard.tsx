@@ -11,7 +11,6 @@ import {
 } from "@/components/palate/PalateCharts";
 import { EraDrift, GenreShareDrift, RatingLeanTrend } from "@/components/palate/EvolutionCharts";
 
-/** Seções detalhadas do Paladar, renderizadas no servidor. */
 export default function TasteDashboard({
   palate,
   stats,
@@ -38,7 +37,6 @@ export default function TasteDashboard({
 
   return (
     <div className="space-y-10">
-      {/* Resumo do acervo */}
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Stat label="Total de sessões" value={stats.sessions} />
         <Stat label="Filmes assistidos" value={stats.watchedCount} />
@@ -48,7 +46,6 @@ export default function TasteDashboard({
         <Stat label="Entradas avaliadas" value={stats.ratedCount} />
       </section>
 
-      {/* Retrospectiva do ano */}
       {stats.retro.sessions > 0 && (
         <section className="surface relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8">
           <div className="glass-gradient absolute inset-0 -z-10" />
@@ -70,7 +67,6 @@ export default function TasteDashboard({
         </section>
       )}
 
-      {/* Comparação com o público */}
       {contrarian.sampleSize > 0 ? (
         <section className="surface relative overflow-hidden rounded-[1.75rem] p-5 sm:p-7">
           <div className="glass-gradient absolute inset-0 -z-10" />
@@ -115,7 +111,6 @@ export default function TasteDashboard({
         </section>
       )}
 
-      {/* Ritmo e escala de notas */}
       <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
         <Card eyebrow="Ao longo do tempo" heading="Ritmo de visualização.">
           {stats.monthSeries.length ? (
@@ -147,7 +142,6 @@ export default function TasteDashboard({
         </Card>
       </section>
 
-      {/* Motivos recorrentes; fica oculto quando faltam dados */}
       {motifs.sentence && (
         <section className="surface relative overflow-hidden rounded-[1.75rem] p-6 sm:p-8">
           <div className="glass-gradient absolute inset-0 -z-10" />
@@ -159,7 +153,6 @@ export default function TasteDashboard({
         </section>
       )}
 
-      {/* Evolução do gosto */}
       {timeline.years.length > 0 && (
         <section className="surface relative overflow-hidden rounded-[1.75rem] p-5 sm:p-7">
           <div className="glass-gradient absolute inset-0 -z-10" />
@@ -226,7 +219,6 @@ export default function TasteDashboard({
         </section>
       )}
 
-      {/* Mapas de gosto */}
       <section className="grid gap-5 lg:grid-cols-2">
         <Card eyebrow="Linha do tempo" heading="Décadas que você percorre.">
           <DecadeHistogram data={decades} />

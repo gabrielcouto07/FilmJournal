@@ -12,7 +12,6 @@ import {
 import { computeVerdict } from "../../lib/analytics/verdict.js";
 import { requireAuth } from "../../plugins/jwt.js";
 
-/** Leituras autenticadas das páginas de análise (painel, diário, listas, paladar, evolução). */
 export default async function dashboardRoutes(fastify: FastifyInstance) {
   fastify.get("/dashboard", { preHandler: requireAuth }, async (request, reply) => {
     try {

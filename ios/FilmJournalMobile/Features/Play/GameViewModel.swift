@@ -1,12 +1,8 @@
 import Foundation
 import Kit
 
-/// Máquina de estados do jogo "Cine-Detetive".
-///
-/// Toda a lógica de regras (acerto de ano/gênero/diretor/etc.) roda no backend — a rodada nem
-/// guarda estado no servidor, a resposta certa vem embutida e cifrada no `token` devolvido por
-/// `startRound`. Este ViewModel só orquestra as chamadas e mantém o estado de UI (pistas
-/// reveladas, histórico de palpites, hints obtidos).
+// O servidor não guarda estado da rodada: a resposta vem cifrada dentro do `token` do
+// `startRound`, e daqui só sai orquestração de chamadas e estado de UI.
 @MainActor
 final class GameViewModel: ObservableObject {
     enum Phase: Equatable {
@@ -27,14 +23,12 @@ final class GameViewModel: ObservableObject {
     @Published var selectedSource: PlaySource = .popular
     @Published var errorMessage: String?
 
-    // Rodada ativa
     @Published private(set) var token: String?
     @Published private(set) var maxGuesses = PlayRules.maxGuesses
     @Published private(set) var castTotal = 0
     @Published private(set) var actors: [PlayActorClue] = []
     @Published private(set) var poster: PlayNextClues.Poster?
-    // `PlayNextClues.Hints` (tipo do Kit) não tem init público — guardamos os dois flags
-    // separadamente em vez de reconstruir o struct localmente.
+    // `PlayNextClues.Hints` não tem init público, então os flags ficam soltos aqui.
     @Published private(set) var keywordsHintAvailable = false
     @Published private(set) var taglineHintAvailable = false
     @Published private(set) var keywordsHint: [String]?
@@ -45,11 +39,9 @@ final class GameViewModel: ObservableObject {
     @Published private(set) var isSubmittingGuess = false
     @Published private(set) var isFetchingHint = false
 
-    // Autocomplete de título
     @Published var query = ""
     @Published private(set) var suggestions: [PlaySearchSuggestion] = []
 
-    // Placar
     @Published private(set) var scoresResponse: GameScoresResponse?
     @Published private(set) var lastScoreImproved: Bool?
     @Published private(set) var lastScore: Int?
@@ -103,7 +95,7 @@ final class GameViewModel: ObservableObject {
         do {
             suggestions = try await api.play.searchTitles(query: trimmed, source: selectedSource)
         } catch is CancellationError {
-            // Busca anterior cancelada pelo debounce — não é um erro real.
+            // Cancelamento do debounce não é erro.
         } catch {
             suggestions = []
         }
@@ -177,9 +169,8 @@ final class GameViewModel: ObservableObject {
         }
     }
 
-    /// Calcula a pontuação localmente (espelhando `computeHybridScore` do backend) só para
-    /// decidir SE vale a pena chamar `submitScore` — uma derrota vale 0 e nunca melhoraria o
-    /// recorde salvo, então nem gastamos a chamada de rede nesse caso.
+    // Pontua localmente só para decidir se vale chamar `submitScore`: derrota vale 0 e nunca
+    // melhora o recorde, então economiza a chamada.
     private func finishRound(won: Bool, guessesMade: Int, api: FilmJournalAPI) async {
         phase = .finished(won: won)
         guard won else {

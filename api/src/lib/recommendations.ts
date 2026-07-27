@@ -261,7 +261,6 @@ async function archiveFingerprint(userId: string) {
 export async function getTasteData({ refresh = false, userId }: { refresh?: boolean; userId: string }) {
   if (refresh) return buildTasteData(true, userId);
 
-  // HIT uses the cache; MISS recomputes and re-hits TMDB.
   const start = performance.now();
   const fingerprint = await archiveFingerprint(userId);
   const fingerprintMs = Math.round(performance.now() - start);

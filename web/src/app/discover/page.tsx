@@ -30,7 +30,6 @@ export default async function DiscoverPage() {
 
       <DiscoverExplorer initial={initial} />
 
-      {/* A seleção abaixo aprofunda as indicações dos pontos cegos. */}
       <TasteExplorer initialData={tasteData} />
     </main>
   );

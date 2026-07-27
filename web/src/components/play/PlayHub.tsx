@@ -13,14 +13,12 @@ const TABS: Array<{ id: PlayTab; label: string; hint: string }> = [
   { id: "roleta", label: "🎲 Roleta", hint: "Deixe o acaso escolher" },
 ];
 
-// Reúne Cine-Detetive e Roleta em uma página com abas.
 export default function PlayHub({ initialBest, initialTab = "jogo" }: { initialBest: BestScores; initialTab?: PlayTab }) {
   const [tab, setTab] = useState<PlayTab>(initialTab);
   const router = useRouter();
 
   const select = (next: PlayTab) => {
     setTab(next);
-    // Atualiza a URL sem recarregar a página.
     router.replace(next === "jogo" ? "/play" : `/play?tab=${next}`, { scroll: false });
   };
 

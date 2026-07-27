@@ -1,7 +1,6 @@
 import Foundation
 import Kit
 
-/// Estado da escolha de até 5 filmes favoritos com nota (`POST /api/onboarding`).
 @MainActor
 final class OnboardingViewModel: ObservableObject {
     struct SelectedFilm: Identifiable {
@@ -59,7 +58,6 @@ final class OnboardingViewModel: ObservableObject {
         selectedFilms[index].rating = rating
     }
 
-    /// Retorna `true` em caso de sucesso (para o caller decidir a navegação).
     func submit(api: FilmJournalAPI) async -> Bool {
         guard !selectedFilms.isEmpty else { return false }
         isSubmitting = true

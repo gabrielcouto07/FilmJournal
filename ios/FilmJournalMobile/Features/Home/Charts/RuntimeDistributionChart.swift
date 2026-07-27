@@ -3,8 +3,6 @@ import Charts
 import Kit
 import DesignKit
 
-/// Espelha `RuntimeDistribution` em `PalateCharts.tsx` — filmes agrupados por duração, com a
-/// faixa mais comum ("faixa preferida") destacada.
 struct RuntimeDistributionChart: View {
     let data: [RuntimeBucket]
 

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-// Mantém links antigos funcionando após a Roleta entrar na página de jogos.
+// Rota antiga: links salvos por aí ainda apontam para cá.
 export default function RoulettePage() {
   redirect("/play?tab=roleta");
 }

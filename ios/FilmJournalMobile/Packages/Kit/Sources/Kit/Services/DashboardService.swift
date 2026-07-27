@@ -1,7 +1,6 @@
 import Foundation
 
-/// `/diary`, `/stats`, `/palate`, `/timeline`, `/motifs` — dados agregados computados no
-/// servidor (o mesmo que alimenta `TasteDashboard`/`DiaryExplorer` no web).
+/// `/diary`, `/stats`, `/palate`, `/timeline`, `/motifs` — agregados computados no servidor.
 public final class DashboardService {
     private let client: APIClient
 
@@ -17,8 +16,7 @@ public final class DashboardService {
         try await client.request(.get, "/stats")
     }
 
-    /// Já inclui o `verdict` (headline/sentence do "perfil de gosto") — computado no mesmo
-    /// request, ver `dashboardRoutes` no backend.
+    /// Já vem com o `verdict`, sem precisar de um request extra.
     public func palate() async throws -> PalateData {
         try await client.request(.get, "/palate")
     }

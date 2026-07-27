@@ -19,8 +19,6 @@ import {
   type GapDimension,
 } from "./analytics/blindspots.js";
 
-/** Carrega o histórico e busca no TMDB candidatos para os pontos cegos. */
-
 export type DiscoverData = {
   totalFilms: number;
   focus: GapDimension | "auto";
@@ -29,8 +27,7 @@ export type DiscoverData = {
   degraded: boolean;
 };
 
-/** Quantos pontos cegos de cada dimensão recebem candidatos. */
-const GAPS_TO_FILL_AUTO = 2; // 4 dimensions × 2 = ≤8 discover calls
+const GAPS_TO_FILL_AUTO = 2; // 4 dimensões × 2 = no máximo 8 chamadas ao discover
 const GAPS_TO_FILL_FOCUSED = 5;
 
 /** Mínimo de votos por dimensão; cinema internacional costuma ter menos votos. */
@@ -87,9 +84,7 @@ type GapContext = {
   degraded: boolean;
 };
 
-/** Reúne filmes, exclusões e pontos cegos do usuário. */
 async function loadGapContext(userId: string, focus?: GapDimension): Promise<GapContext> {
-  // 1. Filmes já vistos, avaliados ou registrados.
   const loggedMovies = await prisma.movie.findMany({
     where: {
       OR: [
@@ -106,7 +101,7 @@ async function loadGapContext(userId: string, focus?: GapDimension): Promise<Gap
     },
   });
 
-  // 2. Não recomenda filmes já registrados nem os que estão na lista.
+  // Não recomenda filmes já registrados nem os que estão na lista para assistir.
   const watchlisted = await prisma.userMovie.findMany({
     where: { userId, watchlist: true },
     select: { movie: { select: { tmdbId: true } } },
@@ -115,7 +110,6 @@ async function loadGapContext(userId: string, focus?: GapDimension): Promise<Gap
   for (const movie of loggedMovies) if (movie.tmdbId) seenTmdbIds.add(movie.tmdbId);
   for (const row of watchlisted) if (row.movie.tmdbId) seenTmdbIds.add(row.movie.tmdbId);
 
-  // 3. Preferências marcadas como "não tenho interesse".
   const dismissals = await prisma.blindSpotDismissal.findMany({ where: { userId } });
   const dismissed = new Set(dismissals.map((row) => dismissalKey(row.dimension as GapDimension, row.gapKey)));
 
@@ -126,13 +120,13 @@ async function loadGapContext(userId: string, focus?: GapDimension): Promise<Gap
     genreIds: movie.genreList.map((genre) => genre.id),
   }));
 
-  // 4. Usa todos os gêneros do TMDB, não só os que já aparecem no diário.
+  // Usa todos os gêneros do TMDB, não só os que já aparecem no diário.
   let degraded = false;
   let genreBuckets: DomainBucket[] = [];
   try {
     genreBuckets = genreDomain(await getTmdbGenres("pt-BR"));
   } catch {
-    degraded = true; // genre dimension silently absent this round
+    degraded = true; // a dimensão de gênero fica de fora nesta rodada
   }
   const currentYear = new Date().getUTCFullYear();
   const domains: Record<GapDimension, DomainBucket[]> = {
@@ -142,7 +136,6 @@ async function loadGapContext(userId: string, focus?: GapDimension): Promise<Gap
     genre: genreBuckets,
   };
 
-  // 5. Pontos cegos por dimensão.
   const dimensions = focus ? [focus] : DIMENSION_ORDER;
   const gapsByDimension: Partial<Record<GapDimension, GapBucket[]>> = {};
   for (const dimension of dimensions) {
@@ -159,7 +152,7 @@ async function fetchCandidates(context: GapContext, gaps: GapBucket[]): Promise<
     try {
       candidates.set(dismissalKey(gap.dimension, gap.key), await candidatesForGap(gap, context.seenTmdbIds, context.currentYear));
     } catch {
-      context.degraded = true; // this gap simply yields no pick this round
+      context.degraded = true; // esta lacuna simplesmente não rende indicação nesta rodada
     }
   }));
   return candidates;
@@ -186,15 +179,12 @@ export async function getDiscoverPicks(userId: string, focus?: GapDimension): Pr
   };
 }
 
-// Seleção para a roleta
-
 export type BlindSpotPoolEntry = CandidateMovie & {
   dimension: GapDimension;
   gapLabel: string;
   rationale: string;
 };
 
-/** Monta uma seleção ampla para a roleta e mantém o motivo de cada indicação. */
 export async function getBlindSpotPool(
   userId: string,
   options: { count: number; yearFrom?: number; yearTo?: number; genreIds?: number[] },

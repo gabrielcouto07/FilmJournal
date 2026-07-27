@@ -3,18 +3,13 @@ import Charts
 import Kit
 import DesignKit
 
-/// Espelha `ContrarianScatter` em `PalateCharts.tsx` — sua nota vs. a nota do público, por filme.
-///
-/// Marcado como "pesado" porque só faz sentido com uma amostra razoável de filmes com dados de
-/// público (TMDB, 50+ votos); seu uso na Home fica comentado por padrão em
-/// `HomeChartsSection.swift` — descomente lá para testar.
+/// Sua nota contra a nota do público, um ponto por filme.
 struct ContrarianScatterChart: View {
     let points: [ContrarianPoint]
 
     private struct DiagonalPoint: Identifiable { let x: Double; let y: Double; var id: Double { x } }
     private let diagonal = [DiagonalPoint(x: 0, y: 0), DiagonalPoint(x: 5, y: 5)]
 
-    /// Dourado quando você gosta mais que o público, azul quando gosta menos, neutro quando concordam.
     private func color(for delta: Double) -> Color {
         if delta >= 0.5 { return .fjAccent }
         if delta <= -0.5 { return .fjBlue }

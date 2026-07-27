@@ -1,9 +1,7 @@
 /** Regras puras de comparação, pistas e pontuação do Cine-Detetive. */
 
 export const MAX_GUESSES = 10;
-/** Atores liberados como pistas, do menos para o mais conhecido. */
 export const CAST_REVEALS = 5;
-/** Quantidade de atores usada na comparação de elenco. */
 export const CAST_OVERLAP_POOL = 10;
 export const HINT_KEYWORDS_AT = 5;
 export const HINT_TAGLINE_AT = 8;
@@ -13,16 +11,13 @@ export const POSTER_LIGHT_AT = 9;
 export const YEAR_CLOSE_WINDOW = 5;
 export const RATING_EXACT_WINDOW = 0.3;
 export const RATING_CLOSE_WINDOW = 1.0;
-/** Atores em comum necessários para uma comparação exata. */
 export const CAST_EXACT_MIN = 3;
-/** Dicas disponíveis por rodada. */
 export const HINT_COUNT = 2;
 
 import type { TmdbMovieDetails } from "../tmdb.js";
 
 export type CastMember = { id: number; name: string; profilePath: string | null };
 
-/** Dados necessários para comparar um filme. */
 export type MovieProfile = {
   tmdbId: number;
   title: string;
@@ -38,7 +33,6 @@ export type MovieProfile = {
   cast: CastMember[];
 };
 
-/** Converte os detalhes do TMDB no perfil usado pelo jogo. */
 export function profileFromDetails(details: TmdbMovieDetails): MovieProfile {
   const director = details.credits?.crew.find((person) => person.job === "Director") ?? null;
   return {
@@ -88,9 +82,7 @@ function numericTile(
   return { grade, direction };
 }
 
-/** Compara um palpite com o filme secreto nos seis critérios. */
 export function gradeGuess(guess: MovieProfile, target: MovieProfile): GuessGrade {
-  // Ano exato ou próximo, com seta na direção do filme secreto.
   const year = numericTile(guess.year, target.year, 0, YEAR_CLOSE_WINDOW);
 
   // Gêneros iguais são exatos; qualquer gênero em comum fica próximo.
@@ -131,10 +123,8 @@ export function gradeGuess(guess: MovieProfile, target: MovieProfile): GuessGrad
     shared: sharedCompanies.map((company) => company.name),
   };
 
-  // A nota usa janelas diferentes para exato e próximo.
   const rating = numericTile(guess.rating, target.rating, RATING_EXACT_WINDOW, RATING_CLOSE_WINDOW);
 
-  // Atores em comum também aparecem como pistas.
   const guessCastIds = new Set(guess.cast.slice(0, CAST_OVERLAP_POOL).map((member) => member.id));
   const sharedCast = target.cast
     .slice(0, CAST_OVERLAP_POOL)
@@ -158,9 +148,6 @@ export function gradeGuess(guess: MovieProfile, target: MovieProfile): GuessGrad
   };
 }
 
-// Liberação das pistas
-
-/** Quantos atores ficam visíveis em cada palpite. */
 export function actorsVisible(guessNumber: number, castCount: number): number {
   const n = clamp(guessNumber, 1, MAX_GUESSES);
   const scheduled = n <= 4 ? n : n === 5 ? 4 : CAST_REVEALS;
@@ -169,7 +156,6 @@ export function actorsVisible(guessNumber: number, castCount: number): number {
 
 export type PosterStage = "hidden" | "heavy" | "medium" | "light";
 
-/** Nível de desfoque do pôster em cada palpite. */
 export function posterStage(guessNumber: number): PosterStage {
   const n = clamp(guessNumber, 1, MAX_GUESSES);
   if (n < POSTER_AT) return "hidden";
@@ -178,7 +164,6 @@ export function posterStage(guessNumber: number): PosterStage {
   return "light";
 }
 
-/** Indica se uma dica já foi liberada. */
 export function hintUnlocked(hint: 1 | 2, guessNumber: number): boolean {
   const n = clamp(guessNumber, 1, MAX_GUESSES);
   return hint === 1 ? n >= HINT_KEYWORDS_AT : n >= HINT_TAGLINE_AT;
@@ -189,8 +174,6 @@ export function revealOrder<T>(castBillingOrder: T[]): T[] {
   return castBillingOrder.slice(0, CAST_REVEALS).reverse();
 }
 
-// Pontuação
-
 /** Menos palpites e dicas não usadas rendem mais pontos; derrota vale zero. */
 export function computeHybridScore(options: { solved: boolean; guessesUsed: number; hintsUsed: number }): number {
   if (!options.solved) return 0;
@@ -199,14 +182,12 @@ export function computeHybridScore(options: { solved: boolean; guessesUsed: numb
   return 1000 - (guesses - 1) * 100 + (HINT_COUNT - hints) * 50;
 }
 
-// Sorteio diário
-
 /** Chave UTC que mantém o mesmo filme do dia para todos. */
 export function dailyKey(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-/** Gera uma semente estável de 32 bits com FNV-1a. */
+/** Semente estável de 32 bits (FNV-1a). */
 export function dailySeed(key: string): number {
   let hash = 0x811c9dc5;
   for (let index = 0; index < key.length; index += 1) {

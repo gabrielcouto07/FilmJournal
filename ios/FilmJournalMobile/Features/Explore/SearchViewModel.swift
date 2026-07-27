@@ -1,8 +1,6 @@
 import Foundation
 import Kit
 
-/// Busca de filmes no TMDB (`GET /tmdb?q=`) e os 5 feeds (`?feed=`) — resultados já mesclados
-/// com `existing` do catálogo local pelo backend. Espelha `web/src/components/MovieSearch.tsx`.
 @MainActor
 final class SearchViewModel: ObservableObject {
     enum Mode {
@@ -19,8 +17,6 @@ final class SearchViewModel: ObservableObject {
     @Published private(set) var mutatingId: Int?
     private(set) var hasSearched = false
 
-    /// Chamado pelo `.task(id:)` da view a cada mudança de `query` (com debounce) ou de aba de
-    /// feed — decide se busca ou mostra o feed selecionado.
     func load(api: FilmJournalAPI) async {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
@@ -83,8 +79,7 @@ final class SearchViewModel: ObservableObject {
         }
     }
 
-    /// Garante que o filme existe no catálogo local e devolve seu `movieId` local — usado para
-    /// abrir a ficha do filme (que já sabe registrar uma sessão) a partir de um card de busca/feed.
+    /// Cadastra o filme no catálogo local se preciso e devolve o `movieId` local.
     func ensureMovie(_ item: TmdbMovieSearchResult, api: FilmJournalAPI) async -> String? {
         if let existing = item.existing { return existing.id }
         mutatingId = item.id

@@ -3,9 +3,6 @@ import Kit
 import CoordinatorKit
 import DesignKit
 
-/// Roleta de filmes: monta um pool com filtros (fonte, gêneros, pessoas, ano, duração) e sorteia
-/// um filme por vez a partir dele. "Sortear outro" apenas avança pelo array já buscado — sem
-/// nova chamada de rede — simulando a experiência de roleta sem precisar de animação sofisticada.
 struct RouletteView: View {
     @Environment(\.filmJournalAPI) private var api
     @EnvironmentObject private var root: RootCoordinator

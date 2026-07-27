@@ -1,6 +1,5 @@
 import Foundation
 
-/// Resposta comum a diversas mutações — só carrega a mensagem pt-BR de sucesso.
 public struct MessageResponse: Decodable, Sendable {
     public let message: String?
 }

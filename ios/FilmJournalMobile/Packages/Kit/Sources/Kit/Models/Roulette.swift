@@ -11,8 +11,7 @@ public struct RoulettePerson: Codable, Sendable, Equatable, Identifiable {
     public let name: String
 }
 
-/// Preferências persistidas em `UserSettings.rouletteFilters` (JSON livre no schema, mas com
-/// forma fixa validada pelo zod em `src/app/api/roulette/prefs/route.ts`).
+/// JSON livre no banco, mas com forma fixa validada pelo backend.
 public struct RoulettePrefs: Codable, Sendable, Equatable {
     public var source: RouletteSource
     public var genres: [Int]
@@ -45,7 +44,6 @@ public struct RoulettePrefsResponse: Decodable, Sendable {
     public let prefs: RoulettePrefs?
 }
 
-/// Um filme no "pool" sorteável (`GET /api/roulette/discover` sem `movieId`).
 public struct RoulettePoolMovie: Decodable, Sendable, Equatable, Identifiable {
     public let id: Int
     public let title: String
@@ -64,7 +62,6 @@ public struct RoulettePoolResponse: Decodable, Sendable {
     public let totalResults: Int
 }
 
-/// Detalhe localizado do filme sorteado (`GET /api/roulette/discover?movieId=`).
 public struct RouletteMovieDetail: Decodable, Sendable, Equatable {
     public struct Detail: Decodable, Sendable, Equatable {
         public let id: Int

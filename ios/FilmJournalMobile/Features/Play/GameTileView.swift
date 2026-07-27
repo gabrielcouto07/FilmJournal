@@ -2,8 +2,7 @@ import SwiftUI
 import Kit
 import DesignKit
 
-/// Um "quadradinho" colorido representando o resultado de uma pista do palpite (estilo Wordle).
-/// Verde = acerto exato, amarelo = perto, cinza = errou.
+/// Resultado de uma pista, estilo Wordle: verde = exato, amarelo = perto, cinza = errou.
 struct GameTileView: View {
     let label: String
     let value: String
@@ -42,7 +41,6 @@ struct GameTileView: View {
     }
 }
 
-/// Linha completa com os 6 tiles de um palpite, mais o título/ano/pôster do filme adivinhado.
 struct GameGuessRow: View {
     let item: GameViewModel.GuessHistoryItem
 

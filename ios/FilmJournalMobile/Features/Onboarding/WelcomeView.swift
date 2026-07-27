@@ -2,9 +2,7 @@ import SwiftUI
 import CoordinatorKit
 import DesignKit
 
-/// Primeiro passo do onboarding — a API não expõe se o usuário já passou por aqui, então esta
-/// tela é oferecida como ação explícita a partir do CTA "Complete seu Paladar" na Home (ver
-/// `HomeRoute` em `CoordinatorKit`, comentário de `Routes.swift`).
+// A API não diz se o usuário já fez o onboarding, então esta tela só abre pelo CTA na Home.
 struct WelcomeView: View {
     @EnvironmentObject private var root: RootCoordinator
 

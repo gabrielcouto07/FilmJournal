@@ -2,7 +2,6 @@ import Foundation
 import Kit
 import CoordinatorKit
 
-/// Tela compartilhada por praticamente todo fluxo (Diário, Coleção, Busca, Descobrir, Roleta).
 @MainActor
 final class FilmDetailViewModel: ObservableObject {
     @Published private(set) var movie: Movie?
@@ -57,8 +56,7 @@ final class FilmDetailViewModel: ObservableObject {
         tmdbId = response.movie.tmdbId ?? tmdbId
     }
 
-    /// Garante que o filme existe no catálogo local antes de qualquer mutação — necessário
-    /// porque `PATCH /api/movies` opera sobre um `movieId` local, não sobre o `tmdbId`.
+    // Toda mutação precisa de `movieId` local; o `tmdbId` não serve.
     private func ensureLocalMovie(api: FilmJournalAPI) async throws -> Movie {
         if let movie { return movie }
         guard let tmdbId else { throw APIError.invalidResponse }
@@ -83,8 +81,7 @@ final class FilmDetailViewModel: ObservableObject {
         await mutate(api: api) { _ in .rating(rating) }
     }
 
-    /// Só o usuário `OWNER` pode chamar isso de fato (o backend rejeita para os demais) — a UI
-    /// esconde os botões correspondentes com base em `SessionController.currentUser?.isOwner`.
+    // Backend rejeita se não for `OWNER`; a UI já esconde o botão.
     func setPoster(path: String, api: FilmJournalAPI) async {
         await mutate(api: api) { _ in .poster(path) }
     }
@@ -120,8 +117,7 @@ final class FilmDetailViewModel: ObservableObject {
             ))
             movie = response.movie
             recentLogs.insert(response.log, at: 0)
-            // `favorite` não é campo de `POST /logs` (é estado do filme, não da sessão) — como no
-            // web, uma segunda chamada aplica caso o usuário tenha marcado no formulário.
+            // `favorite` é estado do filme, não da sessão, então precisa de uma segunda chamada.
             if response.movie.favorite != result.favorite {
                 await toggleFavoriteExplicit(result.favorite, api: api)
             }

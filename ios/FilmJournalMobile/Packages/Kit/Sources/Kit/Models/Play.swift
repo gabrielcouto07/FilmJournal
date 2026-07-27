@@ -1,7 +1,6 @@
 import Foundation
 
-/// Regras puras do jogo "Cine-Detetive" — espelha `src/lib/play/hybrid.ts`. Só as constantes
-/// e formas de dados; a rodada em si (que embute a resposta) só existe no backend, cifrada.
+/// Constantes do jogo "Cine-Detetive"; a rodada em si vive cifrada no backend.
 public enum PlayRules {
     public static let maxGuesses = 10
     public static let castReveals = 5
@@ -15,7 +14,6 @@ public struct PlayActorClue: Codable, Sendable, Equatable, Identifiable {
     public var id: String { name }
 }
 
-/// Resposta de `POST /api/play/round`.
 public struct PlayRoundResponse: Decodable, Sendable {
     public let token: String
     public let maxGuesses: Int
@@ -121,9 +119,7 @@ public struct PlayAnswer: Decodable, Sendable, Equatable {
     public let tagline: String?
 }
 
-/// Resposta de `POST /api/play/guess` com `action: "guess"` — os campos variam conforme o
-/// resultado (acerto, erro com dica liberada, ou fim de jogo); todos exceto `correct`/`tiles`/
-/// `guess` são opcionais dependendo do caso.
+/// Os opcionais variam conforme o desfecho do palpite: acerto, erro com dica ou fim de jogo.
 public struct PlayGuessResponse: Decodable, Sendable {
     public let correct: Bool
     public let tiles: GuessTiles

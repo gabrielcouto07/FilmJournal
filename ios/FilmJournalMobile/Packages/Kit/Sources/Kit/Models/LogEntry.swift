@@ -1,7 +1,6 @@
 import Foundation
 
-/// Uma sessão de exibição do diário (`LogEntry`). Várias sessões podem existir para o mesmo
-/// filme — o "estado atual" (nota corrente, favorito, watchlist) mora em `Movie`/`UserMovie`.
+/// Uma sessão de exibição. Um filme pode ter várias; o estado atual dele mora em `Movie`.
 public struct LogEntry: Decodable, Sendable, Identifiable, Equatable {
     public let id: String
     public let movieId: String
@@ -17,7 +16,7 @@ public struct LogEntry: Decodable, Sendable, Identifiable, Equatable {
     public let tags: String?
     public let createdAt: Date
     public let updatedAt: Date
-    /// Presente em `GET /api/logs` (o filme já vem mesclado com o estado do usuário).
+    /// Só vem nas listagens que já mesclam o filme.
     public let movie: Movie?
 }
 
@@ -36,8 +35,7 @@ public struct LogUpdateResponse: Decodable, Sendable {
     public let message: String?
 }
 
-/// Corpo de `POST /api/logs`. `watchedAt` é uma data pura "AAAA-MM-DD", não `Date` — o backend
-/// grava meio-dia UTC para evitar deslocamento de fuso.
+/// `watchedAt` vai como data pura "AAAA-MM-DD"; o backend grava meio-dia UTC para não trocar o dia.
 public struct CreateLogRequest: Encodable, Sendable {
     public var movieId: String
     public var watchedAt: String?
@@ -56,7 +54,7 @@ public struct CreateLogRequest: Encodable, Sendable {
     }
 }
 
-/// Corpo de `PATCH /api/logs`. Cada campo opcional só é enviado (e alterado) quando presente.
+/// Os duplos opcionais separam "não mexer no campo" de "gravar null".
 public struct UpdateLogRequest: Encodable, Sendable {
     public var id: String
     public var rating: Double??

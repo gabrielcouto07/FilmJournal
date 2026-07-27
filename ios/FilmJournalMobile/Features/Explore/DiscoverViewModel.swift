@@ -1,7 +1,6 @@
 import Foundation
 import Kit
 
-/// Pontos cegos do acervo (`GET /api/discover`, `POST /api/discover/dismiss`).
 @MainActor
 final class DiscoverViewModel: ObservableObject {
     @Published var dimension: GapDimension?

@@ -3,10 +3,7 @@ import Charts
 import Kit
 import DesignKit
 
-/// Espelha `GenreShareDrift` em `EvolutionCharts.tsx` — participação (%) dos principais gêneros
-/// entre os filmes assistidos, ano a ano. Só faz sentido com diário em 2+ anos e 2+ gêneros
-/// recorrentes; seu uso na Home fica comentado por padrão em `HomeChartsSection.swift` —
-/// descomente lá para testar.
+/// Participação (%) dos principais gêneros entre os filmes assistidos, ano a ano.
 struct GenreShareDriftChart: View {
     let years: [TimelineYear]
     let genres: [String]
@@ -60,7 +57,6 @@ struct GenreShareDriftChart: View {
     }
 }
 
-/// Legenda simples em linha, usada pelos gráficos de evolução com múltiplas séries.
 private struct FlowLegend: View {
     let items: [(color: Color, label: String)]
 

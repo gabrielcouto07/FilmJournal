@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-// Mantém links antigos funcionando após a mudança para "Minha lista".
+// Rota antiga: links salvos por aí ainda apontam para cá.
 export default function FavoritesPage() {
   redirect("/collection?tab=favoritos");
 }

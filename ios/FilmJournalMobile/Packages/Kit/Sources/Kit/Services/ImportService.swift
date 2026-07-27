@@ -1,7 +1,6 @@
 import Foundation
 
-/// `POST /import/letterboxd` — upload do export (.zip) do Letterboxd. Idempotente: reimportar
-/// não duplica (o backend deduplica por `sourceKey`/`dedupeKey`).
+/// Import do export do Letterboxd. É idempotente: reimportar não duplica nada.
 public final class ImportService {
     private let client: APIClient
 
@@ -9,14 +8,12 @@ public final class ImportService {
         self.client = client
     }
 
-    /// `zipData` é o conteúdo bruto do arquivo `.zip` exportado pelo Letterboxd (máx. 4MB).
+    /// Limite de 4MB no `.zip`.
     public func importLetterboxd(zipData: Data, fileName: String = "letterboxd-export.zip") async throws -> LetterboxdImportResponse {
         try await client.upload("/import/letterboxd", fileFieldName: "archive", fileName: fileName, fileData: zipData, mimeType: "application/zip")
     }
 
-    /// Variante para CSVs soltos (sem `.zip`) — cada arquivo vai num campo próprio, nomeado com o
-    /// alias que o backend já reconhece (ex. `diary`, `ratings`, `films`; ver `csvFieldAliases`
-    /// em `api/src/modules/logs/routes.ts`).
+    /// `fieldName` precisa ser um alias que o backend reconheça (`diary`, `ratings`, `films`...).
     public func importLetterboxdFiles(_ files: [(fieldName: String, fileName: String, data: Data)]) async throws -> LetterboxdImportResponse {
         try await client.upload(
             "/import/letterboxd",

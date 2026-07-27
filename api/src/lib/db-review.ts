@@ -1,7 +1,5 @@
 import { prisma } from "./prisma.js";
 
-// Lógica compartilhada pela página e pela API de revisão do banco.
-
 export type ReviewSample = { id: string; label: string };
 
 export type IntegrityIssue = {

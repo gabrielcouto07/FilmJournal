@@ -2,18 +2,14 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:
 import { env } from "../../config/env.js";
 import type { MovieProfile } from "./hybrid.js";
 
-/** Seals the round response with AES-256-GCM without keeping server-side state. */
-
+/** A rodada é selada com AES-256-GCM para o servidor não guardar estado. */
 export type HybridRoundPayload = {
-  /** Full profile of the secret movie. */
   target: MovieProfile;
   posterPath: string | null;
-  /** First hint: up to three TMDB keywords. */
+  /** Primeira dica: até três palavras-chave do TMDB. */
   keywords: string[];
-  /** Second hint's content. */
   tagline: string | null;
   source: "mine" | "popular" | "daily";
-  /** Moment the token expires. */
   exp: number;
 };
 
@@ -28,7 +24,7 @@ export function sealRound(payload: HybridRoundPayload): string {
   return Buffer.concat([iv, cipher.getAuthTag(), ciphertext]).toString("base64url");
 }
 
-/** Returns `null` for tampered, invalid, or expired tokens. */
+/** Retorna `null` para token adulterado, inválido ou expirado. */
 export function openRound(token: string): HybridRoundPayload | null {
   try {
     const raw = Buffer.from(token, "base64url");

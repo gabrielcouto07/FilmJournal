@@ -18,7 +18,6 @@ export async function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get(REFRESH_COOKIE)?.value ?? null;
   let renewed: string | null = null;
 
-  // Renova a sessão de forma transparente quando o access token venceu.
   if (!isUsable(accessToken) && refreshToken) {
     accessToken = null;
     try {

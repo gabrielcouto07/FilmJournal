@@ -1,8 +1,4 @@
-/**
- * Cliente HTTP do frontend para a API FilmJournal (Fastify).
- * O access token JWT vive num cookie legível pelo navegador; o refresh token
- * fica num cookie httpOnly gerenciado pelas rotas /api/auth/* deste app.
- */
+/** O access token fica num cookie legível pelo JS; o refresh, num httpOnly em /api/auth/*. */
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -58,10 +54,7 @@ async function refreshSession(): Promise<boolean> {
   return refreshPromise;
 }
 
-/**
- * `fetch` para a API: prefixa a URL base, envia o Bearer token e, em caso de
- * 401, tenta renovar a sessão e repete a chamada uma vez.
- */
+/** Em caso de 401, tenta renovar a sessão e repete a chamada uma única vez. */
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const attempt = () => {
     const headers = new Headers(init.headers);

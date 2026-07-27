@@ -1,6 +1,6 @@
 import Foundation
 
-/// Ref. ao catálogo local para um resultado do TMDB (`existing` em `GET /api/tmdb`).
+/// Referência ao catálogo local de um resultado do TMDB, quando o filme já existe por aqui.
 public struct TmdbExistingRef: Decodable, Sendable, Equatable {
     public let id: String
     public let tmdbId: Int?
@@ -19,7 +19,6 @@ public struct TmdbExistingRef: Decodable, Sendable, Equatable {
     }
 }
 
-/// Item de busca/feed do TMDB (`TmdbMovieSearchResult`), com `existing` mesclado pelo backend.
 public struct TmdbMovieSearchResult: Decodable, Sendable, Equatable, Identifiable {
     public let id: Int
     public let title: String
@@ -51,8 +50,7 @@ public struct TmdbMovieSearchResult: Decodable, Sendable, Equatable, Identifiabl
         case genreIds = "genre_ids"
     }
 
-    /// Reconstrói o item com um `existing` novo — usado após uma ação rápida (watchlist/
-    /// favorito) para refletir o estado sem precisar refazer a busca.
+    /// Reflete uma ação rápida (watchlist/favorito) sem refazer a busca.
     public func withExisting(_ existing: TmdbExistingRef?) -> TmdbMovieSearchResult {
         TmdbMovieSearchResult(
             id: id,
@@ -132,7 +130,6 @@ public enum TmdbFeed: String, Sendable, CaseIterable, Identifiable {
     }
 }
 
-/// `TmdbGenre` (usado em `genres` dos detalhes e em `/api/roulette/genres`).
 public struct TmdbGenre: Decodable, Sendable, Equatable, Identifiable {
     public let id: Int
     public let name: String
@@ -157,7 +154,6 @@ public struct TmdbPoster: Decodable, Sendable, Equatable {
     }
 }
 
-/// Detalhes completos de um filme (`TmdbMovieDetails`), usado na ficha do filme e no jogo.
 public struct TmdbMovieDetails: Decodable, Sendable {
     public struct ProductionCountry: Decodable, Sendable, Equatable {
         public let iso31661: String
@@ -243,7 +239,6 @@ public struct TmdbMovieDetails: Decodable, Sendable {
     }
 }
 
-/// Resposta de `GET /api/tmdb?id=`.
 public struct TmdbMovieDetailsResponse: Decodable, Sendable {
     public let movie: TmdbMovieDetails
     public let existing: TmdbExistingRef?

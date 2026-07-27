@@ -10,9 +10,7 @@ final class RegisterViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    /// `POST /auth/register` já autentica a conta nova, mas repetimos o login logo em seguida
-    /// para que `SessionController.currentUser` reflita a sessão (o registro em si não atualiza
-    /// esse estado, só grava os tokens).
+    // Loga logo após registrar: o registro só grava os tokens, não popula `currentUser`.
     func register(session: SessionController) async -> Bool {
         errorMessage = nil
         guard username.count >= 3, password.count >= 8, email.contains("@") else {
